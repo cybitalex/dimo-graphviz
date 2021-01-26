@@ -1,0 +1,19 @@
+{
+  "name": "dimo-graphviz",
+  "version": "1.0.0",
+  "description": "Graph visualization UI for DIMO.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hmac512/dimo-graphviz.git"
+  },
+  "author": "Hersh Patel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hmac512/dimo-graphviz/issues"
+  },
+  "homepage": "https://github.com/Hmac512/dimo-graphviz#readme"
+}
