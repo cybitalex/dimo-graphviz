@@ -2,7 +2,7 @@
   "name": "dimo-graphviz",
   "version": "1.0.0",
   "description": "Graph visualization UI for DIMO.",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/Hmac512/dimo-graphviz/issues"
   },
-  "homepage": "https://github.com/Hmac512/dimo-graphviz#readme"
+  "homepage": "https://github.com/Hmac512/dimo-graphviz#readme",
+  "dependencies": {
+    "@antv/g6": "^4.1.4",
+    "graphql": "^15.5.0",
+    "graphql-request": "^3.4.0"
+  }
 }
