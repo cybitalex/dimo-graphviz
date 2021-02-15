@@ -3923,25 +3923,16 @@ function initGraph(nodes, edges_) {
             graph.hideItem(item);
             hiddenItemIds.push(model.id);
             break;
-
           case "show":
             showItems(graph);
             break;
           case "url":
             window.open(model.airtableURL, '_blank');
-
+            break;
           case "load":
             cachePositions = cacheNodePositions(graph.getNodes());
             loadConnectedItems(model);
-            // handleRefreshGraph(
-            //   graph,
-            //   currentUnproccessedData,
-            //   CANVAS_WIDTH,
-            //   CANVAS_HEIGHT,
-            //   largeGraphMode,
-            //   true,
-            //   false
-            // );
+            break;
           default:
             break;
         }
