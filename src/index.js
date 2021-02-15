@@ -238,7 +238,7 @@ G6.registerNode(
 
           group.addShape('image', {
               attrs: {
-                  x: -80,
+                  x: -90,
                   y: -16,
                   width: 32,
                   height: 32,
@@ -1597,6 +1597,21 @@ const deviceQuery = gql`query graphvizDeviceQuery($device_id: String!) {
         upfront_price_credits_to_engage
         wallet_address
         valid
+        device_functions {
+          device {
+            id
+          }
+        }
+        function_projects {
+          project {
+            id
+          }
+        }
+        function_sp_orgs {
+          organization {
+            id
+          }
+        }
       }
     }
     device_oem_orgs {
@@ -1637,6 +1652,26 @@ const deviceQuery = gql`query graphvizDeviceQuery($device_id: String!) {
         valid
         website
         wallet_address
+        device_oem_orgs {
+          device {
+            id
+          }
+        }
+        device_sp_orgs {
+          device {
+            id
+          }
+        }
+        function_sp_orgs {
+          function {
+            id
+          }
+        }
+        org_projects {
+          project {
+            id
+          }
+        }
       }
     }
     device_sp_orgs {
@@ -1677,6 +1712,26 @@ const deviceQuery = gql`query graphvizDeviceQuery($device_id: String!) {
         twitter_handle
         team_page_url
         tags
+        device_oem_orgs {
+          device {
+            id
+          }
+        }
+        device_sp_orgs {
+          device {
+            id
+          }
+        }
+        function_sp_orgs {
+          function {
+            id
+          }
+        }
+        org_projects {
+          project {
+            id
+          }
+        }
       }
     }
     project_devices {
@@ -1710,6 +1765,21 @@ const deviceQuery = gql`query graphvizDeviceQuery($device_id: String!) {
         version_history
         wallet_address
         zone_area_kml
+        function_projects {
+          function {
+            id
+          }
+        }
+        org_projects {
+          organization {
+            id
+          }
+        }
+        project_devices {
+          device {
+            id
+          }
+        }
       }
     }
   }
@@ -1960,6 +2030,11 @@ const orgQuery = gql`query graphvizOrgQuery($org_id: String!) {
             id
           }
         }
+        device_oem_orgs {
+          organization {
+            id
+          }
+        }
         project_devices {
           project {
             id
@@ -2149,6 +2224,26 @@ const funtionQuery = gql`query graphvizFunctionQuery($function_id: String!) {
         tags
         wallet_address
         valid
+        device_functions {
+          function {
+            id
+          }
+        }
+        device_oem_orgs {
+          organization {
+            id
+          }
+        }
+        device_sp_orgs {
+          organization {
+            id
+          }
+        }
+        project_devices {
+          project {
+            id
+          }
+        }
       }
     }
     function_projects {
@@ -2182,6 +2277,21 @@ const funtionQuery = gql`query graphvizFunctionQuery($function_id: String!) {
         version_history
         wallet_address
         zone_area_kml
+        function_projects {
+          function {
+            id
+          }
+        }
+        org_projects {
+          organization {
+            id
+          }
+        }
+        project_devices {
+          device {
+            id
+          }
+        }
       }
     }
     function_sp_orgs {
@@ -2222,6 +2332,27 @@ const funtionQuery = gql`query graphvizFunctionQuery($function_id: String!) {
         valid
         wallet_address
         website
+        device_oem_orgs {
+          device {
+            id
+          }
+        }
+        device_sp_orgs {
+          device {
+            id
+          }
+        }
+        function_sp_orgs {
+          function {
+            id
+          }
+        }
+        org_projects {
+          project {
+            id
+          }
+        }
+
       }
     }
   }
@@ -2561,7 +2692,6 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
             }
 
             var device, deviceNode;
-            currentEdges["devices"] = []
             for (var i = org.device_oem_orgs.length - 1; i >= 0; i--) {
 
                 device = org.device_oem_orgs[i].device;
@@ -2693,6 +2823,16 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                 }
 
 
+                for (var j = device.device_oem_orgs.length - 1; j >= 0; j--) {
+                  
+                  if (self.dimoOrgs[device.device_oem_orgs[j].organization.id] != undefined) {
+                    edges.push({ "source": device.id, "target": device.device_oem_orgs[j].organization.id, type: "custom-quadratic" })
+                  }
+                
+                }
+
+
+
 
                 for (var j = device.project_devices.length - 1; j >= 0; j--) {
                   
@@ -2799,11 +2939,210 @@ function gqlFunctionDataToNode(func) {
 
 
 
-function loadDimoFunction(function_id, initial=false) {
+function loadDimoFunction(function_id, nodes, edges, initial = true) {
 
-  
 
-  const vars =  {"function_id":function_id}
+
+    const vars = { "function_id": function_id }
+    graphQLClient.request(funtionQuery, vars).then(
+
+
+
+        function(data) {
+
+            console.info("[Function] Request", data);
+
+            var func = data.function[0];
+            var funcNode = gqlFunctionDataToNode(func);
+
+            if (initial) {
+
+                self.dimoFunctions[funcNode.id] = funcNode
+                nodes.push(funcNode)
+            }
+
+
+            var device, devNode;
+            for (var i = func.device_functions.length - 1; i >= 0; i--) {
+
+                device = func.device_functions[i].device;
+                devNode = gqlDeviceDataToNode(device);
+
+                if (self.dimoDevices[devNode.id] == undefined) {
+                    self.dimoDevices[devNode.id] = devNode;
+                    nodes.push(devNode)
+                }
+
+
+                edges.push({ "source": funcNode.id, "target": devNode.id, type: "custom-quadratic" })
+
+            }
+
+
+
+            var project, projNode;
+            for (var i = func.function_projects.length - 1; i >= 0; i--) {
+
+                project = func.function_projects[i].project;
+                projNode = gqlProjectDataToNode(project);
+
+                if (self.dimoProjects[projNode.id] == undefined) {
+                    self.dimoProjects[projNode.id] = projNode;
+                    nodes.push(projNode)
+                }
+
+
+                edges.push({ "source": funcNode.id, "target": projNode.id, type: "custom-quadratic" })
+
+            }
+
+            var org, orgNode;
+            for (var i = func.function_sp_orgs.length - 1; i >= 0; i--) {
+
+                org = func.function_sp_orgs[i].organization;
+                orgNode = gqlOrgDataToNode(org);
+
+                if (self.dimoOrgs[orgNode.id] == undefined) {
+                    self.dimoOrgs[orgNode.id] = orgNode;
+                    nodes.push(orgNode)
+                }
+
+
+                edges.push({ "source": funcNode.id, "target": orgNode.id, type: "custom-quadratic" })
+
+            }
+
+
+
+
+            for (var i = func.device_functions.length - 1; i >= 0; i--) {
+                device = func.device_functions[i].device;
+
+                for (var j = device.device_functions.length - 1; j >= 0; j--) {
+
+                    if (self.dimoFunctions[device.device_functions[j].function.id] != undefined) {
+                        edges.push({ "source": device.id, "target": device.device_functions[j].function.id, type: "custom-quadratic" })
+                    }
+
+                }
+
+                for (var j = device.device_sp_orgs.length - 1; j >= 0; j--) {
+
+                    if (self.dimoOrgs[device.device_sp_orgs[j].organization.id] != undefined) {
+                        edges.push({ "source": device.id, "target": device.device_sp_orgs[j].organization.id, type: "custom-quadratic" })
+                    }
+
+                }
+
+
+                for (var j = device.device_oem_orgs.length - 1; j >= 0; j--) {
+
+                    if (self.dimoOrgs[device.device_oem_orgs[j].organization.id] != undefined) {
+                        edges.push({ "source": device.id, "target": device.device_oem_orgs[j].organization.id, type: "custom-quadratic" })
+                    }
+
+                }
+
+
+
+
+                for (var j = device.project_devices.length - 1; j >= 0; j--) {
+
+                    if (self.dimoProjects[device.project_devices[j].project.id] != undefined) {
+                        edges.push({ "source": device.id, "target": device.project_devices[j].project.id, type: "custom-quadratic" })
+                    }
+
+                }
+
+
+            }
+
+
+            for (var i = func.function_projects.length - 1; i >= 0; i--) {
+                project = func.function_projects[i].project;
+
+                for (var j = project.function_projects.length - 1; j >= 0; j--) {
+
+                    if (self.dimoFunctions[project.function_projects[j].function.id] != undefined) {
+                        edges.push({ "source": project.id, "target": project.function_projects[j].function.id, type: "custom-quadratic" })
+                    }
+
+                }
+
+
+                for (var j = project.org_projects.length - 1; j >= 0; j--) {
+
+                    if (self.dimoOrgs[project.org_projects[j].organization.id] != undefined) {
+                        edges.push({ "source": project.id, "target": project.org_projects[j].organization.id, type: "custom-quadratic" })
+                    }
+
+                }
+
+                for (var j = project.project_devices.length - 1; j >= 0; j--) {
+
+                    if (self.dimoDevices[project.project_devices[j].device.id] != undefined) {
+                        edges.push({ "source": project.id, "target": project.project_devices[j].device.id, type: "custom-quadratic" })
+                    }
+
+                }
+
+
+            }
+
+            for (var i = func.function_sp_orgs.length - 1; i >= 0; i--) {
+                org = func.function_sp_orgs[i].organization;
+
+                for (var j = org.device_oem_orgs.length - 1; j >= 0; j--) {
+
+                    if (self.dimoDevices[org.device_oem_orgs[j].device.id] != undefined) {
+                        edges.push({ "source": org.id, "target": org.device_oem_orgs[j].device.id, type: "custom-quadratic" })
+                    }
+
+                }
+
+
+                for (var j = org.device_sp_orgs.length - 1; j >= 0; j--) {
+
+                    if (self.dimoDevices[org.device_sp_orgs[j].device.id] != undefined) {
+                        edges.push({ "source": org.id, "target": org.device_sp_orgs[j].device.id, type: "custom-quadratic" })
+                    }
+
+                }
+
+                for (var j = org.function_sp_orgs.length - 1; j >= 0; j--) {
+
+                    if (self.dimoFunctions[org.function_sp_orgs[j].function.id] != undefined) {
+                        edges.push({ "source": org.id, "target": org.function_sp_orgs[j].function.id, type: "custom-quadratic" })
+                    }
+
+                }
+
+
+                for (var j = org.org_projects.length - 1; j >= 0; j--) {
+
+                    if (self.dimoProjects[org.org_projects[j].project.id] != undefined) {
+                        edges.push({ "source": org.id, "target": org.org_projects[j].project.id, type: "custom-quadratic" })
+                    }
+
+                }
+
+
+
+            }
+
+
+
+
+            if (initial) {
+                initGraph(nodes, edges);
+            } else {
+                refreshGraph(nodes, edges);
+            }
+
+
+
+
+        })
 }
 
 
@@ -2854,14 +3193,279 @@ function gqlDeviceDataToNode(device) {
 
 
 
+function loadDimoDevice(device_id, nodes, edges, initial = true) {
 
 
-function loadDimoDevice(device_id, initial=false) {
 
-  
+    const vars = { "device_id": device_id }
+    graphQLClient.request(deviceQuery, vars).then(
 
-   const vars = {"device_id":device_id}
 
+
+        function(data) {
+
+            console.info("[Device] Request", data);
+
+
+            var device = data.device[0];
+            var devNode = gqlDeviceDataToNode(device);
+
+            if (initial) {
+
+                self.dimoDevices[devNode.id] = devNode
+                nodes.push(devNode)
+            }
+
+            var func, funcNode;
+            for (var i = device.device_functions.length - 1; i >= 0; i--) {
+
+                func = device.device_functions[i].function;
+                funcNode = gqlFunctionDataToNode(func);
+
+                if (self.dimoFunctions[funcNode.id] == undefined) {
+                    self.dimoFunctions[funcNode.id] = funcNode;
+                    nodes.push(funcNode)
+                }
+
+
+                edges.push({ "source": devNode.id, "target": funcNode.id, type: "custom-quadratic" })
+
+
+
+
+
+
+            }
+
+            var org, orgNode;
+            for (var i = device.device_oem_orgs.length - 1; i >= 0; i--) {
+
+                org = device.device_oem_orgs[i].organization;
+                orgNode = gqlOrgDataToNode(org);
+
+                if (self.dimoOrgs[orgNode.id] == undefined) {
+                    self.dimoOrgs[orgNode.id] = orgNode;
+                    nodes.push(orgNode)
+                }
+
+
+                edges.push({ "source": devNode.id, "target": orgNode.id, type: "custom-quadratic" })
+
+
+
+
+
+
+            }
+
+
+            for (var i = device.device_sp_orgs.length - 1; i >= 0; i--) {
+
+                org = device.device_sp_orgs[i].organization;
+                orgNode = gqlOrgDataToNode(org);
+
+                if (self.dimoOrgs[orgNode.id] == undefined) {
+                    self.dimoOrgs[orgNode.id] = orgNode;
+                    nodes.push(orgNode)
+                }
+
+
+                edges.push({ "source": devNode.id, "target": orgNode.id, type: "custom-quadratic" })
+
+
+
+
+
+
+            }
+
+            var project, projNode
+            for (var i = device.project_devices.length - 1; i >= 0; i--) {
+
+                project = device.project_devices[i].project;
+                projNode = gqlProjectDataToNode(project);
+
+                if (self.dimoProjects[projNode.id] == undefined) {
+                    self.dimoProjects[projNode.id] = projNode;
+                    nodes.push(projNode)
+                }
+
+
+                edges.push({ "source": devNode.id, "target": projNode.id, type: "custom-quadratic" })
+
+
+
+
+
+
+            }
+
+
+
+
+
+
+          for (var i = device.device_functions.length - 1; i >= 0; i--) {
+              func = device.device_functions[i].function;
+
+              for (var j = func.device_functions.length - 1; j >= 0; j--) {
+
+                  if (self.dimoDevices[func.device_functions[j].device.id] != undefined) {
+                      edges.push({ "source": func.id, "target": func.device_functions[j].device.id, type: "custom-quadratic" })
+                  }
+
+              }
+
+
+              for (var j = func.function_projects.length - 1; j >= 0; j--) {
+
+                  if (self.dimoProjects[func.function_projects[j].project.id] != undefined) {
+                      edges.push({ "source": func.id, "target": func.function_projects[j].project.id, type: "custom-quadratic" })
+                  }
+
+              }
+
+
+              for (var j = func.function_sp_orgs.length - 1; j >= 0; j--) {
+
+                  if (self.dimoOrgs[func.function_sp_orgs[j].organization.id] != undefined) {
+                      edges.push({ "source": func.id, "target": func.function_sp_orgs[j].organization.id, type: "custom-quadratic" })
+                  }
+
+              }
+          }
+
+
+          for (var i = device.device_oem_orgs.length - 1; i >= 0; i--) {
+              org = device.device_oem_orgs[i].organization;
+
+              for (var j = org.device_oem_orgs.length - 1; j >= 0; j--) {
+
+                  if (self.dimoDevices[org.device_oem_orgs[j].device.id] != undefined) {
+                      edges.push({ "source": org.id, "target": org.device_oem_orgs[j].device.id, type: "custom-quadratic" })
+                  }
+
+              }
+
+
+              for (var j = org.device_sp_orgs.length - 1; j >= 0; j--) {
+
+                  if (self.dimoDevices[org.device_sp_orgs[j].device.id] != undefined) {
+                      edges.push({ "source": org.id, "target": org.device_sp_orgs[j].device.id, type: "custom-quadratic" })
+                  }
+
+              }
+
+              for (var j = org.function_sp_orgs.length - 1; j >= 0; j--) {
+
+                  if (self.dimoFunctions[org.function_sp_orgs[j].function.id] != undefined) {
+                      edges.push({ "source": org.id, "target": org.function_sp_orgs[j].function.id, type: "custom-quadratic" })
+                  }
+
+              }              
+
+
+              for (var j = org.org_projects.length - 1; j >= 0; j--) {
+
+                  if (self.dimoProjects[org.org_projects[j].project.id] != undefined) {
+                      edges.push({ "source": org.id, "target": org.org_projects[j].project.id, type: "custom-quadratic" })
+                  }
+
+              }              
+
+
+
+            }
+
+          for (var i = device.device_sp_orgs.length - 1; i >= 0; i--) {
+              org = device.device_sp_orgs[i].organization;
+
+              for (var j = org.device_oem_orgs.length - 1; j >= 0; j--) {
+
+                  if (self.dimoDevices[org.device_oem_orgs[j].device.id] != undefined) {
+                      edges.push({ "source": org.id, "target": org.device_oem_orgs[j].device.id, type: "custom-quadratic" })
+                  }
+
+              }
+
+
+              for (var j = org.device_sp_orgs.length - 1; j >= 0; j--) {
+
+                  if (self.dimoDevices[org.device_sp_orgs[j].device.id] != undefined) {
+                      edges.push({ "source": org.id, "target": org.device_sp_orgs[j].device.id, type: "custom-quadratic" })
+                  }
+
+              }
+
+              for (var j = org.function_sp_orgs.length - 1; j >= 0; j--) {
+
+                  if (self.dimoFunctions[org.function_sp_orgs[j].function.id] != undefined) {
+                      edges.push({ "source": org.id, "target": org.function_sp_orgs[j].function.id, type: "custom-quadratic" })
+                  }
+
+              }              
+
+
+              for (var j = org.org_projects.length - 1; j >= 0; j--) {
+
+                  if (self.dimoProjects[org.org_projects[j].project.id] != undefined) {
+                      edges.push({ "source": org.id, "target": org.org_projects[j].project.id, type: "custom-quadratic" })
+                  }
+
+              }              
+
+
+
+            }
+
+
+
+
+          for (var i = device.project_devices.length - 1; i >= 0; i--) {
+              project = device.project_devices[i].project;
+
+              for (var j = project.function_projects.length - 1; j >= 0; j--) {
+
+                  if (self.dimoFunctions[project.function_projects[j].function.id] != undefined) {
+                      edges.push({ "source": project.id, "target": project.function_projects[j].function.id, type: "custom-quadratic" })
+                  }
+
+              }
+
+
+            for (var j = project.org_projects.length - 1; j >= 0; j--) {
+
+                  if (self.dimoOrgs[project.org_projects[j].organization.id] != undefined) {
+                      edges.push({ "source": project.id, "target": project.org_projects[j].organization.id, type: "custom-quadratic" })
+                  }
+
+              }
+
+
+            for (var j = project.project_devices.length - 1; j >= 0; j--) {
+
+                  if (self.dimoDevices[project.project_devices[j].device.id] != undefined) {
+                      edges.push({ "source": project.id, "target": project.project_devices[j].device.id, type: "custom-quadratic" })
+                  }
+
+              }
+
+
+
+            }
+
+
+            if (initial) {
+                initGraph(nodes,edges);
+            }
+            else {
+              refreshGraph(nodes, edges);
+            }
+
+
+
+
+        })
 
 }
 
@@ -2883,7 +3487,13 @@ function loadConnectedItems(model) {
       loadDimoOrg(model.id,nodes, edges, false)
     }
 
-    
+    else if (model.class=="[Device]") {
+      loadDimoDevice(model.id,nodes,edges, false)
+    }
+
+    else if (model.class=="[Function]") {
+      loadDimoFunction(model.id,nodes,edges, false)
+    }    
     
 
 
@@ -2980,6 +3590,12 @@ function initGraphData() {
   }
   else if (vars["project_id"] != undefined) {
     loadDimoProject(vars["project_id"], self.dimoGraphData.nodes, self.dimoGraphData.edges)
+  }
+  else if (vars["device_id"] != undefined) {
+    loadDimoDevice(vars["device_id"], self.dimoGraphData.nodes, self.dimoGraphData.edges)
+  }
+  else if (vars["function_id"] != undefined) {
+    loadDimoFunction(vars["function_id"], self.dimoGraphData.nodes, self.dimoGraphData.edges)
   }
 
 }
