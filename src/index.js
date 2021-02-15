@@ -998,7 +998,7 @@ const getForceLayoutConfig = (graph, largeGraphMode, configSettings) => {
     maxIteration: 5000,
     preventOverlap: true,
     damping: 0.99,
-    workerEnabled:true,
+    workerEnabled:false,
     gpuEnabled:true,
     nodeStrength:nodeStrength,
     linkDistance: (d) => {
