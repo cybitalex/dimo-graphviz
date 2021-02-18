@@ -483,7 +483,7 @@ G6.registerNode(
 
 // Custom the quadratic edge for multiple edges between one node pair
 G6.registerEdge(
-  "custom-quadratic",
+  "custom-cubic",
   {
     setState: (name, value, item) => {
       const group = item.get("group");
@@ -582,7 +582,7 @@ G6.registerEdge(
       }
     }
   },
-  "quadratic"
+  "cubic"
 );
 
 // Custom the line edge for single edge between one node pair
@@ -959,7 +959,7 @@ const processNodesEdges = (
     }
   });
 
-  G6.Util.processParallelEdges(edges, 12.5, "custom-quadratic", "custom-line");
+  G6.Util.processParallelEdges(edges, 12.5, "custom-cubic", "custom-line");
   return {
     maxDegree,
     edges
@@ -2446,7 +2446,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
               }
 
 
-                edges.push({ "source": projNode.id, "target": deviceNode.id, type: "custom-quadratic" })
+                edges.push({ "source": projNode.id, "target": deviceNode.id, type: "custom-cubic" })
 
             }
 
@@ -2462,7 +2462,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
                 nodes.push(funcNode);
 
               }
-                edges.push({ "source": projNode.id, "target": funcNode.id, type: "custom-quadratic" })
+                edges.push({ "source": projNode.id, "target": funcNode.id, type: "custom-cubic" })
 
 
             }
@@ -2480,7 +2480,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
                 nodes.push(orgNode);
 
               }
-                edges.push({ "source": orgNode.id, "target": projNode.id, type: "custom-quadratic" })
+                edges.push({ "source": orgNode.id, "target": projNode.id, type: "custom-cubic" })
             }
 
 
@@ -2493,7 +2493,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
                 for (var j = device.device_functions.length - 1; j >= 0; j--) {
                   
                   if (self.dimoFunctions[device.device_functions[j].function.id] != undefined) {
-                    edges.push({ "source": device.id, "target": device.device_functions[j].function.id, type: "custom-quadratic" })
+                    edges.push({ "source": device.id, "target": device.device_functions[j].function.id, type: "custom-cubic" })
                   }
                 
                 }
@@ -2501,7 +2501,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
                 for (var j = device.device_sp_orgs.length - 1; j >= 0; j--) {
                   
                   if (self.dimoOrgs[device.device_sp_orgs[j].organization.id] != undefined) {
-                    edges.push({ "source": device.id, "target": device.device_sp_orgs[j].organization.id, type: "custom-quadratic" })
+                    edges.push({ "source": device.id, "target": device.device_sp_orgs[j].organization.id, type: "custom-cubic" })
                   }
                 
                 }
@@ -2511,7 +2511,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
                 for (var j = device.project_devices.length - 1; j >= 0; j--) {
                   
                   if (self.dimoProjects[device.project_devices[j].project.id] != undefined) {
-                    edges.push({ "source": device.id, "target": device.project_devices[j].project.id, type: "custom-quadratic" })
+                    edges.push({ "source": device.id, "target": device.project_devices[j].project.id, type: "custom-cubic" })
                   }
                 
                 }
@@ -2527,7 +2527,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
                  for (var j = func.function_projects.length - 1; j >= 0; j--) {
 
                      if (self.dimoProjects[func.function_projects[j].project.id] != undefined) {
-                         edges.push({ "source": func.id, "target": func.function_projects[j].project.id, type: "custom-quadratic" })
+                         edges.push({ "source": func.id, "target": func.function_projects[j].project.id, type: "custom-cubic" })
                      }
 
                  }
@@ -2535,7 +2535,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
                  for (var j = func.function_sp_orgs.length - 1; j >= 0; j--) {
 
                      if (self.dimoOrgs[func.function_sp_orgs[j].organization.id] != undefined) {
-                         edges.push({ "source": func.id, "target": func.function_sp_orgs[j].organization.id, type: "custom-quadratic" })
+                         edges.push({ "source": func.id, "target": func.function_sp_orgs[j].organization.id, type: "custom-cubic" })
                      }
 
                  }
@@ -2544,7 +2544,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
                  for (var j = func.device_functions.length - 1; j >= 0; j--) {
 
                      if (self.dimoDevices[func.device_functions[j].device.id] != undefined) {
-                         edges.push({ "source": func.id, "target": func.device_functions[j].device.id, type: "custom-quadratic" })
+                         edges.push({ "source": func.id, "target": func.device_functions[j].device.id, type: "custom-cubic" })
                      }
 
                  }
@@ -2563,7 +2563,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
                  for (var j = org.device_oem_orgs.length - 1; j >= 0; j--) {
 
                      if (self.dimoDevices[org.device_oem_orgs[j].device.id] != undefined) {
-                         edges.push({ "source": org.id, "target": org.device_oem_orgs[j].device.id, type: "custom-quadratic" })
+                         edges.push({ "source": org.id, "target": org.device_oem_orgs[j].device.id, type: "custom-cubic" })
                      }
 
                  }
@@ -2572,7 +2572,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
             for (var j = org.device_sp_orgs.length - 1; j >= 0; j--) {
 
                      if (self.dimoDevices[org.device_sp_orgs[j].device.id] != undefined) {
-                         edges.push({ "source": org.id, "target": org.device_sp_orgs[j].device.id, type: "custom-quadratic" })
+                         edges.push({ "source": org.id, "target": org.device_sp_orgs[j].device.id, type: "custom-cubic" })
                      }
 
                  }
@@ -2581,7 +2581,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
             for (var j = org.function_sp_orgs.length - 1; j >= 0; j--) {
 
                      if (self.dimoFunctions[org.function_sp_orgs[j].function.id] != undefined) {
-                         edges.push({ "source": org.id, "target": org.function_sp_orgs[j].function.id, type: "custom-quadratic" })
+                         edges.push({ "source": org.id, "target": org.function_sp_orgs[j].function.id, type: "custom-cubic" })
                      }
 
                  }
@@ -2590,7 +2590,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
            for (var j = org.org_projects.length - 1; j >= 0; j--) {
 
                      if (self.dimoProjects[org.org_projects[j].project.id] != undefined) {
-                         edges.push({ "source": org.id, "target": org.org_projects[j].project.id, type: "custom-quadratic" })
+                         edges.push({ "source": org.id, "target": org.org_projects[j].project.id, type: "custom-cubic" })
                      }
 
                  }
@@ -2703,7 +2703,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                 }
 
 
-                edges.push({ "source": orgNode.id, "target": deviceNode.id, type: "custom-quadratic" })
+                edges.push({ "source": orgNode.id, "target": deviceNode.id, type: "custom-cubic" })
 
 
 
@@ -2723,7 +2723,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                     nodes.push(deviceNode)
 
                 }
-                edges.push({ "source": orgNode.id, "target": deviceNode.id, type: "custom-quadratic" })
+                edges.push({ "source": orgNode.id, "target": deviceNode.id, type: "custom-cubic" })
 
             }
 
@@ -2739,7 +2739,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                     nodes.push(funcNode);
 
                 }
-                edges.push({ "source": orgNode.id, "target": funcNode.id, type: "custom-quadratic" })
+                edges.push({ "source": orgNode.id, "target": funcNode.id, type: "custom-cubic" })
                 
 
 
@@ -2757,7 +2757,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                     self.dimoProjects[projNode.id] = projNode;
                     nodes.push(projNode);
                 }
-                edges.push({ "source": orgNode.id, "target": projNode.id, type: "custom-quadratic" })
+                edges.push({ "source": orgNode.id, "target": projNode.id, type: "custom-cubic" })
             }
 
 
@@ -2776,7 +2776,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                 for (var j = func.function_projects.length - 1; j >= 0; j--) {
                   
                   if (self.dimoProjects[func.function_projects[j].project.id] != undefined) {
-                    edges.push({ "source": func.id, "target": func.function_projects[j].project.id, type: "custom-quadratic" })
+                    edges.push({ "source": func.id, "target": func.function_projects[j].project.id, type: "custom-cubic" })
                   }
                 
                 }
@@ -2784,7 +2784,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                 for (var j = func.function_sp_orgs.length - 1; j >= 0; j--) {
                   
                   if (self.dimoOrgs[func.function_sp_orgs[j].organization.id] != undefined) {
-                    edges.push({ "source": func.id, "target": func.function_sp_orgs[j].organization.id, type: "custom-quadratic" })
+                    edges.push({ "source": func.id, "target": func.function_sp_orgs[j].organization.id, type: "custom-cubic" })
                   }
                 
                 }
@@ -2793,7 +2793,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                 for (var j = func.device_functions.length - 1; j >= 0; j--) {
                   
                   if (self.dimoDevices[func.device_functions[j].device.id] != undefined) {
-                    edges.push({ "source": func.id, "target": func.device_functions[j].device.id, type: "custom-quadratic" })
+                    edges.push({ "source": func.id, "target": func.device_functions[j].device.id, type: "custom-cubic" })
                   }
                 
                 }
@@ -2809,7 +2809,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                 for (var j = device.device_functions.length - 1; j >= 0; j--) {
                   
                   if (self.dimoFunctions[device.device_functions[j].function.id] != undefined) {
-                    edges.push({ "source": device.id, "target": device.device_functions[j].function.id, type: "custom-quadratic" })
+                    edges.push({ "source": device.id, "target": device.device_functions[j].function.id, type: "custom-cubic" })
                   }
                 
                 }
@@ -2817,7 +2817,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                 for (var j = device.device_sp_orgs.length - 1; j >= 0; j--) {
                   
                   if (self.dimoOrgs[device.device_sp_orgs[j].organization.id] != undefined) {
-                    edges.push({ "source": device.id, "target": device.device_sp_orgs[j].organization.id, type: "custom-quadratic" })
+                    edges.push({ "source": device.id, "target": device.device_sp_orgs[j].organization.id, type: "custom-cubic" })
                   }
                 
                 }
@@ -2826,7 +2826,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                 for (var j = device.device_oem_orgs.length - 1; j >= 0; j--) {
                   
                   if (self.dimoOrgs[device.device_oem_orgs[j].organization.id] != undefined) {
-                    edges.push({ "source": device.id, "target": device.device_oem_orgs[j].organization.id, type: "custom-quadratic" })
+                    edges.push({ "source": device.id, "target": device.device_oem_orgs[j].organization.id, type: "custom-cubic" })
                   }
                 
                 }
@@ -2837,7 +2837,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                 for (var j = device.project_devices.length - 1; j >= 0; j--) {
                   
                   if (self.dimoProjects[device.project_devices[j].project.id] != undefined) {
-                    edges.push({ "source": device.id, "target": device.project_devices[j].project.id, type: "custom-quadratic" })
+                    edges.push({ "source": device.id, "target": device.project_devices[j].project.id, type: "custom-cubic" })
                   }
                 
                 }
@@ -2852,7 +2852,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                 for (var j = project.function_projects.length - 1; j >= 0; j--) {
 
                   if (self.dimoFunctions[project.function_projects[j].function.id] != undefined) {
-                    edges.push({ "source": project.id, "target": project.function_projects[j].function.id, type: "custom-quadratic" })
+                    edges.push({ "source": project.id, "target": project.function_projects[j].function.id, type: "custom-cubic" })
                   }
 
                 }
@@ -2861,7 +2861,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                 for (var j = project.org_projects.length - 1; j >= 0; j--) {
 
                   if (self.dimoOrgs[project.org_projects[j].organization.id] != undefined) {
-                    edges.push({ "source": project.id, "target": project.org_projects[j].organization.id, type: "custom-quadratic" })
+                    edges.push({ "source": project.id, "target": project.org_projects[j].organization.id, type: "custom-cubic" })
                   }
                   
                 }
@@ -2869,7 +2869,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                 for (var j = project.project_devices.length - 1; j >= 0; j--) {
 
                   if (self.dimoDevices[project.project_devices[j].device.id] != undefined) {
-                    edges.push({ "source": project.id, "target": project.project_devices[j].device.id, type: "custom-quadratic" })
+                    edges.push({ "source": project.id, "target": project.project_devices[j].device.id, type: "custom-cubic" })
                   }
                   
                 }
@@ -2974,7 +2974,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                 }
 
 
-                edges.push({ "source": funcNode.id, "target": devNode.id, type: "custom-quadratic" })
+                edges.push({ "source": funcNode.id, "target": devNode.id, type: "custom-cubic" })
 
             }
 
@@ -2992,7 +2992,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                 }
 
 
-                edges.push({ "source": funcNode.id, "target": projNode.id, type: "custom-quadratic" })
+                edges.push({ "source": funcNode.id, "target": projNode.id, type: "custom-cubic" })
 
             }
 
@@ -3008,7 +3008,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                 }
 
 
-                edges.push({ "source": funcNode.id, "target": orgNode.id, type: "custom-quadratic" })
+                edges.push({ "source": funcNode.id, "target": orgNode.id, type: "custom-cubic" })
 
             }
 
@@ -3021,7 +3021,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                 for (var j = device.device_functions.length - 1; j >= 0; j--) {
 
                     if (self.dimoFunctions[device.device_functions[j].function.id] != undefined) {
-                        edges.push({ "source": device.id, "target": device.device_functions[j].function.id, type: "custom-quadratic" })
+                        edges.push({ "source": device.id, "target": device.device_functions[j].function.id, type: "custom-cubic" })
                     }
 
                 }
@@ -3029,7 +3029,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                 for (var j = device.device_sp_orgs.length - 1; j >= 0; j--) {
 
                     if (self.dimoOrgs[device.device_sp_orgs[j].organization.id] != undefined) {
-                        edges.push({ "source": device.id, "target": device.device_sp_orgs[j].organization.id, type: "custom-quadratic" })
+                        edges.push({ "source": device.id, "target": device.device_sp_orgs[j].organization.id, type: "custom-cubic" })
                     }
 
                 }
@@ -3038,7 +3038,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                 for (var j = device.device_oem_orgs.length - 1; j >= 0; j--) {
 
                     if (self.dimoOrgs[device.device_oem_orgs[j].organization.id] != undefined) {
-                        edges.push({ "source": device.id, "target": device.device_oem_orgs[j].organization.id, type: "custom-quadratic" })
+                        edges.push({ "source": device.id, "target": device.device_oem_orgs[j].organization.id, type: "custom-cubic" })
                     }
 
                 }
@@ -3049,7 +3049,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                 for (var j = device.project_devices.length - 1; j >= 0; j--) {
 
                     if (self.dimoProjects[device.project_devices[j].project.id] != undefined) {
-                        edges.push({ "source": device.id, "target": device.project_devices[j].project.id, type: "custom-quadratic" })
+                        edges.push({ "source": device.id, "target": device.project_devices[j].project.id, type: "custom-cubic" })
                     }
 
                 }
@@ -3064,7 +3064,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                 for (var j = project.function_projects.length - 1; j >= 0; j--) {
 
                     if (self.dimoFunctions[project.function_projects[j].function.id] != undefined) {
-                        edges.push({ "source": project.id, "target": project.function_projects[j].function.id, type: "custom-quadratic" })
+                        edges.push({ "source": project.id, "target": project.function_projects[j].function.id, type: "custom-cubic" })
                     }
 
                 }
@@ -3073,7 +3073,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                 for (var j = project.org_projects.length - 1; j >= 0; j--) {
 
                     if (self.dimoOrgs[project.org_projects[j].organization.id] != undefined) {
-                        edges.push({ "source": project.id, "target": project.org_projects[j].organization.id, type: "custom-quadratic" })
+                        edges.push({ "source": project.id, "target": project.org_projects[j].organization.id, type: "custom-cubic" })
                     }
 
                 }
@@ -3081,7 +3081,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                 for (var j = project.project_devices.length - 1; j >= 0; j--) {
 
                     if (self.dimoDevices[project.project_devices[j].device.id] != undefined) {
-                        edges.push({ "source": project.id, "target": project.project_devices[j].device.id, type: "custom-quadratic" })
+                        edges.push({ "source": project.id, "target": project.project_devices[j].device.id, type: "custom-cubic" })
                     }
 
                 }
@@ -3095,7 +3095,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                 for (var j = org.device_oem_orgs.length - 1; j >= 0; j--) {
 
                     if (self.dimoDevices[org.device_oem_orgs[j].device.id] != undefined) {
-                        edges.push({ "source": org.id, "target": org.device_oem_orgs[j].device.id, type: "custom-quadratic" })
+                        edges.push({ "source": org.id, "target": org.device_oem_orgs[j].device.id, type: "custom-cubic" })
                     }
 
                 }
@@ -3104,7 +3104,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                 for (var j = org.device_sp_orgs.length - 1; j >= 0; j--) {
 
                     if (self.dimoDevices[org.device_sp_orgs[j].device.id] != undefined) {
-                        edges.push({ "source": org.id, "target": org.device_sp_orgs[j].device.id, type: "custom-quadratic" })
+                        edges.push({ "source": org.id, "target": org.device_sp_orgs[j].device.id, type: "custom-cubic" })
                     }
 
                 }
@@ -3112,7 +3112,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                 for (var j = org.function_sp_orgs.length - 1; j >= 0; j--) {
 
                     if (self.dimoFunctions[org.function_sp_orgs[j].function.id] != undefined) {
-                        edges.push({ "source": org.id, "target": org.function_sp_orgs[j].function.id, type: "custom-quadratic" })
+                        edges.push({ "source": org.id, "target": org.function_sp_orgs[j].function.id, type: "custom-cubic" })
                     }
 
                 }
@@ -3121,7 +3121,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                 for (var j = org.org_projects.length - 1; j >= 0; j--) {
 
                     if (self.dimoProjects[org.org_projects[j].project.id] != undefined) {
-                        edges.push({ "source": org.id, "target": org.org_projects[j].project.id, type: "custom-quadratic" })
+                        edges.push({ "source": org.id, "target": org.org_projects[j].project.id, type: "custom-cubic" })
                     }
 
                 }
@@ -3228,7 +3228,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
                 }
 
 
-                edges.push({ "source": devNode.id, "target": funcNode.id, type: "custom-quadratic" })
+                edges.push({ "source": devNode.id, "target": funcNode.id, type: "custom-cubic" })
 
 
 
@@ -3249,7 +3249,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
                 }
 
 
-                edges.push({ "source": devNode.id, "target": orgNode.id, type: "custom-quadratic" })
+                edges.push({ "source": devNode.id, "target": orgNode.id, type: "custom-cubic" })
 
 
 
@@ -3270,7 +3270,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
                 }
 
 
-                edges.push({ "source": devNode.id, "target": orgNode.id, type: "custom-quadratic" })
+                edges.push({ "source": devNode.id, "target": orgNode.id, type: "custom-cubic" })
 
 
 
@@ -3291,7 +3291,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
                 }
 
 
-                edges.push({ "source": devNode.id, "target": projNode.id, type: "custom-quadratic" })
+                edges.push({ "source": devNode.id, "target": projNode.id, type: "custom-cubic" })
 
 
 
@@ -3311,7 +3311,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
               for (var j = func.device_functions.length - 1; j >= 0; j--) {
 
                   if (self.dimoDevices[func.device_functions[j].device.id] != undefined) {
-                      edges.push({ "source": func.id, "target": func.device_functions[j].device.id, type: "custom-quadratic" })
+                      edges.push({ "source": func.id, "target": func.device_functions[j].device.id, type: "custom-cubic" })
                   }
 
               }
@@ -3320,7 +3320,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
               for (var j = func.function_projects.length - 1; j >= 0; j--) {
 
                   if (self.dimoProjects[func.function_projects[j].project.id] != undefined) {
-                      edges.push({ "source": func.id, "target": func.function_projects[j].project.id, type: "custom-quadratic" })
+                      edges.push({ "source": func.id, "target": func.function_projects[j].project.id, type: "custom-cubic" })
                   }
 
               }
@@ -3329,7 +3329,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
               for (var j = func.function_sp_orgs.length - 1; j >= 0; j--) {
 
                   if (self.dimoOrgs[func.function_sp_orgs[j].organization.id] != undefined) {
-                      edges.push({ "source": func.id, "target": func.function_sp_orgs[j].organization.id, type: "custom-quadratic" })
+                      edges.push({ "source": func.id, "target": func.function_sp_orgs[j].organization.id, type: "custom-cubic" })
                   }
 
               }
@@ -3342,7 +3342,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
               for (var j = org.device_oem_orgs.length - 1; j >= 0; j--) {
 
                   if (self.dimoDevices[org.device_oem_orgs[j].device.id] != undefined) {
-                      edges.push({ "source": org.id, "target": org.device_oem_orgs[j].device.id, type: "custom-quadratic" })
+                      edges.push({ "source": org.id, "target": org.device_oem_orgs[j].device.id, type: "custom-cubic" })
                   }
 
               }
@@ -3351,7 +3351,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
               for (var j = org.device_sp_orgs.length - 1; j >= 0; j--) {
 
                   if (self.dimoDevices[org.device_sp_orgs[j].device.id] != undefined) {
-                      edges.push({ "source": org.id, "target": org.device_sp_orgs[j].device.id, type: "custom-quadratic" })
+                      edges.push({ "source": org.id, "target": org.device_sp_orgs[j].device.id, type: "custom-cubic" })
                   }
 
               }
@@ -3359,7 +3359,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
               for (var j = org.function_sp_orgs.length - 1; j >= 0; j--) {
 
                   if (self.dimoFunctions[org.function_sp_orgs[j].function.id] != undefined) {
-                      edges.push({ "source": org.id, "target": org.function_sp_orgs[j].function.id, type: "custom-quadratic" })
+                      edges.push({ "source": org.id, "target": org.function_sp_orgs[j].function.id, type: "custom-cubic" })
                   }
 
               }              
@@ -3368,7 +3368,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
               for (var j = org.org_projects.length - 1; j >= 0; j--) {
 
                   if (self.dimoProjects[org.org_projects[j].project.id] != undefined) {
-                      edges.push({ "source": org.id, "target": org.org_projects[j].project.id, type: "custom-quadratic" })
+                      edges.push({ "source": org.id, "target": org.org_projects[j].project.id, type: "custom-cubic" })
                   }
 
               }              
@@ -3383,7 +3383,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
               for (var j = org.device_oem_orgs.length - 1; j >= 0; j--) {
 
                   if (self.dimoDevices[org.device_oem_orgs[j].device.id] != undefined) {
-                      edges.push({ "source": org.id, "target": org.device_oem_orgs[j].device.id, type: "custom-quadratic" })
+                      edges.push({ "source": org.id, "target": org.device_oem_orgs[j].device.id, type: "custom-cubic" })
                   }
 
               }
@@ -3392,7 +3392,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
               for (var j = org.device_sp_orgs.length - 1; j >= 0; j--) {
 
                   if (self.dimoDevices[org.device_sp_orgs[j].device.id] != undefined) {
-                      edges.push({ "source": org.id, "target": org.device_sp_orgs[j].device.id, type: "custom-quadratic" })
+                      edges.push({ "source": org.id, "target": org.device_sp_orgs[j].device.id, type: "custom-cubic" })
                   }
 
               }
@@ -3400,7 +3400,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
               for (var j = org.function_sp_orgs.length - 1; j >= 0; j--) {
 
                   if (self.dimoFunctions[org.function_sp_orgs[j].function.id] != undefined) {
-                      edges.push({ "source": org.id, "target": org.function_sp_orgs[j].function.id, type: "custom-quadratic" })
+                      edges.push({ "source": org.id, "target": org.function_sp_orgs[j].function.id, type: "custom-cubic" })
                   }
 
               }              
@@ -3409,7 +3409,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
               for (var j = org.org_projects.length - 1; j >= 0; j--) {
 
                   if (self.dimoProjects[org.org_projects[j].project.id] != undefined) {
-                      edges.push({ "source": org.id, "target": org.org_projects[j].project.id, type: "custom-quadratic" })
+                      edges.push({ "source": org.id, "target": org.org_projects[j].project.id, type: "custom-cubic" })
                   }
 
               }              
@@ -3427,7 +3427,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
               for (var j = project.function_projects.length - 1; j >= 0; j--) {
 
                   if (self.dimoFunctions[project.function_projects[j].function.id] != undefined) {
-                      edges.push({ "source": project.id, "target": project.function_projects[j].function.id, type: "custom-quadratic" })
+                      edges.push({ "source": project.id, "target": project.function_projects[j].function.id, type: "custom-cubic" })
                   }
 
               }
@@ -3436,7 +3436,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
             for (var j = project.org_projects.length - 1; j >= 0; j--) {
 
                   if (self.dimoOrgs[project.org_projects[j].organization.id] != undefined) {
-                      edges.push({ "source": project.id, "target": project.org_projects[j].organization.id, type: "custom-quadratic" })
+                      edges.push({ "source": project.id, "target": project.org_projects[j].organization.id, type: "custom-cubic" })
                   }
 
               }
@@ -3445,7 +3445,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
             for (var j = project.project_devices.length - 1; j >= 0; j--) {
 
                   if (self.dimoDevices[project.project_devices[j].device.id] != undefined) {
-                      edges.push({ "source": project.id, "target": project.project_devices[j].device.id, type: "custom-quadratic" })
+                      edges.push({ "source": project.id, "target": project.project_devices[j].device.id, type: "custom-cubic" })
                   }
 
               }
@@ -3948,6 +3948,8 @@ function initGraph(nodes, edges_) {
     });
 
 
+    const toolbar = new G6.ToolBar()
+
 
 
     graph = new G6.Graph({
@@ -3957,6 +3959,7 @@ function initGraph(nodes, edges_) {
       linkCenter: true,
       minZoom: 0.1,
       groupByTypes: false,
+      enabledStack:true,
       modes: {
         default: [
           {
@@ -3989,7 +3992,7 @@ function initGraph(nodes, edges_) {
         type: "dimo-node",
         size: DEFAULTNODESIZE
       },
-      plugins: [contextMenu]
+      plugins: [contextMenu,toolbar]
     });
 
     graph.get("canvas").set("localRefresh", false);
