@@ -70,6 +70,7 @@ let expandArray = [];
 let collapseArray = [];
 let shiftKeydown = false;
 let ctrlKeydown = false;
+let altKeydown = false;
 let CANVAS_WIDTH = 800,
   CANVAS_HEIGHT = 800;
 
@@ -1184,6 +1185,14 @@ const bindListener = (graph) => {
     } else {
       shiftKeydown = false;
     }
+    if (code.toLowerCase() === "alt") {
+      altKeydown = true;
+      self.graph.setMode("dragLasso")
+    } else {
+      altKeydown = false;
+
+    }
+
     if (code.toLowerCase() === "control" || code.toLowerCase() === "meta") {
       ctrlKeydown = true;
     } else {
@@ -1201,6 +1210,10 @@ const bindListener = (graph) => {
     }
     if (code.toLowerCase() === "shift") {
       shiftKeydown = false;
+    }
+    if (code.toLowerCase() === "alt") {
+      altKeydown = false;
+      self.graph.setMode("default")
     }
     if (code.toLowerCase() === "control" || code.toLowerCase() === "meta") {
       ctrlKeydown = false;
@@ -3936,7 +3949,7 @@ function initGraph(nodes, edges_) {
     const toolbar = new G6.ToolBar({
         getContent: () => {
             return `
-<ul class="g6-component-toolbar" style="position: absolute;left: 7px;top: 5px;">
+<ul class="g6-component-toolbar" style="position: absolute;left: 25vw;right: 25vw;top: 9px;align:center">
     <li code="redo">
         <svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
             <path d="M256 682.666667c0-102.741333 66.730667-213.333333 213.333333-213.333334 107.008 0 190.762667 56.576 230.570667 125.354667L611.968 682.666667H853.333333v-241.365334l-91.562666 91.562667C704.768 448.469333 601.130667 384 469.333333 384c-196.096 0-298.666667 150.229333-298.666666 298.666667h85.333333z" fill="" p-id="2041"></path>
@@ -3998,47 +4011,49 @@ function initGraph(nodes, edges_) {
     self.graphToolbar = toolbar;
 
     graph = new G6.Graph({
-      container: "container",
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT,
-      linkCenter: true,
-      minZoom: 0.1,
-      groupByTypes: false,
-      enabledStack:true,
-      modes: {
-        default: [
-          {
-            type: "drag-canvas",
-            enableOptimize: true
-          },
-          {
-            type: "zoom-canvas",
-            enableOptimize: true,
-            optimizeZoom: 0.01
-          },
-          "drag-node",
-          "shortcuts-call"
+    container: "container",
+    width: CANVAS_WIDTH,
+    height: CANVAS_HEIGHT,
+    linkCenter: true,
+    minZoom: 0.1,
+    groupByTypes: false,
+    enabledStack: true,
+    modes: {
+        default: [{
+                type: "drag-canvas",
+                enableOptimize: true
+            },
+            {
+                type: "zoom-canvas",
+                enableOptimize: true,
+                optimizeZoom: 0.01
+            },
+            "drag-node",
+            "drag-combo",
+            "collapse-expand-combo",
         ],
-        lassoSelect: [
-          {
-            type: "zoom-canvas",
-            enableOptimize: true,
-            optimizeZoom: 0.01
-          },
-          {
+        dragLasso: [{
+            delegateStyle: {
+                fill: '#f00',
+                fillOpacity: 0.05,
+                stroke: '#f00',
+                lineWidth: 1,
+            },
+            includeEdges:false,
             type: "lasso-select",
             selectedState: "focus",
+            onSelect: (nodes, edges) => {
+                console.log('onSelect', nodes, edges);
+                },
             trigger: "drag"
-          }
-        ],
-        fisheyeMode: []
-      },
-      defaultNode: {
+        }]
+    },
+    defaultNode: {
         type: "dimo-node",
         size: DEFAULTNODESIZE
-      },
-      plugins: [contextMenu,toolbar]
-    });
+    },
+    plugins: [contextMenu, toolbar]
+});
 
     self.graph = graph;
     graph.get("canvas").set("localRefresh", false);
@@ -4048,6 +4063,10 @@ function initGraph(nodes, edges_) {
     layout.instance = new G6.Layout["gForce"](layoutConfig);
     layout.instance.init(self.dimoGraphData);
     layout.instance.execute();
+
+
+
+
 
     bindListener(graph);
     
