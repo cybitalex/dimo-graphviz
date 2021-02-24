@@ -209,7 +209,6 @@ G6.registerNode(
           fill: colorSet.mainFill, // || '#3B4043',
           stroke: colorSet.mainStroke,
           lineWidth: 2,
-          cursor: "crosshair",
           radius: height / 2 || 13,
           lineDash: [2, 2]
         },
@@ -238,7 +237,7 @@ G6.registerNode(
 
           group.addShape('image', {
               attrs: {
-                  x: -90,
+                  x: -102,
                   y: -16,
                   width: 32,
                   height: 32,
@@ -1570,6 +1569,13 @@ const deviceQuery = gql`query graphvizDeviceQuery($device_id: String!) {
     last_modified_by
     image
     id
+    device_device_types {
+      device_type {
+        id
+        name
+        icon
+      }
+    }
     device_functions {
       function {
         UI_screenshot
@@ -1597,6 +1603,13 @@ const deviceQuery = gql`query graphvizDeviceQuery($device_id: String!) {
         upfront_price_credits_to_engage
         wallet_address
         valid
+        function_function_types {
+          function_type {
+            icon
+            id
+            name
+          }
+        }
         device_functions {
           device {
             id
@@ -1652,6 +1665,13 @@ const deviceQuery = gql`query graphvizDeviceQuery($device_id: String!) {
         valid
         website
         wallet_address
+        org_org_types {
+          org_type {
+            icon
+            name
+            id
+          }
+        }
         device_oem_orgs {
           device {
             id
@@ -1712,6 +1732,13 @@ const deviceQuery = gql`query graphvizDeviceQuery($device_id: String!) {
         twitter_handle
         team_page_url
         tags
+        org_org_types {
+          org_type {
+            icon
+            name
+            id
+          }
+        }
         device_oem_orgs {
           device {
             id
@@ -1765,6 +1792,13 @@ const deviceQuery = gql`query graphvizDeviceQuery($device_id: String!) {
         version_history
         wallet_address
         zone_area_kml
+        project_project_types {
+          project_type {
+            id
+            icon
+            name
+          }
+        }
         function_projects {
           function {
             id
@@ -1816,6 +1850,13 @@ const projectQuery = gql`query graphvizProjectQuery($proj_id: String!) {
     underwriting_model
     thumbnail
     project_website
+    project_project_types {
+      project_type {
+        id
+        icon
+        name
+      }
+    }
     function_projects {
       function {
         id
@@ -1843,6 +1884,13 @@ const projectQuery = gql`query graphvizProjectQuery($proj_id: String!) {
         upfront_price_credits_to_engage
         valid
         wallet_address
+        function_function_types {
+          function_type {
+            icon
+            id
+            name
+          }
+        }
         device_functions {
           device {
             id
@@ -1898,6 +1946,13 @@ const projectQuery = gql`query graphvizProjectQuery($proj_id: String!) {
         twitter_handle
         tags
         summary_video
+        org_org_types {
+          org_type {
+            icon
+            name
+            id
+          }
+        }
         device_oem_orgs {
           device {
             id
@@ -1938,6 +1993,13 @@ const projectQuery = gql`query graphvizProjectQuery($proj_id: String!) {
         tags
         wallet_address
         valid
+        device_device_types {
+          device_type {
+            id
+            name
+            icon
+          }
+        }
         device_functions {
           function {
             id
@@ -1961,9 +2023,7 @@ const projectQuery = gql`query graphvizProjectQuery($proj_id: String!) {
       }
     }
   }
-}
-
-`
+}`
 
 const orgQuery = gql`query graphvizOrgQuery($org_id: String!) {
   organization(where: {id: {_eq: $org_id}}) {
@@ -2002,6 +2062,13 @@ const orgQuery = gql`query graphvizOrgQuery($org_id: String!) {
     summary_video
     sales_outreach
     product_service_description
+    org_org_types {
+      org_type {
+        icon
+        name
+        id
+      }
+    }
     device_oem_orgs {
       device {
         added_by
@@ -2020,6 +2087,13 @@ const orgQuery = gql`query graphvizOrgQuery($org_id: String!) {
         tags
         valid
         wallet_address
+        device_device_types {
+          device_type {
+            id
+            name
+            icon
+          }
+        }
         device_functions {
           function {
             id
@@ -2060,6 +2134,13 @@ const orgQuery = gql`query graphvizOrgQuery($org_id: String!) {
         tags
         wallet_address
         valid
+        device_device_types {
+          device_type {
+            id
+            name
+            icon
+          }
+        }
         device_functions {
           function {
             id
@@ -2109,6 +2190,13 @@ const orgQuery = gql`query graphvizOrgQuery($org_id: String!) {
         wallet_address
         upfront_price_credits_to_engage
         valid
+        function_function_types {
+          function_type {
+            icon
+            id
+            name
+          }
+        }
         device_functions {
           device {
             id
@@ -2157,6 +2245,13 @@ const orgQuery = gql`query graphvizOrgQuery($org_id: String!) {
         version_history
         wallet_address
         zone_area_kml
+        project_project_types {
+          project_type {
+            id
+            icon
+            name
+          }
+        }
         function_projects {
           function {
             id
@@ -2175,9 +2270,7 @@ const orgQuery = gql`query graphvizOrgQuery($org_id: String!) {
       }
     }
   }
-}
-
-`
+}`
 
 const funtionQuery = gql`query graphvizFunctionQuery($function_id: String!) {
   function(where: {id: {_eq: $function_id}}) {
@@ -2206,6 +2299,13 @@ const funtionQuery = gql`query graphvizFunctionQuery($function_id: String!) {
     source_url
     size
     sample_output
+    function_function_types {
+      function_type {
+        icon
+        id
+        name
+      }
+    }
     device_functions {
       device {
         added_by
@@ -2224,6 +2324,13 @@ const funtionQuery = gql`query graphvizFunctionQuery($function_id: String!) {
         tags
         wallet_address
         valid
+        device_device_types {
+          device_type {
+            id
+            name
+            icon
+          }
+        }
         device_functions {
           function {
             id
@@ -2277,6 +2384,13 @@ const funtionQuery = gql`query graphvizFunctionQuery($function_id: String!) {
         version_history
         wallet_address
         zone_area_kml
+        project_project_types {
+          project_type {
+            id
+            icon
+            name
+          }
+        }
         function_projects {
           function {
             id
@@ -2332,6 +2446,13 @@ const funtionQuery = gql`query graphvizFunctionQuery($function_id: String!) {
         valid
         wallet_address
         website
+        org_org_types {
+          org_type {
+            icon
+            name
+            id
+          }
+        }
         device_oem_orgs {
           device {
             id
@@ -2352,7 +2473,6 @@ const funtionQuery = gql`query graphvizFunctionQuery($function_id: String!) {
             id
           }
         }
-
       }
     }
   }
@@ -2364,34 +2484,56 @@ function gqlProjectDataToNode(project) {
     var node = {
         "id": project.id,
         "type": "dimo-node",
-        "class":"[Project]",
-        "label":project.name,
-        "airtableURL":"https://airtable.com/tblpm4ls9gP94bmGA/viwbmZinIAOULOOCc/" + project.id,
+        "class": "[Project]",
+        "label": project.name,
+        "airtableURL": "https://airtable.com/tblpm4ls9gP94bmGA/viwbmZinIAOULOOCc/" + project.id,
     };
- 
-    node.logo = {
-                    "show":false
-      }
-    
 
-     node.level = 1;
+    if (project.project_project_types.length) {
+
+        console.log("project.project_project_types",project.project_project_types[0])
+        var url = JSON.parse(project.project_project_types[0].project_type.icon.replace(/\'/g, '"'))
+
+        node._type = project.project_project_types[0].project_type.name
+
+        if (url.length) {
+            node.logo = {
+                "show": true,
+                "url": url[0]
+            }
+        } else {
+            node.logo = {
+                "show": false,
+            }
+        }
+
+
+
+
+    } else {
+        node.logo = {
+            "show": false,
+        }
+    }
+
+    node.level = 1;
 
 
     node.icon = {
-      "url":dimoProjectIcon
+        "url": dimoProjectIcon
     }
 
     node.colorSet = colorSets[dimoProjectColorIndex]
 
     node.labelCfg = {
-      position: "bottom",
-      offset: 5,
-      style: {
-        fill: global.node.labelCfg.style.fill,
-        fontSize: 12,
-        stroke: global.node.labelCfg.style.stroke,
-        lineWidth: 3
-      }
+        position: "bottom",
+        offset: 5,
+        style: {
+            fill: global.node.labelCfg.style.fill,
+            fontSize: 12,
+            stroke: global.node.labelCfg.style.stroke,
+            lineWidth: 3
+        }
     }
 
 
@@ -2401,7 +2543,6 @@ function gqlProjectDataToNode(project) {
 
 
 }
-
 
 
 
@@ -2640,8 +2781,30 @@ function gqlOrgDataToNode(org) {
       }
     }
 
-    node.icon = {
-      "url":dimoOrgIcon
+    if (org.org_org_types.length) {
+
+        console.log("org.org_org_types",org.org_org_types[0])
+        var url = JSON.parse(org.org_org_types[0].org_type.icon.replace(/\'/g, '"'))
+
+        node._type = org.org_org_types[0].org_type.name
+
+        if (url.length) {
+            node.icon = {
+                "url": url[0]
+            }
+        } else {
+            node.icon = {
+            "url": dimoOrgIcon,
+        }
+        }
+
+
+
+
+    } else {
+        node.icon = {
+            "url": dimoOrgIcon,
+        }
     }
 
     node.colorSet = colorSets[dimoOrgColorIndex]
@@ -2907,9 +3070,33 @@ function gqlFunctionDataToNode(func) {
         "airtableURL":"https://airtable.com/tbluJQFoXFEof7rdM/viwLeV2hJyBobLFZW/" + func.id,
     };
  
-    node.logo = {
-                    "show":false
-      }
+    if (func.function_function_types.length) {
+
+        console.log("func.functon_function_types",func.function_function_types[0])
+
+        node._type = func.function_function_types[0].function_type.name
+
+        var url = func.function_function_types[0].function_type.icon
+
+        if (url.length) {
+            node.logo = {
+                "show": true,
+                "url": url[0]
+            }
+        } else {
+            node.logo = {
+                "show": false,
+            }
+        }
+
+
+
+
+    } else {
+        node.logo = {
+            "show": false,
+        }
+    }
     
     node.level = 1;
 
@@ -3160,9 +3347,33 @@ function gqlDeviceDataToNode(device) {
     node.level = 1;
 
 
-    node.logo = {
-                    "show":false
-      }
+    if (device.device_device_types.length) {
+
+        console.log("device.device_device_types",device.device_device_types[0])
+
+        node._type = device.device_device_types[0].device_type.name
+
+        var url = device.device_device_types[0].device_type.icon
+
+        if (url.length) {
+            node.logo = {
+                "show": true,
+                "url": url[0]
+            }
+        } else {
+            node.logo = {
+                "show": false,
+            }
+        }
+
+
+
+
+    } else {
+        node.logo = {
+            "show": false,
+        }
+    }
     
 
     node.icon = {
