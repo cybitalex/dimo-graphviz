@@ -1372,7 +1372,6 @@ const deviceQuery = gql`query graphvizDeviceQuery($device_id: String!) {
         assigned_to
         blueprint_file
         blueprint_url
-        cms_tags
         cost_model
         cover_photo
         description
@@ -1654,7 +1653,6 @@ const projectQuery = gql`query graphvizProjectQuery($proj_id: String!) {
         blueprint_file
         assigned_to
         blueprint_url
-        cms_tags
         cost_model
         cover_photo
         description
@@ -1961,7 +1959,6 @@ const orgQuery = gql`query graphvizOrgQuery($org_id: String!) {
         blueprint_url
         cover_photo
         cost_model
-        cms_tags
         description
         icon
         github
@@ -2068,7 +2065,6 @@ const funtionQuery = gql`query graphvizFunctionQuery($function_id: String!) {
     assigned_to
     cover_photo
     cost_model
-    cms_tags
     blueprint_url
     blueprint_file
     description
