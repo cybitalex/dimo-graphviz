@@ -1372,7 +1372,7 @@ function wait(ms){
       dragX = evt.x;
       dragY = evt.y;
       graph.getEdges().forEach((edge)=> {
-        graph.hideItem(edge)
+        graph.hideItem(edge, false)
       })
   });
 
@@ -1382,7 +1382,7 @@ function wait(ms){
         graph.setItemState(node,"focus",true)
       })
             graph.getEdges().forEach((edge)=> {
-        graph.showItem(edge)
+        graph.showItem(edge, false)
       })
   });
 
