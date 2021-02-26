@@ -72,6 +72,10 @@ let collapseArray = [];
 let shiftKeydown = false;
 let ctrlKeydown = false;
 let altKeydown = false;
+let dragX = undefined;
+let dragY = undefined;
+let dragdX = undefined;
+let dragdY = undefined;
 let CANVAS_WIDTH = 800,
   CANVAS_HEIGHT = 800;
 
@@ -1188,7 +1192,8 @@ const bindListener = (graph) => {
     }
     if (code.toLowerCase() === "alt") {
       altKeydown = true;
-      self.graph.setMode("dragLasso")
+      self.graph.setMode("brushSelect")
+      console.log("mode",graph.getCurrentMode())
     } else {
       altKeydown = false;
 
@@ -1215,6 +1220,7 @@ const bindListener = (graph) => {
     if (code.toLowerCase() === "alt") {
       altKeydown = false;
       self.graph.setMode("default")
+      console.log("mode",graph.getCurrentMode())
     }
     if (code.toLowerCase() === "control" || code.toLowerCase() === "meta") {
       ctrlKeydown = false;
@@ -1232,6 +1238,12 @@ const bindListener = (graph) => {
     model.oriLabel = currentLabel;
     graph.setItemState(item, "hover", true);
     item.toFront();
+
+    if (altKeydown) {
+      graph.setItemState(item, "focus", true);
+    }
+
+
   });
 
   graph.on("node:mouseleave", (evt) => {
@@ -1291,6 +1303,41 @@ const bindListener = (graph) => {
 
       }
   });
+    graph.on("node:drag", (evt) => {
+      dragdX = evt.x - dragX
+      dragdY = evt.y - dragY
+      dragX = evt.x
+      dragY = evt.y
+
+      const curItem = evt.item._cfg.id;
+      const selNodes = graph.findAllByState('node', 'focus');
+      
+      var node;
+      for (var i = selNodes.length - 1; i >= 0; i--) {
+        //console.log(i,selNodes[i])
+
+        //if(selNodes[i]._cfg.id!=curItem){
+        const newX = selNodes[i]._cfg.model.x + dragdX
+        const newY = selNodes[i]._cfg.model.y + dragdY
+
+        graph.updateItem(selNodes[i], {
+          x:newX,
+          y:newY
+        });
+        //}
+
+
+      }
+
+
+  });
+
+    graph.on("node:dragstart", (evt) => {
+      dragX = evt.x;
+      dragY = evt.y;
+  });
+
+
 
   // click edge to show the detail of integrated edge drawer
   graph.on("edge:click", (evt) => {
@@ -1307,11 +1354,11 @@ const bindListener = (graph) => {
   // click canvas to cancel all the focus state
   graph.on("canvas:click", (evt) => {
     clearFocusItemState(graph);
-    console.log(
-      graph.getGroup(),
-      graph.getGroup().getBBox(),
-      graph.getGroup().getCanvasBBox()
-    );
+    // console.log(
+    //   graph.getGroup(),
+    //   graph.getGroup().getBBox(),
+    //   graph.getGroup().getCanvasBBox()
+    // );
   });
 };
 
@@ -4035,15 +4082,9 @@ function initGraph(nodes, edges_) {
             "drag-combo",
             "collapse-expand-combo",
         ],
-        dragLasso: [{
-            delegateStyle: {
-                fill: '#f00',
-                fillOpacity: 0.05,
-                stroke: '#f00',
-                lineWidth: 1,
-            },
+        brushSelect: [{
             includeEdges:false,
-            type: "lasso-select",
+            type: "brush-select",
             selectedState: "focus",
             onSelect: (nodes, edges) => {
                 console.log('onSelect', nodes, edges);
