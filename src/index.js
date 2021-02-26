@@ -1208,6 +1208,11 @@ const bindListener = (graph) => {
       ctrlKeydown = false;
     }
 
+    if (code.toLowerCase() == " ") {
+      console.log("space")
+      graph.fitView([20, 20]);
+    }
+
 
 
 
