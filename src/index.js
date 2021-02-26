@@ -4068,7 +4068,7 @@ function initGraph(nodes, edges_, useLayout=true) {
           if (itemType === "node") {
             if (model.level !== 0) {
               return `<ul>
-              <li id='hide'>Hide the Node</li>
+              <li id='hide'>Hide Selected Node(s)</li>
               <li id='url'>View in Airtable</li>
               <li id='load'>Load Connected Items</li>
             </ul>`;
@@ -4082,9 +4082,16 @@ function initGraph(nodes, edges_, useLayout=true) {
         let mixedGraphData;
         switch (liIdStrs[0]) {
           case "hide":
-            graph.hideItem(item);
-            console.log(item)
-            hiddenItemIds.push(model.id);
+
+            var hidNodes = graph.findAllByState("node", "focus");
+
+            for (var i = hidNodes.length - 1; i >= 0; i--) {
+              hiddenItemIds.push(hidNodes[i]._cfg.id);
+              graph.hideItem(hidNodes[i])
+
+            }
+            //console.log(hiddenItemIds)
+            
             break;
           case "show":
             showItems(graph);
