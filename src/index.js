@@ -1348,18 +1348,42 @@ function wait(ms){
       const curItem = evt.item._cfg.id;
       const selNodes = graph.findAllByState('node', 'focus');
       
-      var node;
+      const drag_promise = (node, dragdx, dragdy) => {
+          return new Promise((resolve, reject) => {
+              /*stuff using username, password*/
+              const newX = node._cfg.model.x + dragdx
+              const newY = node._cfg.model.y + dragdy
+              graph.updateItem(node, {
+                  x: newX,
+                  y: newY
+              });
+
+
+              resolve("Stuff worked!");
+          });
+      };
+
+
+
+
+
+      //var node;
       for (var i = selNodes.length - 1; i >= 0; i--) {
         //console.log(i,selNodes[i])
 
         //if(selNodes[i]._cfg.id!=curItem){
-        const newX = selNodes[i]._cfg.model.x + dragdX
-        const newY = selNodes[i]._cfg.model.y + dragdY
+        
+          drag_promise(selNodes[i], dragdX, dragdY).then(uid => {
+              // Stuffv
+              console.log("promise", uid);
+          })
+        // const newX = selNodes[i]._cfg.model.x + dragdX
+        // const newY = selNodes[i]._cfg.model.y + dragdY
 
-        graph.updateItem(selNodes[i], {
-          x:newX,
-          y:newY
-        });
+        // graph.updateItem(selNodes[i], {
+        //   x:newX,
+        //   y:newY
+        // });
         //}
 
 
