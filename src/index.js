@@ -1338,9 +1338,20 @@ const bindListener = (graph) => {
     graph.on("node:dragstart", (evt) => {
       dragX = evt.x;
       dragY = evt.y;
+      graph.getEdges().forEach((edge)=> {
+        graph.hideItem(edge)
+      })
   });
 
-
+    graph.on("node:dragend", (evt) => {
+      graph.findAllByState('node', 'focus').forEach((node)=>{
+        graph.setItemState(node,"focus",false)
+        graph.setItemState(node,"focus",true)
+      })
+            graph.getEdges().forEach((edge)=> {
+        graph.showItem(edge)
+      })
+  });
 
   // click edge to show the detail of integrated edge drawer
   graph.on("edge:click", (evt) => {
@@ -4126,6 +4137,10 @@ function initGraph(nodes, edges_, useLayout=true) {
               <li id='hide'>Hide Selected Node(s)</li>
               <li id='url'>View in Airtable</li>
               <li id='load'>Load Connected Items</li>
+              <li id='selectConnections'>Select Connected Nodes</li>
+              <li id='selectByType'>Select All Nodes of Same Type</li>
+              <li id='group'>Group Selected Nodes</li>
+
             </ul>`;
             }
           }
@@ -4157,6 +4172,50 @@ function initGraph(nodes, edges_, useLayout=true) {
           case "load":
             cachePositions = cacheNodePositions(graph.getNodes());
             loadConnectedItems(model);
+            break;
+           case "selectConnections":
+            item._cfg.edges.forEach((edge)=>{
+              graph.setItemState(edge._cfg.source,"focus",true)
+              graph.setItemState(edge._cfg.target,"focus",true)
+            })
+            break;
+          case "group":
+            const focusNodes = graph.findAllByState("node", "focus");
+            
+            for (var i = focusNodes.length - 1; i >= 0; i--) {
+              if(focusNodes[i]._cfg.id==item._cfg.id){
+                focusNodes.splice(i,1)
+                break;
+              }
+            }
+
+            const baseX = item._cfg.model.x
+            const baseY = item._cfg.model.y
+            var offset = 0;
+            for (var i = focusNodes.length - 1; i >= 0; i--) {
+
+                 const newX = baseX
+                 const newY = baseY + (i+1+offset)*(50)
+                 graph.updateItem(focusNodes[i],{x:newX,y:newY})
+                 graph.setItemState(focusNodes[i],"focus",false)
+                 graph.setItemState(focusNodes[i],"focus",true)
+
+              
+            
+            }
+            graph.setItemState(item,"focus",false)
+            graph.setItemState(item,"focus",true)
+            break
+          case "selectByType":
+            const Nodes = graph.getNodes()
+            console.log(Nodes)
+            for (var i = Nodes.length - 1; i >= 0; i--) {
+              if(item._cfg.model.class==Nodes[i]._cfg.model.class){
+                graph.setItemState(Nodes[i],"focus",true)
+              }
+            }
+
+            
             break;
           default:
             break;
@@ -4254,6 +4313,7 @@ function initGraph(nodes, edges_, useLayout=true) {
     minZoom: 0.1,
     groupByTypes: false,
     enabledStack: true,
+    animate:true,
     modes: {
         default: [{
                 type: "drag-canvas",
