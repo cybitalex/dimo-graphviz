@@ -1169,7 +1169,9 @@ const cacheNodePositions = (nodes) => {
 };
 
 const stopLayout = () => {
+  if(layout.instance.stop){
   layout.instance.stop();
+}
 };
 
 const bindListener = (graph) => {
@@ -1210,6 +1212,32 @@ const bindListener = (graph) => {
 
 
   });
+
+graph.on('afterlayout', function () {
+  console.log("Layout Finished!")
+
+function wait(ms){
+   var start = new Date().getTime();
+   var end = start;
+   while(end < start + ms) {
+     end = new Date().getTime();
+  }
+}
+
+
+  if(graph.cfg.layout){
+    if(graph.cfg.layout.type=="radial"){
+      graph.destroyLayout()
+}
+
+}
+
+
+});
+
+
+
+
   graph.on("keyup", (evt) => {
     const code = evt.key;
     if (!code) {
@@ -4140,7 +4168,7 @@ function initGraph(nodes, edges_, useLayout=true) {
               <li id='selectConnections'>Select Connected Nodes</li>
               <li id='selectByType'>Select All Nodes of Same Type</li>
               <li id='group'>Group Selected Nodes</li>
-
+              <li id='organizeAll'>Organize All Nodes</li>
             </ul>`;
             }
           }
@@ -4216,6 +4244,33 @@ function initGraph(nodes, edges_, useLayout=true) {
             }
 
             
+            break;
+          case "organizeAll":
+            //layout.instance.stop();
+
+
+
+            var radLayoutConfig = {
+                type: 'radial',
+                center: [item._cfg.model.x,item._cfg.model.y], // The center of the graph by default
+                linkDistance: 100, // The edge length
+                maxIteration: 2000,
+                focusNode: item._cfg.id,
+                unitRadius: 500,
+                preventOverlap: true, // nodeSize or size in data is required for preventOverlap: true
+                maxPreventOverlapIteration:10000,
+                nodeSize: 200,
+                strictRadial: true,
+                workerEnabled: true, // Whether to activate web-worker
+
+            }
+            graph.updateLayout(radLayoutConfig)
+            // layout.instance = new G6.Layout["radial"](radLayoutConfig);
+            // layout.instance.init({nodes:graph.getNodes(),edges:graph.getEdges()});
+            // layout.instance.execute();
+            //graph.refresh();
+
+
             break;
           default:
             break;
