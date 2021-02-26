@@ -1235,6 +1235,8 @@ const bindListener = (graph) => {
     item.update({
       label: model.oriLabel
     });
+
+
     model.oriLabel = currentLabel;
     graph.setItemState(item, "hover", true);
     item.toFront();
@@ -3572,6 +3574,7 @@ function refreshGraph(nodes, edges) {
        //console.log(graphNodes[i].getModel())
        node = graphNodes[i].getModel()
        node.skip = true;
+       node.label = node.oriLabel;
        nodes.push(node);
      }
 
@@ -3626,17 +3629,52 @@ function initGraphData() {
 
   const vars = getUrlVars();
   console.info("initGraph",vars)
-  if (vars["org_id"] != undefined) {
+
+  if (vars["state"] != undefined){
+    const jsonData = atou(vars["state"])
+   // window.prompt("json",jsonData)
+    var data = JSON.parse(jsonData)
+
+    for (var i = data.nodes.length - 1; i >= 0; i--) {
+      //colorSets[dimoProjectColorIndex]
+      var indx;
+      if (data.nodes[i].class == "[Project]"){
+        self.dimoProjects.push(data.nodes[i])
+        indx = dimoProjectColorIndex
+      } else if (data.nodes[i].class == "[Device]"){
+        self.dimoDevices.push(data.nodes[i])
+        indx = dimoDeviceColorIndex
+      } else if (data.nodes[i].class == "[Org]"){
+        self.dimoOrgs.push(data.nodes[i])
+        indx = dimoOrgColorIndex
+      } else if (data.nodes[i].class == "[Function]"){
+        self.dimoFunctions.push(data.nodes[i])
+        indx = dimoFunctionColorIndex
+      }
+      data.nodes[i].colorSet = colorSets[indx];
+      data.nodes[i].labelCfg = {
+      position: "bottom",
+      offset: 5,
+      style: {
+        fill: global.node.labelCfg.style.fill,
+        fontSize: 12,
+        stroke: global.node.labelCfg.style.stroke,
+        lineWidth: 3
+      }
+    }
+    }
+    self.dimoGraphData.nodes = data.nodes
+    self.dimoGraphData.edges = data.edges
+    var ndata = initGraph(data.nodes,data.edges,false);
+
+  } else if (vars["org_id"] != undefined) {
     loadDimoOrg(vars["org_id"], self.dimoGraphData.nodes, self.dimoGraphData.edges);
 
-  }
-  else if (vars["project_id"] != undefined) {
+  } else if (vars["project_id"] != undefined) {
     loadDimoProject(vars["project_id"], self.dimoGraphData.nodes, self.dimoGraphData.edges)
-  }
-  else if (vars["device_id"] != undefined) {
+  } else if (vars["device_id"] != undefined) {
     loadDimoDevice(vars["device_id"], self.dimoGraphData.nodes, self.dimoGraphData.edges)
-  }
-  else if (vars["function_id"] != undefined) {
+  } else if (vars["function_id"] != undefined) {
     loadDimoFunction(vars["function_id"], self.dimoGraphData.nodes, self.dimoGraphData.edges)
   }
 
@@ -3915,11 +3953,93 @@ function removeDuplicateEdges(edges) {
 
 }
 
+function atou(b64) {
+  return decodeURIComponent(escape(atob(b64)));
+}
+
+function utoa(data) {
+  return btoa(unescape(encodeURIComponent(data)));
+}
+
+
+function getStateURL() {
 
 
 
 
-function initGraph(nodes, edges_) {
+  var data = JSON.parse(JSON.stringify(graph.save()));
+  console.log(data)
+  var deleteNodes = [];
+  var deleteEdges = [];
+  for (var i = data.nodes.length - 1; i >= 0; i--) {
+    delete data.nodes[i].colorSet
+    data.nodes[i].label = data.nodes[i].oriLabel
+    delete data.nodes[i].oriLabel
+    delete data.nodes[i].degree
+    delete data.nodes[i].inDegree
+    delete data.nodes[i].outDegree
+    delete data.nodes[i].labelCfg
+    delete data.nodes[i].new
+    delete data.nodes[i].style
+    delete data.nodes[i].skip
+    delete data.nodes[i].depth
+
+    if (hiddenItemIds.includes(data.nodes[i].id)){
+      deleteNodes.push(i)
+    }
+  }
+
+  for (var i = data.edges.length - 1; i >= 0; i--) {
+    delete data.edges[i].id
+    delete data.edges[i].size
+    delete data.edges[i].style
+    delete data.edges[i].startPoint
+    delete data.edges[i].endPoint
+    delete data.edges[i].curveOffset
+    delete data.edges[i].curvePosition
+    delete data.edges[i].skip
+    delete data.edges[i].depth
+    
+    if (hiddenItemIds.includes(data.edges[i].source)){
+      deleteEdges.push(i)
+    } 
+
+    if (hiddenItemIds.includes(data.edges[i].target)){
+      deleteEdges.push(i)
+    }     
+  }
+
+  console.log(deleteNodes,deleteEdges,hiddenItemIds)
+  for (var i = 0; i <= deleteNodes.length-1; i++) {
+     data.nodes.splice(deleteNodes[i], 1);
+  }
+
+  for (var i = 0; i <= deleteEdges.length-1; i++) {
+     data.edges.splice(deleteEdges[i], 1);
+  }
+
+  var worked = true;
+
+  if (data.nodes.length > 15) {
+    window.alert("Current exceeds maximum number of nodes for saving the state.")
+    worked = false;
+    return worked;
+  }
+
+
+
+  //console.log("saveData",data);
+  const jsonData = JSON.stringify(data);
+  //window.prompt("jsonData",jsonData)
+  //console.log(jsonData)
+  const base64Data = utoa(jsonData);
+
+  //return jsonData
+  return window.location.origin + window.location.pathname + "?state=" + base64Data;
+}
+
+
+function initGraph(nodes, edges_, useLayout=true) {
 
   var edges = removeDuplicateEdges(edges_);
   const container = document.getElementById("container");
@@ -3963,6 +4083,7 @@ function initGraph(nodes, edges_) {
         switch (liIdStrs[0]) {
           case "hide":
             graph.hideItem(item);
+            console.log(item)
             hiddenItemIds.push(model.id);
             break;
           case "show":
@@ -3989,11 +4110,7 @@ function initGraph(nodes, edges_) {
       itemTypes: ["node", "edge", "canvas"]
     });
 
-     // Memory SVG
-    // <li code="loadState">
-    // <svg class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" width="20" height="24"> <g> <g> <g> <path d="M416,0H152.64L48,122.08V464c0,26.51,21.49,48,48,48h320c26.51,0,48-21.49,48-48V48C464,21.49,442.51,0,416,0z M432,464 c0,8.837-7.163,16-16,16H96c-8.837,0-16-7.163-16-16v-48h64v-32H80V133.92L167.36,32H416c8.837,0,16,7.163,16,16V464z"/> <rect x="176" y="64" width="32" height="128"/> <rect x="240" y="64" width="32" height="128"/> <rect x="304" y="64" width="32" height="128"/> <rect x="368" y="64" width="32" height="128"/> </g> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> 
-    // </svg>
-    // </li>
+
 
     const toolbar = new G6.ToolBar({
         getContent: () => {
@@ -4029,6 +4146,10 @@ function initGraph(nodes, edges_) {
             <path d="M684.288 305.28l0.128-0.64-0.128-0.64V99.712c0-19.84 15.552-35.904 34.496-35.712a35.072 35.072 0 0 1 34.56 35.776v171.008h170.944c19.648 0 35.84 15.488 35.712 34.432a35.072 35.072 0 0 1-35.84 34.496h-204.16l-0.64-0.128a32.768 32.768 0 0 1-20.864-7.552c-1.344-1.024-2.816-1.664-3.968-2.816-0.384-0.32-0.512-0.768-0.832-1.088a33.472 33.472 0 0 1-9.408-22.848zM305.28 64a35.072 35.072 0 0 0-34.56 35.776v171.008H99.776A35.072 35.072 0 0 0 64 305.216c0 18.944 15.872 34.496 35.84 34.496h204.16l0.64-0.128a32.896 32.896 0 0 0 20.864-7.552c1.344-1.024 2.816-1.664 3.904-2.816 0.384-0.32 0.512-0.768 0.768-1.088a33.024 33.024 0 0 0 9.536-22.848l-0.128-0.64 0.128-0.704V99.712A35.008 35.008 0 0 0 305.216 64z m618.944 620.288h-204.16l-0.64 0.128-0.512-0.128c-7.808 0-14.72 3.2-20.48 7.68-1.28 1.024-2.752 1.664-3.84 2.752-0.384 0.32-0.512 0.768-0.832 1.088a33.664 33.664 0 0 0-9.408 22.912l0.128 0.64-0.128 0.704v204.288c0 19.712 15.552 35.904 34.496 35.712a35.072 35.072 0 0 0 34.56-35.776V753.28h170.944c19.648 0 35.84-15.488 35.712-34.432a35.072 35.072 0 0 0-35.84-34.496z m-593.92 11.52c-0.256-0.32-0.384-0.768-0.768-1.088-1.088-1.088-2.56-1.728-3.84-2.688a33.088 33.088 0 0 0-20.48-7.68l-0.512 0.064-0.64-0.128H99.84a35.072 35.072 0 0 0-35.84 34.496 35.072 35.072 0 0 0 35.712 34.432H270.72v171.008c0 19.84 15.552 35.84 34.56 35.776a35.008 35.008 0 0 0 34.432-35.712V720l-0.128-0.64 0.128-0.704a33.344 33.344 0 0 0-9.472-22.848zM512 374.144a137.92 137.92 0 1 0 0.128 275.84A137.92 137.92 0 0 0 512 374.08z"></path>
         </svg>
     </li>
+    <li code="saveState">
+        <svg class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" width="20" height="24"> <g> <g> <g> <path d="M416,0H152.64L48,122.08V464c0,26.51,21.49,48,48,48h320c26.51,0,48-21.49,48-48V48C464,21.49,442.51,0,416,0z M432,464 c0,8.837-7.163,16-16,16H96c-8.837,0-16-7.163-16-16v-48h64v-32H80V133.92L167.36,32H416c8.837,0,16,7.163,16,16V464z"/> <rect x="176" y="64" width="32" height="128"/> <rect x="240" y="64" width="32" height="128"/> <rect x="304" y="64" width="32" height="128"/> <rect x="368" y="64" width="32" height="128"/> </g> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> 
+        </svg>
+    </li>
 
 </ul>`
         },
@@ -4050,6 +4171,12 @@ function initGraph(nodes, edges_) {
               graph.zoomTo(1)
             } else if (code == "autoZoom") {
               graph.fitView([20, 20]);
+            } else if (code == "saveState") {
+                  const pageUrl = getStateURL();
+                  
+                  if (pageUrl) {
+                      window.prompt("Page URL",pageUrl);
+                   }
             }
 
         }
@@ -4101,13 +4228,15 @@ function initGraph(nodes, edges_) {
 
     self.graph = graph;
     graph.get("canvas").set("localRefresh", false);
-
     var layoutConfig = getForceLayoutConfig(graph, largeGraphMode);
     layoutConfig.center = [CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2];
     layout.instance = new G6.Layout["gForce"](layoutConfig);
     layout.instance.init(self.dimoGraphData);
-    layout.instance.execute();
+    if (useLayout) {
 
+
+    layout.instance.execute();
+}
 
 
 
