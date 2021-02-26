@@ -2,6 +2,7 @@ import G6 from "@antv/g6";
 import insertCss from "insert-css";
 import { isNumber, isArray } from "@antv/util";
 import { GraphQLClient, gql, request } from 'graphql-request'
+const Lrequest = require('request')
 // import React from "react";
 // import ReactDOM from "react-dom";
 
@@ -3567,9 +3568,30 @@ function refreshGraph(nodes, edges) {
 
     console.log(edges)
 
+    let currentNodeIds = [];
+    let removeNodes = [];
+
     const graphNodes = graph.getNodes();
     const graphEdges = graph.getEdges();
     var node,edge;
+
+     for (var i = graphNodes.length - 1; i >= 0; i--) {
+       currentNodeIds.push(graphNodes[i]._cfg.id)
+     }
+     for (var i = nodes.length - 1; i >= 0; i--) {
+       if(currentNodeIds.includes(nodes[i].id)){
+         removeNodes.push(i);
+       }
+     }
+
+
+     for (var i = 0; i <= removeNodes.length-1; i++) {
+       
+       nodes.splice(removeNodes[i],1)
+        
+     }
+
+
      for (var i = graphNodes.length - 1; i >= 0; i--) {
        //console.log(graphNodes[i].getModel())
        node = graphNodes[i].getModel()
@@ -3583,6 +3605,11 @@ function refreshGraph(nodes, edges) {
        edge.skip = true;
        edges.push(edge);
      }
+
+
+
+
+
 
     var edges_ = removeDuplicateEdges(edges);
     edges_ = removeDuplicateEdges(edges_);
@@ -3630,12 +3657,15 @@ function initGraphData() {
   const vars = getUrlVars();
   console.info("initGraph",vars)
 
-  if (vars["state"] != undefined){
-    const jsonData = atou(vars["state"])
-   // window.prompt("json",jsonData)
-    var data = JSON.parse(jsonData)
+  if (vars["s3State"] != undefined){
+    
+    fetch("/graphviz-states/"+vars["s3State"]).then(rdata => {
 
-    for (var i = data.nodes.length - 1; i >= 0; i--) {
+      const jsonData = rdata.json().then(data => {
+
+            console.log("jsonData",data)
+
+      for (var i = data.nodes.length - 1; i >= 0; i--) {
       //colorSets[dimoProjectColorIndex]
       var indx;
       if (data.nodes[i].class == "[Project]"){
@@ -3666,6 +3696,15 @@ function initGraphData() {
     self.dimoGraphData.nodes = data.nodes
     self.dimoGraphData.edges = data.edges
     var ndata = initGraph(data.nodes,data.edges,false);
+
+      })
+
+
+
+
+    })
+   // window.prompt("json",jsonData)
+
 
   } else if (vars["org_id"] != undefined) {
     loadDimoOrg(vars["org_id"], self.dimoGraphData.nodes, self.dimoGraphData.edges);
@@ -3700,7 +3739,7 @@ function processAllNodesEdges(nodes_, edges_, isNewGraph) {
     const paddingLeft = paddingRatio * CANVAS_WIDTH;
     const paddingTop = paddingRatio * CANVAS_HEIGHT;
     nodes_.forEach((node) => {
-      console.log(node.skip)
+      //console.log(node.skip)
 
       //console.log(node)
       node.labelLineNum = undefined;
@@ -3713,6 +3752,7 @@ function processAllNodesEdges(nodes_, edges_, isNewGraph) {
 
 
       if (currentNodeMap[node.id]) {
+        debugger;
         console.warn("node exists already!", node.id);
         node.id = `${node.id}${Math.random()}`;
       }
@@ -4018,24 +4058,39 @@ function getStateURL() {
      data.edges.splice(deleteEdges[i], 1);
   }
 
-  var worked = true;
-
-  if (data.nodes.length > 15) {
-    window.alert("Current exceeds maximum number of nodes for saving the state.")
-    worked = false;
-    return worked;
-  }
-
 
 
   //console.log("saveData",data);
   const jsonData = JSON.stringify(data);
-  //window.prompt("jsonData",jsonData)
-  //console.log(jsonData)
-  const base64Data = utoa(jsonData);
+      fetch("/default/graphvizLambdaS3", {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: jsonData,
 
-  //return jsonData
-  return window.location.origin + window.location.pathname + "?state=" + base64Data;
+      }).then(data => {
+          const s3resp = data.json().then(s3data => {
+          const url = window.location.origin + window.location.pathname + "?s3State=" + s3data.url
+          window.prompt("Page URL",url);
+
+          })
+          
+      })
+        // Lrequest.post("/default/graphvizLambdaS3", { json: data },
+  //     (error, res, body) => {
+  //         if (error) {
+  //             console.error(error)
+  //             return
+  //         }
+  //         console.log(`statusCode: ${res.statusCode}`)
+  //         console.log(body)
+  //     }
+  // )
+
+
+
+
 }
 
 
@@ -4181,9 +4236,6 @@ function initGraph(nodes, edges_, useLayout=true) {
             } else if (code == "saveState") {
                   const pageUrl = getStateURL();
                   
-                  if (pageUrl) {
-                      window.prompt("Page URL",pageUrl);
-                   }
             }
 
         }
