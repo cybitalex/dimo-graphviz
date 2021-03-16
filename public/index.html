@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>DIMO Graph</title>
     <style>
-        /* The Modal (background) */
+    /* The Modal (background) */
     .modal {
         display: none;
         /* Hidden by default */
@@ -26,6 +26,12 @@
         /* Black w/ opacity */
     }
 
+
+    .modal-header {
+        text-align: center;
+    }
+
+
     /* Modal Content/Box */
     .modal-content {
         background-color: #fefefe;
@@ -36,22 +42,12 @@
         width: 80%;
         /* Could be more or less, depending on screen size */
     }
-
-    /* The Close Button */
-    .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-    }
-
-    .close:hover,
-    .close:focus {
-        color: black;
-        text-decoration: none;
-        cursor: pointer;
-    }
     </style>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/select/1.3.2/js/dataTables.select.min.js"></script>
 </head>
 
 <body>
@@ -70,11 +66,56 @@
                             <div class="formbuilder-radio-inline"><input class="modal-radio" name="radio-group-node-grouping" access="false" id="radio-group-node-grouping-1" required="required" aria-required="true" value="itemType" type="radio" checked="checked"><label for="radio-group-node-grouping-1">By Item Type</label></div>
                         </div>
                     </div>
-                    <div class="formbuilder-button-group form-group"><button type="button" class="btn-danger btn" name="settingsModalCloseButton" value="close" access="false" style="danger" id="settingsModalCloseButton">Close</button>
+                    <div class="formbuilder-button-group form-group">
+                        <button type="button" class="btn-danger btn" name="settingsModalCloseButton" value="close" access="false" style="danger" id="settingsModalCloseButton">Close</button>
                         <button type="button" class="modal-button btn-success btn" name="settingsModalSaveButton" value="save" access="false" style="success" id="settingsModalSaveButton">Save</button> </div>
                 </div>
             </form>
         </div>
+    </div>
+    <div id="searchModal" class="modal" style="width: 100vw;height: 100vw;text-align: center;">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <form id="searchModalForm" onkeydown="return event.key != 'Enter';">
+                <div class="rendered-form">
+                    <div class="">
+                        <h1 class="modal-header" access="false" id="control-9429438">Search</h1>
+                    </div>
+                    <div class="formbuilder-text form-group field-searchModalSearchText" style="text-align:center;"><input type="text" class="form-control" name="searchModalSearchText" access="false" id="searchModalSearchText" required="required" aria-required="true" style="text-align: center;"><button type="button" class="modal-button btn-success btn" name="searchModalSearchButton" value="" access="false" style="success" id="searchModalSearchButton">Search</button></div>
+                    <div class="formbuilder-checkbox-group form-group field-checkbox-group-1615873730622">
+                        <div class="checkbox-group" style="text-align:center;">
+                            <div class="formbuilder-checkbox-inline">
+                            	<input class="searchModalTableSelect" name="searchFunctions" access="false" id="checkbox-group-1615873730622-0" aria-required="true" value="[Functions]" type="checkbox" checked="checked"><label for="checkbox-group-1615873730622-0">[Functions]</label>
+                            	<input class="searchModalTableSelect" name="searchProjects" access="false" id="checkbox-group-1615873730622-1" aria-required="true" value="[Projects]" type="checkbox" checked="checked"><label for="checkbox-group-1615873730622-1">[Projects]</label></div>
+                            <div class="formbuilder-checkbox-inline">
+                            	<input class="searchModalTableSelect" name="searchDevices" access="false" id="checkbox-group-1615873730622-2" aria-required="true" value="[Devices]" type="checkbox" checked="checked"><label for="checkbox-group-1615873730622-2">[Devices]</label>
+                            	<input class="searchModalTableSelect" name="searchOrgs" access="false" id="checkbox-group-1615873730622-3" aria-required="true" value="[Org]" type="checkbox" checked="checked"><label for="checkbox-group-1615873730622-3">[Org]</label></div>
+                        </div>
+                        <div id="searchResultsTableDiv" class="search-results-table" style="visibility: hidden;">
+                            <table style="width: 100%;" id="searchResultsTable" class="display">
+                                <thead>
+                                    <tr>
+                                    	<th></th>
+                                        <th>Name</th>
+                                        <th>Class</th>
+                                        <th>Type</th>
+                                        <th>Created On</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="formbuilder-button-group form-group" style="text-align:center;">
+                            <button type="button" class="btn-danger btn" name="searchModalCloseButton" value="close" access="false" style="danger" id="searchModalCloseButton">Close</button>
+                            <button type="button" class="btn-danger btn" name="searchModalCloseButton" value="clear" access="false" style="warning" id="searchModalClearButton">Clear</button>
+                            <button type="button" class="modal-button btn-success btn" name="searchModalSaveButton" value="save" access="false" style="success" id="searchModalSaveButton">Add</button> 
+                        </div>
+                    </div>
+                </div>
+        </div>
+        </form>
+    </div>
     </div>
     <div id="container" style="-moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;-o-user-select:none;" unselectable="on" onselectstart="return false;" onmousedown="return false;"></div>
 </body>
