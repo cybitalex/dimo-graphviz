@@ -3,9 +3,79 @@
 <head>
     <meta charset="utf-8" />
     <title>DIMO Graph</title>
+    <style>
+        /* The Modal (background) */
+    .modal {
+        display: none;
+        /* Hidden by default */
+        position: fixed;
+        /* Stay in place */
+        z-index: 1;
+        /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%;
+        /* Full width */
+        height: 100%;
+        /* Full height */
+        overflow: auto;
+        /* Enable scroll if needed */
+        background-color: rgb(0, 0, 0);
+        /* Fallback color */
+        background-color: rgba(0, 0, 0, 0.4);
+        /* Black w/ opacity */
+    }
+
+    /* Modal Content/Box */
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        /* Could be more or less, depending on screen size */
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    </style>
 </head>
 
 <body>
+    <!-- The Modal -->
+    <div id="settingsModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <form id="rendered-form">
+                <div class="rendered-form">
+                    <div class="">
+                        <h1 class="modal-header" access="false" id="control-9662864">Settings</h1>
+                    </div>
+                    <div class="formbuilder-radio-group form-group field-radio-group-node-grouping"><label for="radio-group-node-grouping" class="formbuilder-radio-group-label">Node Grouping<span class="formbuilder-required">*</span><span class="tooltip-element" tooltip="Grouping by table type will group nodes based on their table (e.g. [Devices],[Function], and [Org]). Grouping by item type will group items based on their [Function]Type, [Org]Type, [Device]Type etc.">?</span></label>
+                        <div class="radio-group">
+                            <div class="formbuilder-radio-inline"><input class="modal-radio" name="radio-group-node-grouping" access="false" id="radio-group-node-grouping-0" required="required" aria-required="true" value="tableType" type="radio"><label for="radio-group-node-grouping-0">By Table Type</label></div>
+                            <div class="formbuilder-radio-inline"><input class="modal-radio" name="radio-group-node-grouping" access="false" id="radio-group-node-grouping-1" required="required" aria-required="true" value="itemType" type="radio" checked="checked"><label for="radio-group-node-grouping-1">By Item Type</label></div>
+                        </div>
+                    </div>
+                    <div class="formbuilder-button-group form-group"><button type="button" class="btn-danger btn" name="settingsModalCloseButton" value="close" access="false" style="danger" id="settingsModalCloseButton">Close</button>
+                        <button type="button" class="modal-button btn-success btn" name="settingsModalSaveButton" value="save" access="false" style="success" id="settingsModalSaveButton">Save</button> </div>
+                </div>
+            </form>
+        </div>
+    </div>
     <div id="container" style="-moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;-o-user-select:none;" unselectable="on" onselectstart="return false;" onmousedown="return false;"></div>
 </body>
 
