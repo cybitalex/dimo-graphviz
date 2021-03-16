@@ -64,6 +64,11 @@ insertCss(`
   .g6-component-contextmenu li:hover {
     color: #aaaaaa;
   }
+  .g6-component-tooltip {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 0px 0px 0px 0px;
+    box-shadow: rgb(174, 174, 174) 0px 0px 10px;
+  }
 `);
 
 const { labelPropagation, louvain, findShortestPath } = G6.Algorithm;
@@ -4352,6 +4357,45 @@ function initGraph(nodes, edges_, useLayout=true) {
 
 
 
+  const tooltip = new G6.Tooltip({
+    offsetX: 10,
+    offsetY: 10,
+    // the types of items that allow the tooltip show up
+    // 允许出现 tooltip 的 item 类型
+    itemTypes: ['edge'],
+    // custom the tooltip's content
+    // 自定义 tooltip 内容
+    getContent: (e) => {
+      const outDiv = document.createElement('div');
+      outDiv.style.width = 'fit-content';
+      //outDiv.style.padding = '0px 0px 20px 0px';
+      
+      if (e.item.getType()=="edge"){
+
+
+      outDiv.innerHTML = `
+        <ul>
+          <li>${e.item.getSource().getModel().class} &#60;-&#62; ${e.item.getTarget().getModel().class}</li>
+        </ul>
+        <ul>
+          <li>Source: ${e.item.getSource().getModel().oriLabel}</li>
+        </ul>
+        <ul>
+          <li>Target: ${e.item.getTarget().getModel().oriLabel}</li>
+        </ul>`;
+      }
+
+
+      return outDiv;
+    },
+  });
+
+
+
+
+
+
+
     const toolbar = new G6.ToolBar({
         getContent: () => {
             return `
@@ -4458,7 +4502,7 @@ function initGraph(nodes, edges_, useLayout=true) {
         type: "dimo-node",
         size: DEFAULTNODESIZE
     },
-    plugins: [contextMenu, toolbar]
+    plugins: [contextMenu, toolbar, tooltip]
 });
 
     self.graph = graph;
