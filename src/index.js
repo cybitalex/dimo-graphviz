@@ -80,6 +80,9 @@ let dragdY = undefined;
 let CANVAS_WIDTH = 800,
   CANVAS_HEIGHT = 800;
 
+var dragSelectedNodes = undefined;
+
+
 const duration = 2000;
 const animateOpacity = 0.6;
 const animateBackOpacity = 0.1;
@@ -442,6 +445,43 @@ G6.registerEdge(
   },
   "cubic"
 );
+
+
+
+
+const hideEdgesPromise = () => {
+  return new Promise((resolve, reject) => {
+    graph.getEdges().forEach((edge)=> {
+      graph.hideItem(edge, false)
+    })
+      resolve("Hiding Edges Worked.");
+  });
+};
+
+
+const dragPromise = (node, dragdx, dragdy) => {
+        return new Promise((resolve, reject) => {
+            /*stuff using username, password*/
+            const newX = node._cfg.model.x + dragdx
+            const newY = node._cfg.model.y + dragdy
+            graph.updateItem(node, {
+                x: newX,
+                y: newY
+            });
+
+
+            resolve("Stuff worked!");
+        });
+    };
+
+
+
+
+
+
+
+
+
 
 // Custom the line edge for single edge between one node pair
 
@@ -1339,65 +1379,15 @@ function wait(ms){
 
       }
   });
-    graph.on("node:drag", (evt) => {
-      dragdX = evt.x - dragX
-      dragdY = evt.y - dragY
-      dragX = evt.x
-      dragY = evt.y
+    
 
-      const curItem = evt.item._cfg.id;
-      const selNodes = graph.findAllByState('node', 'focus');
-      
-      const drag_promise = (node, dragdx, dragdy) => {
-          return new Promise((resolve, reject) => {
-              /*stuff using username, password*/
-              const newX = node._cfg.model.x + dragdx
-              const newY = node._cfg.model.y + dragdy
-              graph.updateItem(node, {
-                  x: newX,
-                  y: newY
-              });
-
-
-              resolve("Stuff worked!");
-          });
-      };
-
-
-
-
-
-      //var node;
-      for (var i = selNodes.length - 1; i >= 0; i--) {
-        //console.log(i,selNodes[i])
-
-        //if(selNodes[i]._cfg.id!=curItem){
-        
-          drag_promise(selNodes[i], dragdX, dragdY).then(uid => {
-              // Stuffv
-              console.log("promise", uid);
-          })
-        // const newX = selNodes[i]._cfg.model.x + dragdX
-        // const newY = selNodes[i]._cfg.model.y + dragdY
-
-        // graph.updateItem(selNodes[i], {
-        //   x:newX,
-        //   y:newY
-        // });
-        //}
-
-
-      }
-
-
-  });
 
     graph.on("node:dragstart", (evt) => {
       dragX = evt.x;
       dragY = evt.y;
-      graph.getEdges().forEach((edge)=> {
-        graph.hideItem(edge, false)
-      })
+      hideEdgesPromise();
+      dragSelectedNodes = graph.findAllByState('node', 'focus');
+
   });
 
     graph.on("node:dragend", (evt) => {
@@ -1408,7 +1398,30 @@ function wait(ms){
             graph.getEdges().forEach((edge)=> {
         graph.showItem(edge, false)
       })
+      dragSelectedNodes = undefined
+
   });
+
+
+
+    graph.on("node:drag", (evt) => {
+      dragdX = evt.x - dragX
+      dragdY = evt.y - dragY
+      dragX = evt.x
+      dragY = evt.y
+
+      const curItem = evt.item._cfg.id;
+      
+      dragSelectedNodes.forEach((node)=> {
+
+        if (node._cfg.id != curItem){
+
+        dragPromise(node, dragdX, dragdY)
+
+        }
+      })
+  });
+
 
   // click edge to show the detail of integrated edge drawer
   graph.on("edge:click", (evt) => {
