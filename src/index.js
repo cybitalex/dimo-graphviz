@@ -47,7 +47,7 @@ insertCss(`
   }
   .g6-component-tooltip {
     background-color: rgba(255, 255, 255, 0.8);
-    padding: 0px 0px 0px 0px;
+    padding: 0px 25px 0px 0px;
     box-shadow: rgb(174, 174, 174) 0px 0px 10px;
   }
 `);
@@ -805,7 +805,7 @@ const getForceLayoutConfig = (graph, largeGraphMode, configSettings) => {
     maxIteration: 5000,
     preventOverlap: true,
     damping: 0.99,
-    workerEnabled:false,
+    workerEnabled:true,
     gpuEnabled:true,
     nodeStrength:nodeStrength,
     linkDistance: (d) => {
@@ -4321,6 +4321,7 @@ function initGraph(nodes, edges_, useLayout=true) {
                 workerEnabled: true, // Whether to activate web-worker
 
             }
+            graph.set('animate', true);
             graph.updateLayout(radLayoutConfig)
 
 
@@ -4463,7 +4464,7 @@ function initGraph(nodes, edges_, useLayout=true) {
     minZoom: 0.1,
     groupByTypes: false,
     enabledStack: true,
-    animate:true,
+    animate:false,
     modes: {
         default: [{
                 type: "drag-canvas",
