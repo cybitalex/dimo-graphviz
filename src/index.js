@@ -101,7 +101,9 @@ const subjectColors = [
   "#5F95FF",
   "#61DDAA",
   "#F6BD16",
-  "#9661BC"
+  "#9661BC",
+  "#C91C25",
+  "#D37099",
 ];
 
 
@@ -109,7 +111,8 @@ const dimoProjectColorIndex = 0;
 const dimoOrgColorIndex = 1;
 const dimoFunctionColorIndex = 2;
 const dimoDeviceColorIndex = 3;
-
+const dimoResourceColorIndex = 4;
+const dimoPersonColorIndex = 5;
 
 const colorSets = G6.Util.getColorSetsBySubjectColors(
   subjectColors,
@@ -125,7 +128,8 @@ const dimoOrgIcon = "https://dl.airtable.com/.attachmentThumbnails/f17c35f9affd1
 const dimoProjectIcon = "https://api.iconify.design/mdi-crane.svg";
 const dimoFunctionIcon = "https://api.iconify.design/mdi-function.svg";
 const dimoDeviceIcon = "https://api.iconify.design/mdi-chip.svg";
-
+const dimoResourceIcon = "https://api.iconify.design/emojione-monotone:letter-r.svg"
+const dimoPeopleIcon = "https://api.iconify.design/akar-icons:person.svg"
 
 
 var graphInit = false;
@@ -906,6 +910,8 @@ self.dimoProjects = [];
 self.dimoOrgs = [];
 self.dimoFunctions = [];
 self.dimoDevices = [];
+self.dimoResources = [];
+self.dimoPeople = [];
 
 const deviceQuery = gql`query graphvizDeviceQuery($device_id: String!) {
   device(where: {id: {_eq: $device_id}}) {
@@ -1829,6 +1835,314 @@ const funtionQuery = gql`query graphvizFunctionQuery($function_id: String!) {
     }
   }
 }`
+
+
+
+const resourceQuery = gql`query graphvizResourceQuery($resource_id: String!) {
+  resource(where: {id: {_eq: $resource_id}}) {
+    id
+    added_by
+    added_on
+    additional_parking
+    attachments
+    available_by
+    break_room_sq_ft
+    classroom_sq_ft
+    dedicated_bathrooms
+    icon
+    geocode
+    description
+    monthly_rent
+    max_classroom_space
+    lease_min
+    location
+    last_modified_on
+    last_modified_by
+    kitchenette
+    notes
+    name
+    parking_spaces
+    number_of_charging_plugs
+    recommendation
+    secured_parking
+    simultaneous_trainees
+    status
+    tags
+    virtual_tour
+    valid
+    usable_sq_ft
+    resource_resource_types {
+      resource_type {
+        name
+        id
+        icon
+      }
+    }
+
+    project_resources {
+      project {
+        access
+        added_by
+        added_on
+        anchor_address
+        area_image
+        assigned_to
+        contacts
+        cover_photo
+        dimo_rating
+        description
+        geocode_cache
+        geospatial_data
+        id
+        implementation_target_rating
+        import_source_url
+        name
+        last_modified_on
+        last_modified_by
+        project_screenshots
+        tags
+        sla
+        regulator_orgs
+        project_website
+        thumbnail
+        underwriting_model
+        valid
+        version_history
+        wallet_address
+        zone_area_kml
+        project_project_types {
+          project_type {
+            id
+            icon
+            name
+          }
+        }
+        function_projects {
+          function {
+            id
+          }
+        }
+        org_projects {
+          organization {
+            id
+          }
+        }
+        project_devices {
+          device {
+            id
+          }
+        }
+        project_resources {
+          resource {
+            id
+          }
+        }
+      }
+    }
+    functions_resources {
+      function {
+        UI_screenshot
+        added_by
+        added_on
+        assigned_to
+        blueprint_file
+        blueprint_url
+        cover_photo
+        cost_model
+        description
+        icon
+        github
+        ongoing_monthly_subscription
+        name
+        last_modified_on
+        id
+        last_modified_by
+        priority
+        sample_output
+        size
+        tags
+        source_url
+        wallet_address
+        upfront_price_credits_to_engage
+        valid
+        function_function_types {
+          function_type {
+            icon
+            id
+            name
+          }
+        }
+        device_functions {
+          device {
+            id
+          }
+        }
+        function_projects {
+          project {
+            id
+          }
+        }
+        function_sp_orgs {
+          organization {
+            id
+          }
+        }
+        functions_resources {
+          resource {
+            id
+          }
+        }
+      }
+    }
+org_resources {
+      organization {
+        id
+        added_by
+        added_on
+        assigned_to
+        bd_tier
+        capital_raised
+        category_example
+        company_email
+        company_tagline
+        crunchbase_profile
+        employees
+        devices_page
+        featured_project_link
+        github
+        functions_page
+        headquarters
+        job_board_used
+        job_board_link_status
+        last_modified_by
+        last_modified_on
+        linkedn
+        logo_url
+        logo
+        name
+        naics_code
+        org_chart_link
+        product_picture
+        product_service_description
+        sales_outreach
+        website
+        wallet_address
+        valid
+        team_page_url
+        twitter_handle
+        tags
+        summary_video
+        org_org_types {
+          org_type {
+            icon
+            name
+            id
+          }
+        }
+        device_oem_orgs {
+          device {
+            id
+          }
+        }
+        device_sp_orgs {
+          device {
+            id
+          }
+        }
+        function_sp_orgs {
+          function {
+            id
+          }
+        }
+        org_projects {
+          project {
+            id
+          }
+        }
+        org_resources {
+          resource {
+            id
+          }
+        }
+
+
+
+      }
+    }
+  }
+}
+
+`
+
+self.gqlResourceDataToNode = (resource)=>{
+
+    var node = {
+        "id": resource.id,
+        "type": "dimo-node",
+        "class": "[Resource]",
+        "label": resource.name,
+        "airtableURL": "https://airtable.com/tblAKJHMkBTTAbuXE/viwfjiEW7MrdgTysI/" + resource.id,
+    };
+
+    if (resource.resource_resource_types.length) {
+
+      //  var url = JSON.parse(project.project_project_types[0].project_type.icon.replace(/\'/g, '"'))
+
+        node._type = resource.resource_resource_types[0].resource_type.name
+        var url = ""
+
+
+        if (url.length) {
+            node.logo = {
+                "show": true,
+                "url": url[0]
+            }
+        } else {
+            node.logo = {
+                "show": false,
+            }
+        }
+
+
+
+
+    } else {
+        node.logo = {
+            "show": false,
+        }
+    }
+
+    node.level = 1;
+
+
+    node.icon = {
+        "url": dimoResourceIcon
+    }
+
+    node.colorSet = colorSets[dimoResourceColorIndex]
+
+    node.labelCfg = {
+        position: "bottom",
+        offset: 5,
+        style: {
+            fill: global.node.labelCfg.style.fill,
+            fontSize: 12,
+            stroke: global.node.labelCfg.style.stroke,
+            lineWidth: 3
+        }
+    }
+
+
+
+    return node
+
+
+
+}
+
+
+
+
 
 
 self.gqlProjectDataToNode = (project)=>{

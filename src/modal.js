@@ -84,6 +84,8 @@ self.searchModalClearButton.onclick = function() {
     self.searchProjectsContextID = {};
     self.searchFunctionsContextID = {};
     self.searchOrgsContextID = {};
+    self.searchResourcesContextID = {};
+    self.searchPeopleContextID = {};
 
 }
 
@@ -285,6 +287,48 @@ self.getOrgEdges = (org) => {
 
 
 
+self.getResourceEdges = (resource) => {
+
+
+   var edges = [];
+
+    var project
+
+    for (var i = resource.project_resources.length - 1; i >= 0; i--) {
+        project = resource.project_resources[i].project;
+
+        if (self.dimoProjects[project.id] != undefined) {
+        edges.push({ "source": resource.id, "target": project.id, type: "custom-cubic" })
+
+        }
+    }
+
+    var func
+    for (var i = resource.functions_resources.length - 1; i >= 0; i--) {
+        func = resource.functions_resources[i].function;
+
+        if (self.dimoFunctions[func.id] != undefined) {
+        edges.push({ "source": resource.id, "target": func.id, type: "custom-cubic" })
+
+        }
+    }
+
+    var org
+    for (var i = resource.org_resources.length - 1; i >= 0; i--) {
+        org = resource.org_resources[i].organization;
+
+        if (self.dimoOrgs[org.id] != undefined) {
+        edges.push({ "source": resource.id, "target": org.id, type: "custom-cubic" })
+
+        }
+    }
+
+
+    return edges
+
+}
+
+
 self.searchTableConvDeviceToNode = (id,index)=>{
     const device = self.searchDevicesContextID[id]
     var devNode = self.gqlDeviceDataToNode(device);    
@@ -309,7 +353,11 @@ self.searchTableConvOrgToNode = (id,index)=>{
     return [org,orgNode]
 }
 
-
+self.searchTableConvResourceToNode = (id,index)=>{
+    const resource = self.searchResourcesContextID[id]
+    var resourceNode = self.gqlResourceDataToNode(resource);    
+    return [resource,resourceNode]
+}
 
 
 self.searchModalAddButton.onclick = function() {
@@ -351,6 +399,11 @@ self.searchModalAddButton.onclick = function() {
             self.dimoOrgs[node.id] = node
             nodes.push(node)
             objs.push(obj)
+        } else if (type=="[Resource]") {
+            [obj,node] = self.searchTableConvResourceToNode(id,indexes[i])
+            self.dimoOrgs[node.id] = node
+            nodes.push(node)
+            objs.push(obj)
         }
 
 
@@ -371,6 +424,9 @@ self.searchModalAddButton.onclick = function() {
         } else if (nodes[i].class == "[Org]"){
         edges_ = self.getOrgEdges(obj)
         edges = [...edges, ...edges_];         
+        } else if (nodes[i].class == "[Resource]"){
+        edges_ = self.getResourceEdges(obj)
+        edges = [...edges, ...edges_];
         }
 
 
@@ -399,6 +455,8 @@ self.searchDevicesContextID = {};
 self.searchProjectsContextID = {};
 self.searchFunctionsContextID = {};
 self.searchOrgsContextID = {};
+self.searchResourcesContextID = {};
+self.searchPeopleContextID = {};
 
 
 const deviceSearchQuery = gql`query graphVizDeviceSearch($searchString: String!) {
@@ -645,13 +703,81 @@ const functionSearchQuery = gql`query graphvizFunctionQuery($searchString: Strin
 
 `
 
+
+const resourceSearchQuery = gql`query graphvizResourceQuery($searchString: String!) {
+  resource(where: {name: {_ilike: $searchString}}) {
+    id
+    added_by
+    added_on
+    additional_parking
+    attachments
+    available_by
+    break_room_sq_ft
+    classroom_sq_ft
+    dedicated_bathrooms
+    icon
+    geocode
+    description
+    monthly_rent
+    max_classroom_space
+    lease_min
+    location
+    last_modified_on
+    last_modified_by
+    kitchenette
+    notes
+    name
+    parking_spaces
+    number_of_charging_plugs
+    recommendation
+    secured_parking
+    simultaneous_trainees
+    status
+    tags
+    virtual_tour
+    valid
+    usable_sq_ft
+    resource_resource_types {
+      resource_type {
+        name
+        id
+        icon
+      }
+    }
+    project_resources {
+      project {
+        id
+        name
+      }
+    }
+    functions_resources {
+      function {
+        id
+        name
+      }
+    }
+    org_resources {
+      organization {
+        id
+        name
+      }
+    }
+  }
+}`
+
+
+
+
 self.searchModalSearchButton.onclick = function() {
+
+
 
     var searchFunctions = false;
     var searchProjects = false;
     var searchDevices = false;
     var searchOrgs = false;
-
+    var searchResources = false;
+    var searchPeople = false;
     var searchText = undefined;
 
 
@@ -671,6 +797,8 @@ self.searchModalSearchButton.onclick = function() {
           searchOrgs = true;
         } else if(formItem.name=="searchModalSearchText") {
           searchText = "%" + formItem.value + "%"
+        } else if(formItem.name=="searchResources"){
+          searchResources = true;
         }
 
 
@@ -694,6 +822,10 @@ self.searchModalSearchButton.onclick = function() {
     if (searchFunctions) {
       self.searchFunctionsFunc(searchText)
     }
+    if (searchResources) {
+      self.searchResourcesFunc(searchText)
+    }
+
     if (searchOrgs) {
       self.searchOrgsFunc(searchText)
     }
@@ -871,7 +1003,46 @@ self.searchOrgsFunc = (searchText) => {
 }
 
 
+self.searchResourcesFunc = (searchText) => {
 
+  const vars = { "searchString": searchText }
+
+  self.graphQLClient.request(resourceSearchQuery, vars).then((data)=>{
+
+
+      data.resource.forEach((item)=>{
+
+        // <th>Name</th>
+        // <th>Class</th>
+        // <th>Type</th>
+        // <th>Created On</th>
+
+
+        if (self.dimoResources[item.id] == undefined && self.searchResourcesContextID[item.id] == undefined){
+
+              var resource_type = "N/A"
+              if(item.resource_resource_types.length){
+                resource_type = item.resource_resource_types[0].resource_type.name
+              }
+
+              const airtableUrl = "https://airtable.com/tblAKJHMkBTTAbuXE/viwfjiEW7MrdgTysI/" + item.id
+
+              const name = `<a href="${airtableUrl}" target="_blank">${item.name}</a>`
+              const checkbox = `<div class="div-id" id="${item.id}" type="id"></div>`
+
+              var data = [checkbox,name,"[Resource]",resource_type,item.added_on]
+              self.searchResourcesContextID[item.id] = item
+              self.addRowToSearchTable(data)
+
+          }
+      })
+
+
+  })
+
+
+
+}
 
 
 
