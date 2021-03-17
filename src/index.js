@@ -8,9 +8,6 @@ const Lrequest = require('request')
 // import React from "react";
 // import ReactDOM from "react-dom";
 
-self.modalOpen = false;
-
-
 
 
 
@@ -68,7 +65,7 @@ let nodeMap = {};
 let aggregatedNodeMap = {};
 let hiddenItemIds = [];
 let largeGraphMode = false;
-let cachePositions = {};
+self.cachePositions = {};
 let manipulatePosition = undefined;
 let descreteNodeCenter;
 let layout = {
@@ -540,239 +537,6 @@ const labelFormatter = (text, minLength = 20) => {
   return text;
 };
 
-//
-const processNodesEdges = (
-  nodes,
-  edges,
-  width,
-  height,
-  largeGraphMode,
-  edgeLabelVisible,
-  isNewGraph = false
-) => {
-  if (!nodes || nodes.length === 0) return {};
-  const currentNodeMap = {};
-  let maxNodeCount = -Infinity;
-  const paddingRatio = 0.3;
-  const paddingLeft = paddingRatio * width;
-  const paddingTop = paddingRatio * height;
-  nodes.forEach((node) => {
-    node.type = node.level === 0 ? "real-node" : "dimo-node";
-    node.isReal = node.level === 0 ? true : false;
-    node.label = `${node.id}`;
-    node.labelLineNum = undefined;
-    node.oriLabel = node.label;
-    node.label = formatText(node.label, labelMaxLength, "...");
-    node.degree = 0;
-    node.inDegree = 0;
-    node.outDegree = 0;
-    if (currentNodeMap[node.id]) {
-      console.warn("node exists already!", node.id);
-      node.id = `${node.id}${Math.random()}`;
-    }
-    currentNodeMap[node.id] = node;
-    if (node.count > maxNodeCount) maxNodeCount = node.count;
-    const cachePosition = cachePositions ? cachePositions[node.id] : undefined;
-    if (cachePosition) {
-      node.x = cachePosition.x;
-      node.y = cachePosition.y;
-      node.new = false;
-    } else {
-      node.new = isNewGraph ? false : true;
-      if (manipulatePosition && !node.x && !node.y) {
-        node.x =
-          manipulatePosition.x + 30 * Math.cos(Math.random() * Math.PI * 2);
-        node.y =
-          manipulatePosition.y + 30 * Math.sin(Math.random() * Math.PI * 2);
-      }
-    }
-  });
-
-  let maxCount = -Infinity;
-  let minCount = Infinity;
-  // let maxCount = 0;
-  edges.forEach((edge) => {
-    // to avoid the dulplicated id to nodes
-    if (!edge.id) edge.id = `edge-${uniqueId()}`;
-    else if (edge.id.split("-")[0] !== "edge") edge.id = `edge-${edge.id}`;
-    // TODO: delete the following line after the queried data is correct
-    if (!currentNodeMap[edge.source] || !currentNodeMap[edge.target]) {
-      console.warn(
-        "edge source target does not exist",
-        edge.source,
-        edge.target,
-        edge.id
-      );
-      return;
-    }
-    const sourceNode = currentNodeMap[edge.source];
-    const targetNode = currentNodeMap[edge.target];
-
-    if (!sourceNode || !targetNode)
-      console.warn(
-        "source or target is not defined!!!",
-        edge,
-        sourceNode,
-        targetNode
-      );
-
-    // calculate the degree
-    sourceNode.degree++;
-    targetNode.degree++;
-    sourceNode.outDegree++;
-    targetNode.inDegree++;
-
-    if (edge.count > maxCount) maxCount = edge.count;
-    if (edge.count < minCount) minCount = edge.count;
-  });
-
-  nodes.sort(descendCompare(NODESIZEMAPPING));
-  const maxDegree = nodes[0].degree || 1;
-
-  const descreteNodes = [];
-  nodes.forEach((node, i) => {
-    // assign the size mapping to the outDegree
-    const countRatio = node.count / maxNodeCount;
-    const isRealNode = node.level === 0;
-    node.size = isRealNode ? DEFAULTNODESIZE : DEFAULTAGGREGATEDNODESIZE;
-    node.isReal = isRealNode;
-    node.labelCfg = {
-      position: "bottom",
-      offset: 5,
-      style: {
-        fill: global.node.labelCfg.style.fill,
-        fontSize: 6 + countRatio * 6 || 12,
-        stroke: global.node.labelCfg.style.stroke,
-        lineWidth: 3
-      }
-    };
-
-    if (!node.degree) {
-      descreteNodes.push(node);
-    }
-  });
-
-  const countRange = maxCount - minCount;
-  const minEdgeSize = 1;
-  const maxEdgeSize = 7;
-  const edgeSizeRange = maxEdgeSize - minEdgeSize;
-  edges.forEach((edge) => {
-    // set edges' style
-    const targetNode = currentNodeMap[edge.target];
-
-    const size =
-      ((edge.count - minCount) / countRange) * edgeSizeRange + minEdgeSize || 1;
-    edge.size = size;
-
-    const arrowWidth = Math.max(size / 2 + 2, 3);
-    const arrowLength = 10;
-    const arrowBeging = targetNode.size + arrowLength;
-    let arrowPath = `M ${arrowBeging},0 L ${
-      arrowBeging + arrowLength
-    },-${arrowWidth} L ${arrowBeging + arrowLength},${arrowWidth} Z`;
-    let d = targetNode.size / 2 + arrowLength;
-    if (edge.source === edge.target) {
-      edge.type = "loop";
-      arrowPath = undefined;
-    }
-    const sourceNode = currentNodeMap[edge.source];
-    const isRealEdge = targetNode.isReal && sourceNode.isReal;
-    edge.isReal = isRealEdge;
-    const stroke = isRealEdge
-      ? global.edge.style.realEdgeStroke
-      : global.edge.style.stroke;
-    const opacity = isRealEdge
-      ? global.edge.style.realEdgeOpacity
-      : global.edge.style.strokeOpacity;
-    const dash = Math.max(size, 2);
-    const lineDash = isRealEdge ? undefined : [dash, dash];
-    edge.style = {
-      stroke,
-      strokeOpacity: opacity,
-      cursor: "pointer",
-      lineAppendWidth: Math.max(edge.size || 5, 5),
-      fillOpacity: 1,
-      lineDash,
-      endArrow: arrowPath
-        ? {
-            path: arrowPath,
-            d,
-            fill: stroke,
-            strokeOpacity: 0
-          }
-        : false
-    };
-    edge.labelCfg = {
-      autoRotate: true,
-      style: {
-        stroke: global.edge.labelCfg.style.stroke,
-        fill: global.edge.labelCfg.style.fill,
-        lineWidth: 4,
-        fontSize: 12,
-        lineAppendWidth: 10,
-        opacity: 1
-      }
-    };
-    if (!edge.oriLabel) edge.oriLabel = edge.label;
-    if (largeGraphMode || !edgeLabelVisible) edge.label = "";
-    else {
-      edge.label = labelFormatter(edge.label, labelMaxLength);
-    }
-
-    // arrange the other nodes around the hub
-    const sourceDis = sourceNode.size / 2 + 20;
-    const targetDis = targetNode.size / 2 + 20;
-    if (sourceNode.x && !targetNode.x) {
-      targetNode.x =
-        sourceNode.x + sourceDis * Math.cos(Math.random() * Math.PI * 2);
-    }
-    if (sourceNode.y && !targetNode.y) {
-      targetNode.y =
-        sourceNode.y + sourceDis * Math.sin(Math.random() * Math.PI * 2);
-    }
-    if (targetNode.x && !sourceNode.x) {
-      sourceNode.x =
-        targetNode.x + targetDis * Math.cos(Math.random() * Math.PI * 2);
-    }
-    if (targetNode.y && !sourceNode.y) {
-      sourceNode.y =
-        targetNode.y + targetDis * Math.sin(Math.random() * Math.PI * 2);
-    }
-
-    if (!sourceNode.x && !sourceNode.y && manipulatePosition) {
-      sourceNode.x =
-        manipulatePosition.x + 30 * Math.cos(Math.random() * Math.PI * 2);
-      sourceNode.y =
-        manipulatePosition.y + 30 * Math.sin(Math.random() * Math.PI * 2);
-    }
-    if (!targetNode.x && !targetNode.y && manipulatePosition) {
-      targetNode.x =
-        manipulatePosition.x + 30 * Math.cos(Math.random() * Math.PI * 2);
-      targetNode.y =
-        manipulatePosition.y + 30 * Math.sin(Math.random() * Math.PI * 2);
-    }
-  });
-
-  descreteNodeCenter = {
-    x: width - paddingLeft,
-    y: height - paddingTop
-  };
-  descreteNodes.forEach((node) => {
-    if (!node.x && !node.y) {
-      node.x =
-        descreteNodeCenter.x + 30 * Math.cos(Math.random() * Math.PI * 2);
-      node.y =
-        descreteNodeCenter.y + 30 * Math.sin(Math.random() * Math.PI * 2);
-    }
-  });
-
-  G6.Util.processParallelEdges(edges, 12.5, "custom-cubic", "custom-line");
-  return {
-    maxDegree,
-    edges
-  };
-};
-
 const getForceLayoutConfig = (graph, largeGraphMode, configSettings) => {
   let {
     linkDistance,
@@ -791,10 +555,6 @@ const getForceLayoutConfig = (graph, largeGraphMode, configSettings) => {
   if (!edgeStrength && edgeStrength !== 0) edgeStrength = 0;
   if (!nodeStrength && nodeStrength !== 0) nodeStrength = 5000;
   if (!nodeSpacing && nodeSpacing !== 0) nodeSpacing = 1000;
-
-
-  console.log("order","linkDistance","edgeStrength","nodeStrength","preventOverlap","nodeSize","collideStrength","alpha","alphaDecay","alphaMin");
-  console.log(linkDistance,edgeStrength,nodeStrength,preventOverlap,nodeSize,collideStrength,alpha,alphaDecay,alphaMin);
 
 
 
@@ -860,347 +620,9 @@ const showItems = (graph) => {
   hiddenItemIds = [];
 };
 
-const handleRefreshGraph = (
-  graph,
-  graphData,
-  width,
-  height,
-  largeGraphMode,
-  edgeLabelVisible,
-  isNewGraph
-) => {
-  if (!graphData || !graph) return;
-  clearFocusItemState(graph);
-  // reset the filtering
-  graph.getNodes().forEach((node) => {
-    if (!node.isVisible()) node.show();
-  });
-  graph.getEdges().forEach((edge) => {
-    if (!edge.isVisible()) edge.show();
-  });
 
-  let nodes = [],
-    edges = [];
 
-  nodes = graphData.nodes;
-  const processRes = processNodesEdges(
-    nodes,
-    graphData.edges || [],
-    width,
-    height,
-    largeGraphMode,
-    edgeLabelVisible,
-    isNewGraph
-  );
-
-  edges = processRes.edges;
-
-  graph.changeData({ nodes, edges });
-
-  hideItems(graph);
-  graph.getNodes().forEach((node) => {
-    node.toFront();
-  });
-
-  layout.instance.init({
-    nodes: graphData.nodes,
-    edges
-  });
-
-  layout.instance.minMovement = 0.0001;
-  // layout.instance.getCenter = d => {
-  //   const cachePosition = cachePositions[d.id];
-  //   if (!cachePosition && (d.x || d.y)) return [d.x, d.y, 10];
-  //   else if (cachePosition) return [cachePosition.x, cachePosition.y, 10];
-  //   return [width / 2, height / 2, 10];
-  // }
-  layout.instance.getMass = (d) => {
-    const cachePosition = cachePositions[d.id];
-    if (cachePosition) return 5;
-    return 1;
-  };
-  layout.instance.execute();
-  return { nodes, edges };
-};
-
-const getMixedGraph = (
-  aggregatedData,
-  originData,
-  nodeMap,
-  aggregatedNodeMap,
-  expandArray,
-  collapseArray
-) => {
-  let nodes = [],
-    edges = [];
-
-  const expandMap = {},
-    collapseMap = {};
-  expandArray.forEach((expandModel) => {
-    expandMap[expandModel.id] = true;
-  });
-  collapseArray.forEach((collapseModel) => {
-    collapseMap[collapseModel.id] = true;
-  });
-
-  aggregatedData.clusters.forEach((cluster, i) => {
-    if (expandMap[cluster.id]) {
-      nodes = nodes.concat(cluster.nodes);
-      aggregatedNodeMap[cluster.id].expanded = true;
-    } else {
-      nodes.push(aggregatedNodeMap[cluster.id]);
-      aggregatedNodeMap[cluster.id].expanded = false;
-    }
-  });
-  originData.edges.forEach((edge) => {
-    const isSourceInExpandArray = expandMap[nodeMap[edge.source].clusterId];
-    const isTargetInExpandArray = expandMap[nodeMap[edge.target].clusterId];
-    if (isSourceInExpandArray && isTargetInExpandArray) {
-      edges.push(edge);
-    } else if (isSourceInExpandArray) {
-      const targetClusterId = nodeMap[edge.target].clusterId;
-      const vedge = {
-        source: edge.source,
-        target: targetClusterId,
-        id: `edge-${uniqueId()}`,
-        label: ""
-      };
-      edges.push(vedge);
-    } else if (isTargetInExpandArray) {
-      const sourceClusterId = nodeMap[edge.source].clusterId;
-      const vedge = {
-        target: edge.target,
-        source: sourceClusterId,
-        id: `edge-${uniqueId()}`,
-        label: ""
-      };
-      edges.push(vedge);
-    }
-  });
-  aggregatedData.clusterEdges.forEach((edge) => {
-    if (expandMap[edge.source] || expandMap[edge.target]) return;
-    else edges.push(edge);
-  });
-  return { nodes, edges };
-};
-
-const getNeighborMixedGraph = (
-  centerNodeModel,
-  step,
-  originData,
-  clusteredData,
-  currentData,
-  nodeMap,
-  aggregatedNodeMap,
-  maxNeighborNumPerNode = 5
-) => {
-  // update the manipulate position for center gravity of the new nodes
-  manipulatePosition = { x: centerNodeModel.x, y: centerNodeModel.y };
-
-  // the neighborSubGraph does not include the centerNodeModel. the elements are all generated new nodes and edges
-  const neighborSubGraph = generateNeighbors(
-    centerNodeModel,
-    step,
-    maxNeighborNumPerNode
-  );
-  // update the origin data
-  originData.nodes = originData.nodes.concat(neighborSubGraph.nodes);
-  originData.edges = originData.edges.concat(neighborSubGraph.edges);
-  // update the origin nodeMap
-  neighborSubGraph.nodes.forEach((node) => {
-    nodeMap[node.id] = node;
-  });
-  // update the clusteredData
-  const clusterId = centerNodeModel.clusterId;
-  clusteredData.clusters.forEach((cluster) => {
-    if (cluster.id !== clusterId) return;
-    cluster.nodes = cluster.nodes.concat(neighborSubGraph.nodes);
-    cluster.sumTot += neighborSubGraph.edges.length;
-  });
-  // update the count
-  aggregatedNodeMap[clusterId].count += neighborSubGraph.nodes.length;
-
-  currentData.nodes = currentData.nodes.concat(neighborSubGraph.nodes);
-  currentData.edges = currentData.edges.concat(neighborSubGraph.edges);
-  return currentData;
-};
-
-const generateNeighbors = (
-  centerNodeModel,
-  step,
-  maxNeighborNumPerNode = 5
-) => {
-  if (step <= 0) return undefined;
-  let nodes = [],
-    edges = [];
-  const clusterId = centerNodeModel.clusterId;
-  const centerId = centerNodeModel.id;
-  const neighborNum = Math.ceil(Math.random() * maxNeighborNumPerNode);
-  for (let i = 0; i < neighborNum; i++) {
-    const neighborNode = {
-      id: uniqueId(),
-      clusterId,
-      level: 0,
-      colorSet: centerNodeModel.colorSet
-    };
-    nodes.push(neighborNode);
-    const dire = Math.random() > 0.5;
-    const source = dire ? centerId : neighborNode.id;
-    const target = dire ? neighborNode.id : centerId;
-    const neighborEdge = {
-      id: uniqueId(),
-      source,
-      target,
-      label: `${source}-${target}`
-    };
-    edges.push(neighborEdge);
-    const subNeighbors = generateNeighbors(
-      neighborNode,
-      step - 1,
-      maxNeighborNumPerNode
-    );
-    if (subNeighbors) {
-      nodes = nodes.concat(subNeighbors.nodes);
-      edges = edges.concat(subNeighbors.edges);
-    }
-  }
-  return { nodes, edges };
-};
-
-const getExtractNodeMixedGraph = (
-  extractNodeData,
-  originData,
-  nodeMap,
-  aggregatedNodeMap,
-  currentUnproccessedData
-) => {
-  const extractNodeId = extractNodeData.id;
-  // const extractNodeClusterId = extractNodeData.clusterId;
-  // push to the current rendering data
-  currentUnproccessedData.nodes.push(extractNodeData);
-  // update the count of aggregatedNodeMap, when to revert?
-  // aggregatedNodeMap[extractNodeClusterId].count --;
-
-  // extract the related edges
-  originData.edges.forEach((edge) => {
-    if (edge.source === extractNodeId) {
-      const targetClusterId = nodeMap[edge.target].clusterId;
-      if (!aggregatedNodeMap[targetClusterId].expanded) {
-        // did not expand, create an virtual edge fromt he extract node to the cluster
-        currentUnproccessedData.edges.push({
-          id: uniqueId(),
-          source: extractNodeId,
-          target: targetClusterId
-        });
-      } else {
-        // if the cluster is already expanded, push the origin edge
-        currentUnproccessedData.edges.push(edge);
-      }
-    } else if (edge.target === extractNodeId) {
-      const sourceClusterId = nodeMap[edge.source].clusterId;
-      if (!aggregatedNodeMap[sourceClusterId].expanded) {
-        // did not expand, create an virtual edge fromt he extract node to the cluster
-        currentUnproccessedData.edges.push({
-          id: uniqueId(),
-          target: extractNodeId,
-          source: sourceClusterId
-        });
-      } else {
-        // if the cluster is already expanded, push the origin edge
-        currentUnproccessedData.edges.push(edge);
-      }
-    }
-  });
-  return currentUnproccessedData;
-};
-
-const examAncestors = (model, expandedArray, length, keepTags) => {
-  for (let i = 0; i < length; i++) {
-    const expandedNode = expandedArray[i];
-    if (!keepTags[i] && model.parentId === expandedNode.id) {
-      keepTags[i] = true; // 需要被保留
-      examAncestors(expandedNode, expandedArray, length, keepTags);
-      break;
-    }
-  }
-};
-
-const manageExpandCollapseArray = (
-  nodeNumber,
-  model,
-  collapseArray,
-  expandArray
-) => {
-  manipulatePosition = { x: model.x, y: model.y };
-
-  // 维护 expandArray，若当前画布节点数高于上限，移出 expandedArray 中非 model 祖先的节点)
-  if (nodeNumber > NODE_LIMIT) {
-    // 若 keepTags[i] 为 true，则 expandedArray 的第 i 个节点需要被保留
-    const keepTags = {};
-    const expandLen = expandArray.length;
-    // 检查 X 的所有祖先并标记 keepTags
-    examAncestors(model, expandArray, expandLen, keepTags);
-    // 寻找 expandedArray 中第一个 keepTags 不为 true 的点
-    let shiftNodeIdx = -1;
-    for (let i = 0; i < expandLen; i++) {
-      if (!keepTags[i]) {
-        shiftNodeIdx = i;
-        break;
-      }
-    }
-    // 如果有符合条件的节点，将其从 expandedArray 中移除
-    if (shiftNodeIdx !== -1) {
-      let foundNode = expandArray[shiftNodeIdx];
-      if (foundNode.level === 2) {
-        let foundLevel1 = false;
-        // 找到 expandedArray 中 parentId = foundNode.id 且 level = 1 的第一个节点
-        for (let i = 0; i < expandLen; i++) {
-          const eNode = expandArray[i];
-          if (eNode.parentId === foundNode.id && eNode.level === 1) {
-            foundLevel1 = true;
-            foundNode = eNode;
-            expandArray.splice(i, 1);
-            break;
-          }
-        }
-        // 若未找到，则 foundNode 不变, 直接删去 foundNode
-        if (!foundLevel1) expandArray.splice(shiftNodeIdx, 1);
-      } else {
-        // 直接删去 foundNode
-        expandArray.splice(shiftNodeIdx, 1);
-      }
-      // const removedNode = expandedArray.splice(shiftNodeIdx, 1); // splice returns an array
-      const idSplits = foundNode.id.split("-");
-      let collapseNodeId;
-      // 去掉最后一个后缀
-      for (let i = 0; i < idSplits.length - 1; i++) {
-        const str = idSplits[i];
-        if (collapseNodeId) collapseNodeId = `${collapseNodeId}-${str}`;
-        else collapseNodeId = str;
-      }
-      const collapseNode = {
-        id: collapseNodeId,
-        parentId: foundNode.id,
-        level: foundNode.level - 1
-      };
-      collapseArray.push(collapseNode);
-    }
-  }
-
-  const currentNode = {
-    id: model.id,
-    level: model.level,
-    parentId: model.parentId
-  };
-
-  // 加入当前需要展开的节点
-  expandArray.push(currentNode);
-
-  graph.get("canvas").setCursor("default");
-  return { expandArray, collapseArray };
-};
-
-const cacheNodePositions = (nodes) => {
+self.cacheNodePositions = (nodes) => {
   const positionMap = {};
   const nodeLength = nodes.length;
   for (let i = 0; i < nodeLength; i++) {
@@ -1212,7 +634,6 @@ const cacheNodePositions = (nodes) => {
       level: node.level
     };
   }
-  console.log("positionMap",positionMap)
   return positionMap;
 };
 
@@ -1224,8 +645,7 @@ const stopLayout = () => {
 
 const bindListener = (graph) => {
   graph.on("keydown", (evt) => {
-    console.log("modal",self.modalOpen)
-    if(self.modalOpen) {
+    if(window.modalOpen) {
       return
     }
 
@@ -1297,8 +717,7 @@ function wait(ms){
 
 
   graph.on("keyup", (evt) => {
-    console.log("modal",self.modalOpen)
-    if(self.modalOpen) {
+    if(window.modalOpen) {
       return
     }
 
@@ -2412,7 +1831,7 @@ const funtionQuery = gql`query graphvizFunctionQuery($function_id: String!) {
 }`
 
 
-function gqlProjectDataToNode(project) {
+self.gqlProjectDataToNode = (project)=>{
 
     var node = {
         "id": project.id,
@@ -2424,7 +1843,6 @@ function gqlProjectDataToNode(project) {
 
     if (project.project_project_types.length) {
 
-        console.log("project.project_project_types",project.project_project_types[0])
         var url = JSON.parse(project.project_project_types[0].project_type.icon.replace(/\'/g, '"'))
 
         node._type = project.project_project_types[0].project_type.name
@@ -2495,7 +1913,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
 
 
             var proj = data.project[0];
-            var projNode = gqlProjectDataToNode(proj);
+            var projNode = self.gqlProjectDataToNode(proj);
             if (initial) {
 
             
@@ -2508,7 +1926,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
             for (var i = proj.project_devices.length - 1; i >= 0; i--) {
 
                 device = proj.project_devices[i].device;
-                deviceNode = gqlDeviceDataToNode(device);
+                deviceNode = self.gqlDeviceDataToNode(device);
                 
 
                 if (self.dimoDevices[deviceNode.id] == undefined){
@@ -2528,7 +1946,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
             var func, funcNode;
             for (var i = proj.function_projects.length - 1; i >= 0; i--) {
                 func = proj.function_projects[i].function;
-                funcNode = gqlFunctionDataToNode(func);
+                funcNode = self.gqlFunctionDataToNode(func);
 
                 if (self.dimoFunctions[funcNode.id] == undefined){
 
@@ -2546,7 +1964,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
 
             for (var i = proj.org_projects.length - 1; i >= 0; i--) {
                 org = proj.org_projects[i].organization;
-                orgNode = gqlOrgDataToNode(org);
+                orgNode = self.gqlOrgDataToNode(org);
                 
                 if (self.dimoOrgs[orgNode.id] == undefined){
 
@@ -2683,13 +2101,13 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
                 initGraph(nodes,edges);
             }
             else {
-              refreshGraph(nodes, edges);
+              self.refreshGraph(nodes, edges);
             }
         })
 
 }
 
-function gqlOrgDataToNode(org) {
+self.gqlOrgDataToNode = (org)=>{
 
     var node = {
         "id": org.id,
@@ -2716,7 +2134,6 @@ function gqlOrgDataToNode(org) {
 
     if (org.org_org_types.length) {
 
-        console.log("org.org_org_types",org.org_org_types[0])
         var url = JSON.parse(org.org_org_types[0].org_type.icon.replace(/\'/g, '"'))
 
         node._type = org.org_org_types[0].org_type.name
@@ -2779,7 +2196,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
 
 
             var org = data.organization[0];
-            var orgNode = gqlOrgDataToNode(org);
+            var orgNode = self.gqlOrgDataToNode(org);
 
             if (initial) {
 
@@ -2791,7 +2208,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
             for (var i = org.device_oem_orgs.length - 1; i >= 0; i--) {
 
                 device = org.device_oem_orgs[i].device;
-                deviceNode = gqlDeviceDataToNode(device);
+                deviceNode = self.gqlDeviceDataToNode(device);
 
                 if (self.dimoDevices[deviceNode.id] == undefined) {
                     self.dimoDevices[deviceNode.id] = deviceNode;
@@ -2811,7 +2228,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
             for (var i = org.device_sp_orgs.length - 1; i >= 0; i--) {
 
                 device = org.device_sp_orgs[i].device;
-                deviceNode = gqlDeviceDataToNode(device);
+                deviceNode = self.gqlDeviceDataToNode(device);
 
                 if (self.dimoDevices[deviceNode.id] == undefined) {
 
@@ -2828,7 +2245,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
 
             for (var i = org.function_sp_orgs.length - 1; i >= 0; i--) {
                 func = org.function_sp_orgs[i].function;
-                funcNode = gqlFunctionDataToNode(func);
+                funcNode = self.gqlFunctionDataToNode(func);
 
                 if (self.dimoFunctions[funcNode.id] == undefined) {
                     self.dimoFunctions[funcNode.id] = funcNode;
@@ -2847,7 +2264,7 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
 
             for (var i = org.org_projects.length - 1; i >= 0; i--) {
                 project = org.org_projects[i].project;
-                projNode = gqlProjectDataToNode(project);
+                projNode = self.gqlProjectDataToNode(project);
 
                 if (self.dimoProjects[projNode.id] == undefined) {
                     self.dimoProjects[projNode.id] = projNode;
@@ -2986,14 +2403,14 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
                 initGraph(nodes,edges);
             }
             else {
-              refreshGraph(nodes, edges);
+              self.refreshGraph(nodes, edges);
             }
         })
 
 
 
 }
-function gqlFunctionDataToNode(func) {
+self.gqlFunctionDataToNode = (func)=>{
 
     var node = {
         "id": func.id,
@@ -3004,8 +2421,6 @@ function gqlFunctionDataToNode(func) {
     };
  
     if (func.function_function_types.length) {
-
-        console.log("func.functon_function_types",func.function_function_types[0])
 
         node._type = func.function_function_types[0].function_type.name
 
@@ -3073,7 +2488,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
             console.info("[Function] Request", data);
 
             var func = data.function[0];
-            var funcNode = gqlFunctionDataToNode(func);
+            var funcNode = self.gqlFunctionDataToNode(func);
 
             if (initial) {
 
@@ -3086,7 +2501,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
             for (var i = func.device_functions.length - 1; i >= 0; i--) {
 
                 device = func.device_functions[i].device;
-                devNode = gqlDeviceDataToNode(device);
+                devNode = self.gqlDeviceDataToNode(device);
 
                 if (self.dimoDevices[devNode.id] == undefined) {
                     self.dimoDevices[devNode.id] = devNode;
@@ -3104,7 +2519,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
             for (var i = func.function_projects.length - 1; i >= 0; i--) {
 
                 project = func.function_projects[i].project;
-                projNode = gqlProjectDataToNode(project);
+                projNode = self.gqlProjectDataToNode(project);
 
                 if (self.dimoProjects[projNode.id] == undefined) {
                     self.dimoProjects[projNode.id] = projNode;
@@ -3120,7 +2535,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
             for (var i = func.function_sp_orgs.length - 1; i >= 0; i--) {
 
                 org = func.function_sp_orgs[i].organization;
-                orgNode = gqlOrgDataToNode(org);
+                orgNode = self.gqlOrgDataToNode(org);
 
                 if (self.dimoOrgs[orgNode.id] == undefined) {
                     self.dimoOrgs[orgNode.id] = orgNode;
@@ -3256,7 +2671,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
             if (initial) {
                 initGraph(nodes, edges);
             } else {
-                refreshGraph(nodes, edges);
+                self.refreshGraph(nodes, edges);
             }
 
 
@@ -3267,7 +2682,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
 
 
 
-function gqlDeviceDataToNode(device) {
+self.gqlDeviceDataToNode = (device)=>{
 
     var node = {
         "id": device.id,
@@ -3281,8 +2696,6 @@ function gqlDeviceDataToNode(device) {
 
 
     if (device.device_device_types.length) {
-
-        console.log("device.device_device_types",device.device_device_types[0])
 
         node._type = device.device_device_types[0].device_type.name
 
@@ -3348,11 +2761,10 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
 
         function(data) {
 
-            console.info("[Device] Request", data);
 
 
             var device = data.device[0];
-            var devNode = gqlDeviceDataToNode(device);
+            var devNode = self.gqlDeviceDataToNode(device);
 
             if (initial) {
 
@@ -3364,7 +2776,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
             for (var i = device.device_functions.length - 1; i >= 0; i--) {
 
                 func = device.device_functions[i].function;
-                funcNode = gqlFunctionDataToNode(func);
+                funcNode = self.gqlFunctionDataToNode(func);
 
                 if (self.dimoFunctions[funcNode.id] == undefined) {
                     self.dimoFunctions[funcNode.id] = funcNode;
@@ -3385,7 +2797,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
             for (var i = device.device_oem_orgs.length - 1; i >= 0; i--) {
 
                 org = device.device_oem_orgs[i].organization;
-                orgNode = gqlOrgDataToNode(org);
+                orgNode = self.gqlOrgDataToNode(org);
 
                 if (self.dimoOrgs[orgNode.id] == undefined) {
                     self.dimoOrgs[orgNode.id] = orgNode;
@@ -3406,7 +2818,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
             for (var i = device.device_sp_orgs.length - 1; i >= 0; i--) {
 
                 org = device.device_sp_orgs[i].organization;
-                orgNode = gqlOrgDataToNode(org);
+                orgNode = self.gqlOrgDataToNode(org);
 
                 if (self.dimoOrgs[orgNode.id] == undefined) {
                     self.dimoOrgs[orgNode.id] = orgNode;
@@ -3427,7 +2839,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
             for (var i = device.project_devices.length - 1; i >= 0; i--) {
 
                 project = device.project_devices[i].project;
-                projNode = gqlProjectDataToNode(project);
+                projNode = self.gqlProjectDataToNode(project);
 
                 if (self.dimoProjects[projNode.id] == undefined) {
                     self.dimoProjects[projNode.id] = projNode;
@@ -3603,7 +3015,7 @@ function loadDimoDevice(device_id, nodes, edges, initial = true) {
                 initGraph(nodes,edges);
             }
             else {
-              refreshGraph(nodes, edges);
+              self.refreshGraph(nodes, edges);
             }
 
 
@@ -3649,7 +3061,7 @@ function loadConnectedItems(model) {
 
 
 
-function refreshGraph(nodes, edges) {
+self.refreshGraph = (nodes, edges)=>{
 
     
     layout.instance.stop();
@@ -3729,13 +3141,13 @@ function refreshGraph(nodes, edges) {
   // layoutConfig.center = [CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2];
   //layout.instance = new G6.Layout["gForce"](layoutConfig);
   // layout.instance.getMass = (d) => {
-  //   const cachePosition = cachePositions[d.id];
+  //   const cachePosition = self.cachePositions[d.id];
   //   if (cachePosition) return 5;
   //   return 1;
   // };
 
   // layout.instance.getCenter = d => {
-  //   const cachePosition = cachePositions[d.id];
+  //   const cachePosition = self.cachePositions[d.id];
   //   if (!cachePosition && (d.x || d.y)) return [d.x, d.y, 10];
   //   else if (cachePosition) return [cachePosition.x, cachePosition.y, 10];
   //   return [width / 2, height / 2, 10];
@@ -3857,7 +3269,7 @@ function processAllNodesEdges(nodes_, edges_, isNewGraph) {
       }
       currentNodeMap[node.id] = node;
       if (node.count > maxNodeCount) maxNodeCount = node.count;
-      const cachePosition = cachePositions ? cachePositions[node.id] : undefined;
+      const cachePosition = self.cachePositions ? self.cachePositions[node.id] : undefined;
       if (cachePosition) {
         node.x = cachePosition.x;
         node.y = cachePosition.y;
@@ -4046,7 +3458,7 @@ function removeDuplicateEdges(edges) {
 
                 if (j != i && !toRemove.includes(j)) {
                     if (edges[j].source == edges[i].source && edges[j].target == edges[i].target) {
-                        console.log(edges[i].source, edges[j].source,edges[i].target, edges[j].target)
+                        console.warn(edges[i].source, edges[j].source,edges[i].target, edges[j].target)
                         toRemove.push(j)
                     }
                 }
@@ -4065,7 +3477,7 @@ function removeDuplicateEdges(edges) {
 
                 if (!toRemove.includes(j)) {
                     if (edges[j].source == edges[i].target && edges[j].target == edges[i].source) {
-                        console.log(edges[i].source, edges[j].target,edges[i].target, edges[j].source)
+                        console.warn(edges[i].source, edges[j].target,edges[i].target, edges[j].source)
                         toRemove.push(j)
                     }
                 }
@@ -4079,14 +3491,12 @@ function removeDuplicateEdges(edges) {
 
     toRemove = [...new Set(toRemove)];
     toRemove.sort();
-    console.log("toRemove", toRemove);
     for (var i = edges.length - 1; i >= 0; i--) {
         if(toRemove.includes(i)!=true){
           newEdges.push(edges[i])
         }
     }
 
-    console.log(edges.length,newEdges.length);
     return newEdges;
 
 
@@ -4258,7 +3668,7 @@ function initGraph(nodes, edges_, useLayout=true) {
             window.open(model.airtableURL, '_blank');
             break;
           case "load":
-            cachePositions = cacheNodePositions(graph.getNodes());
+            self.cachePositions = self.cacheNodePositions(graph.getNodes());
             loadConnectedItems(model);
             break;
            case "selectConnections":
