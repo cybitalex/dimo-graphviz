@@ -1266,6 +1266,11 @@ const projectQuery = gql`query graphvizProjectQuery($proj_id: String!) {
             id
           }
         }
+        functions_resources {
+          resource {
+            id
+          }
+        }
       }
     }
     org_projects {
@@ -1333,6 +1338,11 @@ const projectQuery = gql`query graphvizProjectQuery($proj_id: String!) {
             id
           }
         }
+        org_resources {
+          resource {
+            id
+          }
+        }
       }
     }
     project_devices {
@@ -1382,8 +1392,70 @@ const projectQuery = gql`query graphvizProjectQuery($proj_id: String!) {
         }
       }
     }
+    project_resources {
+      resource {
+        id
+        added_by
+        added_on
+        additional_parking
+        attachments
+        available_by
+        break_room_sq_ft
+        classroom_sq_ft
+        dedicated_bathrooms
+        icon
+        geocode
+        description
+        monthly_rent
+        max_classroom_space
+        lease_min
+        location
+        last_modified_on
+        last_modified_by
+        kitchenette
+        notes
+        name
+        parking_spaces
+        number_of_charging_plugs
+        recommendation
+        secured_parking
+        simultaneous_trainees
+        status
+        tags
+        virtual_tour
+        valid
+        usable_sq_ft
+        resource_resource_types {
+          resource_type {
+            name
+            id
+            icon
+          }
+        }
+        project_resources {
+          project {
+            id
+            name
+          }
+        }
+        functions_resources {
+          function {
+            id
+            name
+          }
+        }
+        org_resources {
+          organization {
+            id
+            name
+          }
+        }
+      }
+    }
   }
-}`
+}
+
+`
 
 const orgQuery = gql`query graphvizOrgQuery($org_id: String!) {
   organization(where: {id: {_eq: $org_id}}) {
@@ -1571,6 +1643,11 @@ const orgQuery = gql`query graphvizOrgQuery($org_id: String!) {
             id
           }
         }
+        functions_resources {
+          resource {
+            id
+          }
+        }
       }
     }
     org_projects {
@@ -1624,6 +1701,71 @@ const orgQuery = gql`query graphvizOrgQuery($org_id: String!) {
         project_devices {
           device {
             id
+          }
+        }
+        project_resources {
+          resource {
+            id
+          }
+        }
+      }
+    }
+    org_resources {
+      resource {
+        id
+        added_by
+        added_on
+        additional_parking
+        attachments
+        available_by
+        break_room_sq_ft
+        classroom_sq_ft
+        dedicated_bathrooms
+        icon
+        geocode
+        description
+        monthly_rent
+        max_classroom_space
+        lease_min
+        location
+        last_modified_on
+        last_modified_by
+        kitchenette
+        notes
+        name
+        parking_spaces
+        number_of_charging_plugs
+        recommendation
+        secured_parking
+        simultaneous_trainees
+        status
+        tags
+        virtual_tour
+        valid
+        usable_sq_ft
+        resource_resource_types {
+          resource_type {
+            name
+            id
+            icon
+          }
+        }
+        project_resources {
+          project {
+            id
+            name
+          }
+        }
+        functions_resources {
+          function {
+            id
+            name
+          }
+        }
+        org_resources {
+          organization {
+            id
+            name
           }
         }
       }
@@ -1764,6 +1906,11 @@ const funtionQuery = gql`query graphvizFunctionQuery($function_id: String!) {
             id
           }
         }
+        project_resources {
+          resource {
+            id
+          }
+        }
       }
     }
     function_sp_orgs {
@@ -1829,6 +1976,71 @@ const funtionQuery = gql`query graphvizFunctionQuery($function_id: String!) {
         org_projects {
           project {
             id
+          }
+        }
+        org_resources {
+          resource {
+            id
+          }
+        }
+      }
+    }
+    functions_resources {
+      resource {
+        id
+        added_by
+        added_on
+        additional_parking
+        attachments
+        available_by
+        break_room_sq_ft
+        classroom_sq_ft
+        dedicated_bathrooms
+        icon
+        geocode
+        description
+        monthly_rent
+        max_classroom_space
+        lease_min
+        location
+        last_modified_on
+        last_modified_by
+        kitchenette
+        notes
+        name
+        parking_spaces
+        number_of_charging_plugs
+        recommendation
+        secured_parking
+        simultaneous_trainees
+        status
+        tags
+        virtual_tour
+        valid
+        usable_sq_ft
+        resource_resource_types {
+          resource_type {
+            name
+            id
+            icon
+          }
+        }
+        project_resources {
+          project {
+            id
+            name
+          }
+        }
+        functions_resources {
+          function {
+            id
+            name
+          }
+        }
+        org_resources {
+          organization {
+            id
+            name
           }
         }
       }
@@ -2143,6 +2355,241 @@ self.gqlResourceDataToNode = (resource)=>{
 
 
 
+self.loadDimoResource = (resource_id, nodes, edges, initial = true) => {
+
+
+
+    const vars = { "resource_id": resource_id }
+
+    graphQLClient.request(resourceQuery, vars).then(
+
+
+
+        function(data) {
+
+
+            var resource = data.resource[0];
+            var resourceNode = self.gqlResourceDataToNode(resource);
+            if (initial) {
+                self.dimoResources[resourceNode.id] = resourceNode
+                nodes.push(resourceNode)
+            }
+
+
+
+
+
+            var project, projNode
+
+            for (var i = resource.project_resources.length - 1; i >= 0; i--) {
+                project = resource.project_resources[i].project;
+                projNode = self.gqlProjectDataToNode(project)
+
+
+                if (self.dimoProjects[projNode.id] == undefined) {
+                    self.dimoProjects[projNode.id] = projNode;
+                    nodes.push(projNode)
+
+                }
+
+
+                edges.push({ "source": resource.id, "target": project.id, type: "custom-cubic" })
+
+            }
+
+            var func, funcNode
+            for (var i = resource.functions_resources.length - 1; i >= 0; i--) {
+                func = resource.functions_resources[i].function;
+                funcNode = self.gqlFunctionDataToNode(func)
+
+                if (self.dimoFunctions[func.id] == undefined) {
+
+                    self.dimoFunctions[funcNode.id] = funcNode
+                    nodes.push(funcNode)
+                }
+
+
+                edges.push({ "source": resource.id, "target": func.id, type: "custom-cubic" })
+
+            }
+
+            var org, orgNode
+            for (var i = resource.org_resources.length - 1; i >= 0; i--) {
+                org = resource.org_resources[i].organization;
+                orgNode = self.gqlOrgDataToNode(org)
+
+                if (self.dimoOrgs[org.id] == undefined) {
+                    self.dimoOrgs[orgNode.id] = orgNode
+                    nodes.push(orgNode)
+
+                }
+                edges.push({ "source": resource.id, "target": org.id, type: "custom-cubic" })
+
+
+            }
+
+
+
+
+            for (var i = resource.project_resources.length - 1; i >= 0; i--) {
+                project = resource.project_resources[i].project;
+
+
+
+                for (var j = project.function_projects.length - 1; j >= 0; j--) {
+
+                    if (self.dimoFunctions[project.function_projects[j].function.id] != undefined) {
+                        edges.push({ "source": project.id, "target": project.function_projects[j].function.id, type: "custom-cubic" })
+                    }
+
+                }
+
+
+                for (var j = project.org_projects.length - 1; j >= 0; j--) {
+
+                    if (self.dimoOrgs[project.org_projects[j].organization.id] != undefined) {
+                        edges.push({ "source": project.id, "target": project.org_projects[j].organization.id, type: "custom-cubic" })
+                    }
+
+                }
+
+                for (var j = project.project_devices.length - 1; j >= 0; j--) {
+
+                    if (self.dimoDevices[project.project_devices[j].device.id] != undefined) {
+                        edges.push({ "source": project.id, "target": project.project_devices[j].device.id, type: "custom-cubic" })
+                    }
+
+                }
+
+                for (var j = project.project_resources.length - 1; j >= 0; j--) {
+
+                    if (self.dimoResources[project.project_resources[j].resource.id] != undefined) {
+                        edges.push({ "source": project.id, "target": project.project_resources[j].resource.id, type: "custom-cubic" })
+                    }
+
+                }
+
+
+            }
+
+
+
+
+
+            for (var i = resource.functions_resources.length - 1; i >= 0; i--) {
+                func = resource.functions_resources[i].function;
+
+                for (var j = func.function_projects.length - 1; j >= 0; j--) {
+
+                    if (self.dimoProjects[func.function_projects[j].project.id] != undefined) {
+                        edges.push({ "source": func.id, "target": func.function_projects[j].project.id, type: "custom-cubic" })
+                    }
+
+                }
+
+                for (var j = func.function_sp_orgs.length - 1; j >= 0; j--) {
+
+                    if (self.dimoOrgs[func.function_sp_orgs[j].organization.id] != undefined) {
+                        edges.push({ "source": func.id, "target": func.function_sp_orgs[j].organization.id, type: "custom-cubic" })
+                    }
+
+                }
+
+
+                for (var j = func.device_functions.length - 1; j >= 0; j--) {
+
+                    if (self.dimoDevices[func.device_functions[j].device.id] != undefined) {
+                        edges.push({ "source": func.id, "target": func.device_functions[j].device.id, type: "custom-cubic" })
+                    }
+
+                }
+
+
+                for (var j = func.functions_resources.length - 1; j >= 0; j--) {
+
+                    if (self.dimoResources[func.functions_resources[j].resource.id] != undefined) {
+                        edges.push({ "source": func.id, "target": func.functions_resources[j].resource.id, type: "custom-cubic" })
+                    }
+
+                }
+
+
+
+
+
+            }
+
+
+
+
+            for (var i = resource.org_resources.length - 1; i >= 0; i--) {
+                org = resource.org_resources[i].organization;
+
+                for (var j = org.device_oem_orgs.length - 1; j >= 0; j--) {
+
+                    if (self.dimoDevices[org.device_oem_orgs[j].device.id] != undefined) {
+                        edges.push({ "source": org.id, "target": org.device_oem_orgs[j].device.id, type: "custom-cubic" })
+                    }
+
+                }
+
+
+                for (var j = org.device_sp_orgs.length - 1; j >= 0; j--) {
+
+                    if (self.dimoDevices[org.device_sp_orgs[j].device.id] != undefined) {
+                        edges.push({ "source": org.id, "target": org.device_sp_orgs[j].device.id, type: "custom-cubic" })
+                    }
+
+                }
+
+
+                for (var j = org.function_sp_orgs.length - 1; j >= 0; j--) {
+
+                    if (self.dimoFunctions[org.function_sp_orgs[j].function.id] != undefined) {
+                        edges.push({ "source": org.id, "target": org.function_sp_orgs[j].function.id, type: "custom-cubic" })
+                    }
+
+                }
+
+
+                for (var j = org.org_projects.length - 1; j >= 0; j--) {
+
+                    if (self.dimoProjects[org.org_projects[j].project.id] != undefined) {
+                        edges.push({ "source": org.id, "target": org.org_projects[j].project.id, type: "custom-cubic" })
+                    }
+
+                }
+
+
+                for (var j = org.org_resources.length - 1; j >= 0; j--) {
+
+                    if (self.dimoResources[org.org_resources[j].resource.id] != undefined) {
+                        edges.push({ "source": org.id, "target": org.org_resources[j].resource.id, type: "custom-cubic" })
+                    }
+
+
+
+
+
+
+                }
+            }
+
+
+
+
+            if (initial) {
+                initGraph(nodes, edges);
+            } else {
+                self.refreshGraph(nodes, edges);
+            }
+
+
+        })
+}
+
+
+
 
 
 self.gqlProjectDataToNode = (project)=>{
@@ -2222,7 +2669,6 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
 
 
         function(data) {
-            self.tempNodes = [];
             console.info("[Project] Request", data);
 
 
@@ -2288,6 +2734,26 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
               }
                 edges.push({ "source": orgNode.id, "target": projNode.id, type: "custom-cubic" })
             }
+
+
+
+            var resource, resourceNode;
+
+            for (var i = proj.project_resources.length - 1; i >= 0; i--) {
+                resource = proj.project_resources[i].resource;
+                resourceNode = self.gqlResourceDataToNode(resource);
+                
+                if (self.dimoResources[resourceNode.id] == undefined){
+
+                self.dimoResources[resourceNode.id] = resourceNode;
+                nodes.push(resourceNode);
+
+              }
+                edges.push({ "source": resourceNode.id, "target": projNode.id, type: "custom-cubic" })
+            }
+
+
+
 
 
 
@@ -2357,6 +2823,16 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
 
 
 
+                 for (var j = func.functions_resources.length - 1; j >= 0; j--) {
+
+                     if (self.dimoResources[func.functions_resources[j].resource.id] != undefined) {
+                         edges.push({ "source": func.id, "target": func.functions_resources[j].resource.id, type: "custom-cubic" })
+                     }
+
+                 }                 
+
+
+
               }
 
 
@@ -2403,7 +2879,60 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
 
 
 
+                 for (var j = org.org_resources.length - 1; j >= 0; j--) {
+
+                     if (self.dimoResources[org.org_resources[j].resource.id] != undefined) {
+                         edges.push({ "source": org.id, "target": org.org_resources[j].resource.id, type: "custom-cubic" })
+                     }
+
+                 } 
+
+
+
               }
+
+
+
+
+
+            for (var i = proj.project_resources.length - 1; i >= 0; i--) {
+                resource = proj.project_resources[i].resource;
+                console.log(resource)
+
+                   for (var j = resource.project_resources.length - 1; j >= 0; j--) {
+
+                             if (self.dimoProjects[resource.project_resources[j].project.id] != undefined) {
+                                 edges.push({ "source": resource.id, "target": resource.project_resources[j].project.id, type: "custom-cubic" })
+                             }
+
+                         }
+
+                   for (var j = resource.functions_resources.length - 1; j >= 0; j--) {
+
+                             if (self.dimoFunctions[resource.functions_resources[j].function.id] != undefined) {
+                                 edges.push({ "source": resource.id, "target": resource.functions_resources[j].functon.id, type: "custom-cubic" })
+                             }
+
+                         }
+
+                   for (var j = resource.org_resources.length - 1; j >= 0; j--) {
+
+                             if (self.dimoOrgs[resource.org_resources[j].organization.id] != undefined) {
+                                 edges.push({ "source": resource.id, "target": resource.org_resources[j].organization.id, type: "custom-cubic" })
+                             }
+
+                         }
+
+
+
+
+                
+            }
+
+
+
+
+
 
 
 
@@ -2592,38 +3121,62 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
 
 
 
+            var resource, resourceNode;
 
+            for (var i = org.org_resources.length - 1; i >= 0; i--) {
+                resource = org.org_resources[i].resource;
+                resourceNode = self.gqlResourceDataToNode(resource);
+                
+                if (self.dimoResources[resourceNode.id] == undefined){
+
+                self.dimoResources[resourceNode.id] = resourceNode;
+                nodes.push(resourceNode);
+
+              }
+                edges.push({ "source": resourceNode.id, "target": orgNode.id, type: "custom-cubic" })
+            }
 
 
 
 
             for (var i = org.function_sp_orgs.length - 1; i >= 0; i--) {
                 func = org.function_sp_orgs[i].function;
-                
+
                 for (var j = func.function_projects.length - 1; j >= 0; j--) {
-                  
-                  if (self.dimoProjects[func.function_projects[j].project.id] != undefined) {
-                    edges.push({ "source": func.id, "target": func.function_projects[j].project.id, type: "custom-cubic" })
-                  }
-                
-                }
-                
-                for (var j = func.function_sp_orgs.length - 1; j >= 0; j--) {
-                  
-                  if (self.dimoOrgs[func.function_sp_orgs[j].organization.id] != undefined) {
-                    edges.push({ "source": func.id, "target": func.function_sp_orgs[j].organization.id, type: "custom-cubic" })
-                  }
-                
+
+                    if (self.dimoProjects[func.function_projects[j].project.id] != undefined) {
+                        edges.push({ "source": func.id, "target": func.function_projects[j].project.id, type: "custom-cubic" })
+                    }
+
                 }
 
-                
-                for (var j = func.device_functions.length - 1; j >= 0; j--) {
-                  
-                  if (self.dimoDevices[func.device_functions[j].device.id] != undefined) {
-                    edges.push({ "source": func.id, "target": func.device_functions[j].device.id, type: "custom-cubic" })
-                  }
-                
+                for (var j = func.function_sp_orgs.length - 1; j >= 0; j--) {
+
+                    if (self.dimoOrgs[func.function_sp_orgs[j].organization.id] != undefined) {
+                        edges.push({ "source": func.id, "target": func.function_sp_orgs[j].organization.id, type: "custom-cubic" })
+                    }
+
                 }
+
+
+                for (var j = func.device_functions.length - 1; j >= 0; j--) {
+
+                    if (self.dimoDevices[func.device_functions[j].device.id] != undefined) {
+                        edges.push({ "source": func.id, "target": func.device_functions[j].device.id, type: "custom-cubic" })
+                    }
+
+                }
+
+
+                for (var j = func.functions_resources.length - 1; j >= 0; j--) {
+
+                    if (self.dimoResources[func.functions_resources[j].resource.id] != undefined) {
+                        edges.push({ "source": func.id, "target": func.functions_resources[j].resource.id, type: "custom-cubic" })
+                    }
+
+                }
+
+
 
 
 
@@ -2676,29 +3229,39 @@ function loadDimoOrg(org_id, nodes, edges, initial = true) {
             for (var i = org.org_projects.length - 1; i >= 0; i--) {
                 project = org.org_projects[i].project;
 
+
+
                 for (var j = project.function_projects.length - 1; j >= 0; j--) {
 
-                  if (self.dimoFunctions[project.function_projects[j].function.id] != undefined) {
-                    edges.push({ "source": project.id, "target": project.function_projects[j].function.id, type: "custom-cubic" })
-                  }
+                    if (self.dimoFunctions[project.function_projects[j].function.id] != undefined) {
+                        edges.push({ "source": project.id, "target": project.function_projects[j].function.id, type: "custom-cubic" })
+                    }
 
                 }
 
 
                 for (var j = project.org_projects.length - 1; j >= 0; j--) {
 
-                  if (self.dimoOrgs[project.org_projects[j].organization.id] != undefined) {
-                    edges.push({ "source": project.id, "target": project.org_projects[j].organization.id, type: "custom-cubic" })
-                  }
-                  
+                    if (self.dimoOrgs[project.org_projects[j].organization.id] != undefined) {
+                        edges.push({ "source": project.id, "target": project.org_projects[j].organization.id, type: "custom-cubic" })
+                    }
+
                 }
 
                 for (var j = project.project_devices.length - 1; j >= 0; j--) {
 
-                  if (self.dimoDevices[project.project_devices[j].device.id] != undefined) {
-                    edges.push({ "source": project.id, "target": project.project_devices[j].device.id, type: "custom-cubic" })
-                  }
-                  
+                    if (self.dimoDevices[project.project_devices[j].device.id] != undefined) {
+                        edges.push({ "source": project.id, "target": project.project_devices[j].device.id, type: "custom-cubic" })
+                    }
+
+                }
+
+                for (var j = project.project_resources.length - 1; j >= 0; j--) {
+
+                    if (self.dimoResources[project.project_resources[j].resource.id] != undefined) {
+                        edges.push({ "source": project.id, "target": project.project_resources[j].resource.id, type: "custom-cubic" })
+                    }
+
                 }
 
 
@@ -2863,6 +3426,27 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
 
 
 
+            var resource, resourceNode;
+
+            for (var i = func.functions_resources.length - 1; i >= 0; i--) {
+                resource = func.functions_resources[i].resource;
+                resourceNode = self.gqlResourceDataToNode(resource);
+                
+                if (self.dimoResources[resourceNode.id] == undefined){
+
+                self.dimoResources[resourceNode.id] = resourceNode;
+                nodes.push(resourceNode);
+
+              }
+                edges.push({ "source": resourceNode.id, "target": funcNode.id, type: "custom-cubic" })
+            }
+
+
+
+
+
+
+
 
             for (var i = func.device_functions.length - 1; i >= 0; i--) {
                 device = func.device_functions[i].device;
@@ -2935,6 +3519,16 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
 
                 }
 
+                for (var j = project.project_resources.length - 1; j >= 0; j--) {
+
+                    if (self.dimoResources[project.project_resources[j].resource.id] != undefined) {
+                        edges.push({ "source": project.id, "target": project.project_resources[j].resource.id, type: "custom-cubic" })
+                    }
+
+                }
+
+
+
 
             }
 
@@ -2975,9 +3569,55 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
 
                 }
 
+                for (var j = org.org_resources.length - 1; j >= 0; j--) {
+
+                     if (self.dimoResources[org.org_resources[j].resource.id] != undefined) {
+                         edges.push({ "source": org.id, "target": org.org_resources[j].resource.id, type: "custom-cubic" })
+                     }
+
+                 }
+
 
 
             }
+
+
+
+            for (var i = func.functions_resources.length - 1; i >= 0; i--) {
+                resource = func.functions_resources[i];
+
+                   for (var j = resource.project_resources.length - 1; j >= 0; j--) {
+
+                             if (self.dimoProjects[resource.project_resources[j].project.id] != undefined) {
+                                 edges.push({ "source": resource.id, "target": resource.project_resources[j].project.id, type: "custom-cubic" })
+                             }
+
+                         }
+
+                   for (var j = resource.functions_resources.length - 1; j >= 0; j--) {
+
+                             if (self.dimoFunctions[resource.functions_resources[j].function.id] != undefined) {
+                                 edges.push({ "source": resource.id, "target": resource.functions_resources[j].functon.id, type: "custom-cubic" })
+                             }
+
+                         }
+
+                   for (var j = resource.org_resources.length - 1; j >= 0; j--) {
+
+                             if (self.dimoOrgs[resource.org_resources[j].organization.id] != undefined) {
+                                 edges.push({ "source": resource.id, "target": resource.org_resources[j].organization.id, type: "custom-cubic" })
+                             }
+
+                         }
+
+
+
+
+                
+            }
+
+
+
 
 
 
@@ -3505,6 +4145,9 @@ function initGraphData() {
       } else if (data.nodes[i].class == "[Function]"){
         self.dimoFunctions.push(data.nodes[i])
         indx = dimoFunctionColorIndex
+      } else if (data.nodes[i].class == "[Resource]"){
+        self.dimoResources.push(data.nodes[i])
+        indx = dimoResourceColorIndex
       }
       data.nodes[i].colorSet = colorSets[indx];
       data.nodes[i].labelCfg = {
@@ -3540,6 +4183,8 @@ function initGraphData() {
     loadDimoDevice(vars["device_id"], self.dimoGraphData.nodes, self.dimoGraphData.edges)
   } else if (vars["function_id"] != undefined) {
     loadDimoFunction(vars["function_id"], self.dimoGraphData.nodes, self.dimoGraphData.edges)
+  } else if (vars["resource_id"] != undefined) {
+    loadDimoResource(vars["resource_id"], self.dimoGraphData.nodes, self.dimoGraphData.edges)
   }
 
 }
