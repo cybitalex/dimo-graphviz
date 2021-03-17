@@ -2897,7 +2897,6 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
 
             for (var i = proj.project_resources.length - 1; i >= 0; i--) {
                 resource = proj.project_resources[i].resource;
-                console.log(resource)
 
                    for (var j = resource.project_resources.length - 1; j >= 0; j--) {
 
@@ -2910,7 +2909,7 @@ function loadDimoProject(project_id, nodes, edges, initial = true) {
                    for (var j = resource.functions_resources.length - 1; j >= 0; j--) {
 
                              if (self.dimoFunctions[resource.functions_resources[j].function.id] != undefined) {
-                                 edges.push({ "source": resource.id, "target": resource.functions_resources[j].functon.id, type: "custom-cubic" })
+                                 edges.push({ "source": resource.id, "target": resource.functions_resources[j].function.id, type: "custom-cubic" })
                              }
 
                          }
@@ -3597,7 +3596,7 @@ function loadDimoFunction(function_id, nodes, edges, initial = true) {
                    for (var j = resource.functions_resources.length - 1; j >= 0; j--) {
 
                              if (self.dimoFunctions[resource.functions_resources[j].function.id] != undefined) {
-                                 edges.push({ "source": resource.id, "target": resource.functions_resources[j].functon.id, type: "custom-cubic" })
+                                 edges.push({ "source": resource.id, "target": resource.functions_resources[j].function.id, type: "custom-cubic" })
                              }
 
                          }
