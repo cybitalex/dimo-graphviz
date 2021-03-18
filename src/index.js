@@ -2535,6 +2535,11 @@ self.groupNodesByTable = (nodes, edges)=>{
 
 self.aggregateNodes = (nodes_)=>{
 
+  if (nodes_.length < 2) {
+    return
+  }
+
+
 
   for (var i = nodes_.length - 1; i >= 0; i--) {
     if(nodes_[i].getModel().class=="[Aggregate]"){
