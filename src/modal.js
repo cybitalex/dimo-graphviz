@@ -212,7 +212,7 @@ self.getDeviceEdges = (device) => {
 
     var org
     for (var i = device.device_oem_orgs.length - 1; i >= 0; i--) {
-        
+
         org = device.device_oem_orgs[i].organization;
         console.log(org)
         if (self.dimoOrgs[org.id] != undefined) {
@@ -546,11 +546,13 @@ self.searchModalAddButton.onclick = function() {
 
     }
 
+    
+
     self.removeRowsByIndexes(indexes)
 
     self.cachePositions = self.cacheNodePositions(graph.getNodes());
     self.refreshGraph(nodes, edges)
-
+    self.alignNewNodes()
 
 }
 

@@ -327,7 +327,7 @@ G6.registerNode(
           textAlign: "center",
           textBaseline: "middle",
           cursor: "pointer",
-          fontSize: 7,
+          fontSize: 10,
           fill: "#fff",
           opacity: 0.85,
           fontWeight: 400
@@ -1208,6 +1208,7 @@ self.dimoPeople = {};
 self.dimoAggregates  = {};
 self.dimoAggregatesMap = {};
 self.dimoAggregatesMapReverse = {};
+self.dimoAggregatesEdgeMap = {};
 self.dimoEdgeMap = {};
 
 
@@ -1567,8 +1568,6 @@ self.gqlDeviceDataToNode = (device)=>{
 self.dimoAggregatedNode = (nodes)=>{
 
     const nodeID = `node-${uuidv4()}`
-    console.log(nodeID)
-
     var node = {
         "id": nodeID,
         "type": "dimo-aggregated-node",
@@ -1609,9 +1608,7 @@ self.dimoAggregatedNode = (nodes)=>{
     if(node.typeSet.size==1){
         node.icon = nodes[0].icon
         
-        if(self.groupByType){
-          node.label = nodes[0]._type
-        }
+
 
 
      } else {
@@ -1625,15 +1622,14 @@ self.dimoAggregatedNode = (nodes)=>{
          "show":true,
          "url":self.classToIcon[nodes[0].class]
        }
-        if(self.groupByTable){
-          node.label = nodes[0].class
-        }
 
      } else {
        node.logo = {
          "show":false,
        }
      }
+
+     node.label = window.prompt("Please Provide Group Node Name")
 
 
     node.labelCfg = {
@@ -1647,12 +1643,8 @@ self.dimoAggregatedNode = (nodes)=>{
         }
     }
 
-
-
-
-
     node.colorSet = colorSets[dimoAggregateColorIndex]
-    
+    console.log(node)
     return node
 
 
@@ -1734,7 +1726,31 @@ self.alignNewNodes = ()=>{
 
 
 
-self.refreshGraph = (nodes, edges)=>{
+self.refreshGraph = (nodes, edges_)=>{
+
+    var edges = []
+
+    var edge_;
+    for (var i = edges_.length - 1; i >= 0; i--) {
+      edge_ = edges_[i]
+
+      if(self.dimoAggregatesEdgeMap[edge_.target]!=undefined){
+        self.dimoAggregatesEdgeMap[edge_.target].push(edge_)
+        edges.push({ "source": edge_.source, "target": self.dimoAggregatesMapReverse[edge_.target].id, type: "custom-cubic" })
+        continue
+      }
+
+      if(self.dimoAggregatesEdgeMap[edge_.source]!=undefined){
+        self.dimoAggregatesEdgeMap[edge_.source].push(edge_)
+        edges.push({ "target": edge_.tar, "source": self.dimoAggregatesMapReverse[edge_.source].id, type: "custom-cubic" })
+        continue
+      }
+
+      edges.push(edge_)
+
+
+    }
+
 
     
     layout.instance.stop();
@@ -1750,7 +1766,7 @@ self.refreshGraph = (nodes, edges)=>{
 
     })
 
-    console.log(edges)
+    
 
     let currentNodeIds = [];
     let removeNodes = [];
@@ -1802,14 +1818,14 @@ self.refreshGraph = (nodes, edges)=>{
 
 
 
-    graph.changeData({nodes:nodes,edges:edges_});
+    graph.changeData({nodes:nodes,edges:edges_},true);
     
   hideItems(graph);
   graph.getNodes().forEach((node) => {
     node.toFront();
   });
 
-  self.alignNewNodes()
+  
 
 }
 
@@ -1855,6 +1871,9 @@ function initGraphData() {
       } else if (data.nodes[i].class == "[Resource]"){
         self.dimoResources[data.nodes[i].id] = data.nodes[i]
         indx = dimoResourceColorIndex
+      } else if (data.nodes[i].class == "[Aggregate]"){
+        self.dimoAggregates[data.nodes[i].id] = data.nodes[i]
+        indx = dimoAggregateColorIndex
       }
       data.nodes[i].colorSet = colorSets[indx];
       data.nodes[i].labelCfg = {
@@ -1871,6 +1890,69 @@ function initGraphData() {
     self.dimoGraphData.nodes = data.nodes
     self.dimoGraphData.edges = data.edges
     var ndata = self.initGraph(data.nodes,data.edges,false);
+
+
+
+    if(data.dimoAggregatesMapReverse!=undefined){
+      self.dimoAggregatesMapReverse = data.dimoAggregatesMapReverse
+
+    }
+    if(data.dimoAggregatesMap!=undefined){
+      self.dimoAggregatesMap = data.dimoAggregatesMap
+      
+    }
+
+    if(data.dimoAggregatesEdgeMap!=undefined){
+      self.dimoAggregatesEdgeMap = data.dimoAggregatesEdgeMap
+      
+    }
+
+
+     for (var key in self.dimoAggregatesMap) {
+
+       for (var i = self.dimoAggregatesMap[key].length - 1; i >= 0; i--) {
+         
+           self.dimoAggregatesMap[key][i]
+       
+            var indx;
+            if (self.dimoAggregatesMap[key][i].class == "[Project]"){
+              self.dimoProjects[self.dimoAggregatesMap[key][i].id] = self.dimoAggregatesMap[key][i]
+              indx = dimoProjectColorIndex
+            } else if (self.dimoAggregatesMap[key][i].class == "[Device]"){
+              self.dimoDevices[self.dimoAggregatesMap[key][i].id] = self.dimoAggregatesMap[key][i]
+              indx = dimoDeviceColorIndex
+            } else if (self.dimoAggregatesMap[key][i].class == "[Org]"){
+              self.dimoOrgs[self.dimoAggregatesMap[key][i].id] = self.dimoAggregatesMap[key][i]
+              indx = dimoOrgColorIndex
+            } else if (self.dimoAggregatesMap[key][i].class == "[Function]"){
+              self.dimoFunctions[self.dimoAggregatesMap[key][i].id] = self.dimoAggregatesMap[key][i]
+              indx = dimoFunctionColorIndex
+            } else if (self.dimoAggregatesMap[key][i].class == "[Resource]"){
+              self.dimoResources[self.dimoAggregatesMap[key][i].id] = self.dimoAggregatesMap[key][i]
+              indx = dimoResourceColorIndex
+            } else if (self.dimoAggregatesMap[key][i].class == "[Aggregate]"){
+              self.dimoAggregates[self.dimoAggregatesMap[key][i].id] = self.dimoAggregatesMap[key][i]
+              indx = dimoAggregateColorIndex
+            }
+            self.dimoAggregatesMap[key][i].colorSet = colorSets[indx];
+            self.dimoAggregatesMap[key][i].labelCfg = {
+            position: "bottom",
+            offset: 5,
+            style: {
+              fill: global.node.labelCfg.style.fill,
+              fontSize: 12,
+              stroke: global.node.labelCfg.style.stroke,
+              lineWidth: 3
+            }
+          }
+
+
+       }
+
+     }
+
+
+
 
       })
     })
@@ -1992,7 +2074,7 @@ function processAllNodesEdges(nodes_, edges_, isNewGraph) {
         return
       }
 
-
+     debugger;
     // to avoid the dulplicated id to nodes
     if (!edge.id) edge.id = `edge-${uuidv4()}`;
     else if (edge.id.split("-")[0] !== "edge") edge.id = `edge-${edge.id}`;
@@ -2231,7 +2313,60 @@ function getStateURL() {
 
 
 
-  //console.log("saveData",data);
+  var dimoAggregatesMapReverse = {}
+  var dimoAggregatesMap = {}
+  var dimoAggregatesEdgeMap = {}
+
+  var node_,newNode
+  for (var key in self.dimoAggregatesMap) {
+    dimoAggregatesMap[key] = []
+    for (var i = self.dimoAggregatesMap[key].length - 1; i >= 0; i--) {
+      node_ = self.dimoAggregatesMap[key][i]
+      newNode = {}
+      newNode.id = node_.id
+      newNode.class = node_.class
+      newNode.label = node_.oriLabel
+      newNode.airtableURL = node_.airtableURL
+      newNode.level = node_.level
+      newNode.logo = node_.logo
+      newNode._type = node_._type
+      newNode.icon = node_.icon
+      newNode.x = node_.x
+      newNode.y = node_.y
+      newNode.size = node_.size
+      newNode.oriFontSize = node_.oriFontSize
+      dimoAggregatesMap[key].push(newNode)
+    }
+  }
+
+  for (var key in self.dimoAggregatesMapReverse) {
+      node_ = self.dimoAggregatesMapReverse[key]
+      newNode = {}
+      newNode.id = node_.id
+      dimoAggregatesMapReverse[key] = newNode
+  }
+
+  var edge_,newEdge
+  for (var key in self.dimoAggregatesEdgeMap) {
+
+    dimoAggregatesEdgeMap[key] = [];
+
+    for (var i = self.dimoAggregatesEdgeMap[key].length - 1; i >= 0; i--) {
+      edge_ = self.dimoAggregatesEdgeMap[key][i]
+      newEdge = {}
+      newEdge.source = edge_.source
+      newEdge.target = edge_.target
+      newEdge.type = edge_.type
+      dimoAggregatesEdgeMap[key].push(newEdge)
+    }
+  }
+
+  data.dimoAggregatesMapReverse = dimoAggregatesMapReverse
+  data.dimoAggregatesMap = dimoAggregatesMap
+  data.dimoAggregatesEdgeMap = dimoAggregatesEdgeMap
+
+
+  console.log("saveData",data);
   const jsonData = JSON.stringify(data);
       fetch("/default/graphvizLambdaS3", {
           method: 'POST',
@@ -2398,6 +2533,148 @@ self.groupNodesByTable = (nodes, edges)=>{
 }
 
 
+self.aggregateNodes = (nodes_)=>{
+
+
+  for (var i = nodes_.length - 1; i >= 0; i--) {
+    if(nodes_[i].getModel().class=="[Aggregate]"){
+      window.alert("Can't Group a Group Node!")
+      return
+    }
+
+  }
+
+
+
+  var nodes = [];
+  var nodeIds = new Set()
+
+  for (var i = nodes_.length - 1; i >= 0; i--) {
+    nodes.push(nodes_[i].getModel())
+
+  }
+
+  for (var i = nodes.length - 1; i >= 0; i--) {
+    nodeIds.add(nodes[i].id)
+    self.dimoAggregatesEdgeMap[nodes[i].id] = []
+  }
+
+  var groupNode = self.dimoAggregatedNode(nodes)
+  self.dimoAggregatesMap[groupNode.id] = []
+
+  for (var i = nodes.length - 1; i >= 0; i--) {
+    self.dimoAggregatesMap[groupNode.id].push(nodes[i])
+    self.dimoAggregatesMapReverse[nodes[i].id] = groupNode
+  }
+
+
+  var edges_ = graph.getEdges()
+  var edges = [];
+
+  var newEdges = []
+  var edgeModel
+  for (var i = edges_.length - 1; i >= 0; i--) {
+      edgeModel = edges_[i].getModel()
+    if(nodeIds.has(edgeModel.target) && nodeIds.has(edgeModel.source)) {
+
+      console.log("Has BOTH",edgeModel)
+      self.dimoAggregatesEdgeMap[edgeModel.target].push(edgeModel)
+      self.dimoAggregatesEdgeMap[edgeModel.source].push(edgeModel)
+
+
+    } else if(nodeIds.has(edgeModel.target) && !nodeIds.has(edgeModel.source)) {
+      self.dimoAggregatesEdgeMap[edgeModel.target].push(edgeModel)
+      newEdges.push({ "source": edgeModel.source, "target": groupNode.id, type: "custom-cubic" })
+
+
+    } else if(nodeIds.has(edgeModel.source) && !nodeIds.has(edgeModel.target)) {
+      self.dimoAggregatesEdgeMap[edgeModel.source].push(edgeModel)
+      newEdges.push({ "source": groupNode.id, "target": edgeModel.target, type: "custom-cubic" })
+
+
+    } else {
+      newEdges.push(edgeModel)
+    }
+  }
+
+  var newEdges_ = []
+
+  for (var i = newEdges.length - 1; i >= 0; i--) {
+     if(nodeIds.has(newEdges[i].target) || nodeIds.has(newEdges[i].source)){
+       console.log(newEdges[i])
+     } else {
+       newEdges_.push(newEdges[i])
+     }
+
+    
+  }
+
+
+
+
+  for (var i = nodes_.length - 1; i >= 0; i--) {
+    graph.removeItem(nodes_[i],false)
+    
+  }
+
+
+  self.cachePositions = self.cacheNodePositions(graph.getNodes());
+  self.refreshGraph([groupNode],newEdges_)
+  // var newNodes = [groupNode];
+
+  // var curNodes = graph.getNodes()
+  // var model
+  // for (var i = curNodes.length - 1; i >= 0; i--) {
+  //   model = curNodes[i].getModel()
+  //   if(!nodeIds.has(model.is)){
+  //     newNodes.push(model)
+  //   }
+  // }
+
+  // console.log("changeData",{nodes:newNodes,edges:newEdges})
+  // graph.changeData({nodes:newNodes,edges:newEdges})
+
+
+
+
+
+
+
+}
+
+
+self.expandNode = (item)=>{
+
+
+  var model = item.getModel()
+  var newNodes = [];
+  var newEdges =[];
+
+  var node
+  for (var i = self.dimoAggregatesMap[model.id].length - 1; i >= 0; i--) {
+    node = self.dimoAggregatesMap[model.id][i]
+    newNodes.push(node)
+    for (var j = self.dimoAggregatesEdgeMap[node.id].length - 1; j >= 0; j--) {
+      newEdges.push(self.dimoAggregatesEdgeMap[node.id][j])
+    }
+    delete self.dimoAggregatesMapReverse[node.id]
+    delete self.dimoAggregatesEdgeMap[node.id]
+  }
+
+  delete self.dimoAggregatesMap[model.id]
+
+
+  graph.removeItem(item,false)
+  self.cachePositions = self.cacheNodePositions(graph.getNodes());
+  self.refreshGraph(newNodes,newEdges)
+  self.alignNewNodes()
+
+
+}
+
+
+
+
 
 
 
@@ -2456,8 +2733,8 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
         const itemType = item.getType();
         const model = item.getModel();
         if (itemType && model) {
-          if (itemType === "node") {
-            if (model.level !== 0) {
+          if (itemType == "node") {
+            if (model.class != "[Aggregate]") {
               return `<ul>
               <li id='hide'>Hide Selected</li>
               <li id='url'>View in Database</li>
@@ -2469,6 +2746,16 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
               <li id='selectByEntity'>Select By Entity</li>
               <li id='selectByType'>Select By [Type]</li>
             </ul>`;
+            } else {
+              return `<ul>
+              <li id='hide'>Hide Selected</li>
+              <li id='align'>Align Selected</li>
+              <li id='organizeAll'>Organize All</li>
+              <li id='selectConnections'>Select Connected</li>
+              <li id='expand'>Expand Group</li>
+            </ul>`;
+
+
             }
           }
         }
@@ -2535,9 +2822,20 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
             graph.setItemState(item,"focus",false)
             graph.setItemState(item,"focus",true)
             break
-          case "align":
+          case "group":
             focusNodes = graph.findAllByState("node", "focus");
+            for (var i = focusNodes.length - 1; i >= 0; i--) {
+              if(focusNodes[i]._cfg.id==item._cfg.id){
+                focusNodes.splice(i,1)
+                break;
+              }
+            }
+            focusNodes.push(item)
+            self.aggregateNodes(focusNodes)
             break;
+           case "expand":
+           self.expandNode(item);
+           break;
           case "selectByType":
           
             console.log(Nodes)
