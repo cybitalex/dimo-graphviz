@@ -1,7 +1,55 @@
+
+
+self.addNodesToTable = (nodes_)=>{
+
+    var idSet = new Set()
+    var nodes = [];
+
+    for (var i = nodes_.length - 1; i >= 0; i--) {
+        
+        if(!idSet.has(nodes_[i].id)){
+            idSet.add(nodes_[i].id)
+            nodes.push(nodes_[i])
+        }
+        
+    }
+
+
+    var node;
+    for (var i = nodes.length - 1; i >= 0; i--) {
+        node = nodes[i]
+        
+        if (node.class=="[Function]"){
+            self.addFunctionsToTable(node)
+        } else if (node.class=="[Org]"){
+            self.addOrgsToTable(node)
+        } else if (node.class=="[Device]"){
+            self.addDevicesToTable(node)
+        } else if (node.class=="[Project]"){
+            self.addProjectsToTable(node)
+        } else if (node.class=="[Resource]"){
+            self.addResourcesToTable(node)
+        }
+    }
+
+    
+
+
+
+}
+
+
+
+
+
+
 self.checkProjectNode = (obj_id, project, nodes, edges) => {
     var projNode = self.gqlProjectDataToNode(project)
     if (self.dimoProjects[projNode.id] == undefined) {
+        if(!self.graphInit){ 
+
         self.dimoProjects[projNode.id] = projNode;
+    }
         nodes.push(projNode)
     }
     edges.push({ "source": obj_id, "target": project.id, type: "custom-cubic" })
@@ -53,8 +101,9 @@ self.checkProjectNodeConnections = (project, nodes, edges) => {
 self.checkFuncNode = (obj_id, func, nodes, edges) => {
     var funcNode = self.gqlFunctionDataToNode(func)
     if (self.dimoFunctions[func.id] == undefined) {
-
-        self.dimoFunctions[funcNode.id] = funcNode
+        if(!self.graphInit){ 
+     self.dimoFunctions[funcNode.id] = funcNode
+    }
         nodes.push(funcNode)
     }
     edges.push({ "source": obj_id, "target": func.id, type: "custom-cubic" })
@@ -109,7 +158,9 @@ self.checkFunctionNodeConnections = (func, nodes, edges) => {
 self.checkOrgNode = (obj_id, org, nodes, edges) => {
     var orgNode = self.gqlOrgDataToNode(org)
     if (self.dimoOrgs[org.id] == undefined) {
+        if(!self.graphInit){ 
         self.dimoOrgs[orgNode.id] = orgNode
+    }
         nodes.push(orgNode)
     }
     edges.push({ "source": obj_id, "target": org.id, type: "custom-cubic" })
@@ -171,8 +222,9 @@ self.checkDeviceNode = (obj_id, device, nodes, edges) => {
 
     if (self.dimoDevices[deviceNode.id] == undefined) {
 
-
+        if(!self.graphInit){ 
         self.dimoDevices[deviceNode.id] = deviceNode;
+        }
         nodes.push(deviceNode)
     }
 
@@ -211,8 +263,9 @@ self.checkResourceNode = (obj_id, resource, nodes, edges) => {
     resourceNode = self.gqlResourceDataToNode(resource);
 
     if (self.dimoResources[resourceNode.id] == undefined) {
-
-        self.dimoResources[resourceNode.id] = resourceNode;
+        if(!self.graphInit){ 
+       self.dimoResources[resourceNode.id] = resourceNode;
+   }
         nodes.push(resourceNode);
 
     }
@@ -261,6 +314,8 @@ self.loadDimoResource = (resource_id, nodes, edges, initial = true) => {
 
         function(data) {
 
+            var rawData = [];
+
 
             var resource = data.resource[0];
             var resourceNode = self.gqlResourceDataToNode(resource);
@@ -273,6 +328,8 @@ self.loadDimoResource = (resource_id, nodes, edges, initial = true) => {
             var project
             for (var i = resource.project_resources.length - 1; i >= 0; i--) {
                 project = resource.project_resources[i].project;
+                project.class = "[Project]"
+                rawData.push(project)
                 self.checkProjectNode(resource.id, project, nodes, edges)
 
             }
@@ -280,18 +337,24 @@ self.loadDimoResource = (resource_id, nodes, edges, initial = true) => {
             var func
             for (var i = resource.functions_resources.length - 1; i >= 0; i--) {
                 func = resource.functions_resources[i].function;
+                func.class = "[Function]"
+                rawData.push(func)
                 self.checkFuncNode(resource.id, func, nodes, edges)
             }
 
             var org
             for (var i = resource.org_resources.length - 1; i >= 0; i--) {
                 org = resource.org_resources[i].organization;
+                org.class = "[Org]"
+                rawData.push(org)
                 self.checkOrgNode(resource.id, org, nodes, edges)
 
             }
 
             for (var i = resource.project_resources.length - 1; i >= 0; i--) {
                 project = resource.project_resources[i].project;
+                project.class = "[Project]"
+                rawData.push(project)
                 self.checkProjectNodeConnections(project, nodes, edges)
             }
 
@@ -311,7 +374,7 @@ self.loadDimoResource = (resource_id, nodes, edges, initial = true) => {
             if (initial) {
                 self.initGraph(nodes, edges);
             } else {
-                self.refreshGraph(nodes, edges);
+                self.addNodesToTable(rawData);;
             }
         })
 }
@@ -327,6 +390,8 @@ self.loadDimoProject = (project_id, nodes, edges, initial = true) => {
             console.info("[Project] Request", data);
 
 
+            var rawData = [];
+
             var proj = data.project[0];
             var projNode = self.gqlProjectDataToNode(proj);
             if (initial) {
@@ -341,6 +406,8 @@ self.loadDimoProject = (project_id, nodes, edges, initial = true) => {
             for (var i = proj.project_devices.length - 1; i >= 0; i--) {
 
                 device = proj.project_devices[i].device;
+                device.class = "[Device]"
+                rawData.push(device)
                 self.checkDeviceNode(proj.id, device, nodes, edges)
             }
 
@@ -348,6 +415,8 @@ self.loadDimoProject = (project_id, nodes, edges, initial = true) => {
             var func
             for (var i = proj.function_projects.length - 1; i >= 0; i--) {
                 func = proj.function_projects[i].function;
+                func.class = "[Function]"
+                rawData.push(func)
                 self.checkFuncNode(proj.id, func, nodes, edges)
             }
 
@@ -355,8 +424,11 @@ self.loadDimoProject = (project_id, nodes, edges, initial = true) => {
             var org
 
             for (var i = proj.org_projects.length - 1; i >= 0; i--) {
+                
                 org = proj.org_projects[i].organization;
-                self.checkOrgNode(proj.id, org, nodes, edges)
+               org.class = "[Org]"
+                rawData.push(org)
+               self.checkOrgNode(proj.id, org, nodes, edges)
             }
 
 
@@ -365,6 +437,8 @@ self.loadDimoProject = (project_id, nodes, edges, initial = true) => {
 
             for (var i = proj.project_resources.length - 1; i >= 0; i--) {
                 resource = proj.project_resources[i].resource;
+                resource.class = "[Resource]"
+                rawData.push(resource)
                 self.checkResourceNode(proj.id, resource, nodes, edges)
             }
 
@@ -400,7 +474,7 @@ self.loadDimoProject = (project_id, nodes, edges, initial = true) => {
             if (initial) {
                 self.initGraph(nodes, edges);
             } else {
-                self.refreshGraph(nodes, edges);
+                self.addNodesToTable(rawData);;
             }
         })
 
@@ -418,6 +492,7 @@ self.loadDimoOrg = (org_id, nodes, edges, initial = true) => {
             var org = data.organization[0];
             var orgNode = self.gqlOrgDataToNode(org);
 
+            rawData = [];
             if (initial) {
 
                 self.dimoOrgs[orgNode.id] = orgNode
@@ -428,6 +503,8 @@ self.loadDimoOrg = (org_id, nodes, edges, initial = true) => {
             for (var i = org.device_oem_orgs.length - 1; i >= 0; i--) {
 
                 device = org.device_oem_orgs[i].device;
+                device.class = "[Device]"
+                rawData.push(device)
                 self.checkDeviceNode(orgNode.id, device, nodes, edges)
 
             }
@@ -435,6 +512,8 @@ self.loadDimoOrg = (org_id, nodes, edges, initial = true) => {
             for (var i = org.device_sp_orgs.length - 1; i >= 0; i--) {
 
                 device = org.device_sp_orgs[i].device;
+                device.class = "[Device]"
+                rawData.push(device)
                 self.checkDeviceNode(orgNode.id, device, nodes, edges)
 
             }
@@ -444,6 +523,8 @@ self.loadDimoOrg = (org_id, nodes, edges, initial = true) => {
 
             for (var i = org.function_sp_orgs.length - 1; i >= 0; i--) {
                 func = org.function_sp_orgs[i].function;
+                func.class = "[Function]"
+                rawData.push(func)
                 self.checkFuncNode(orgNode.id, func, nodes, edges)
 
             }
@@ -453,12 +534,16 @@ self.loadDimoOrg = (org_id, nodes, edges, initial = true) => {
 
             for (var i = org.org_projects.length - 1; i >= 0; i--) {
                 project = org.org_projects[i].project;
+                project.class = "[Project]"
+                rawData.push(project)
                 self.checkProjectNode(orgNode.id, project, nodes, edges)
             }
 
             var resource
             for (var i = org.org_resources.length - 1; i >= 0; i--) {
                 resource = org.org_resources[i].resource;
+                resource.class = "[Resource]"
+                rawData.push(resource)
                 self.checkResourceNode(orgNode.id, resource, nodes, edges)
             }
 
@@ -486,7 +571,7 @@ self.loadDimoOrg = (org_id, nodes, edges, initial = true) => {
             if (initial) {
                 self.initGraph(nodes, edges);
             } else {
-                self.refreshGraph(nodes, edges);
+                self.addNodesToTable(rawData);;
             }
         })
 }
@@ -506,7 +591,7 @@ self.loadDimoFunction = (function_id, nodes, edges, initial = true) => {
 
             var func = data.function[0];
             var funcNode = self.gqlFunctionDataToNode(func);
-
+            var rawData = []
             if (initial) {
 
                 self.dimoFunctions[funcNode.id] = funcNode
@@ -518,6 +603,8 @@ self.loadDimoFunction = (function_id, nodes, edges, initial = true) => {
             for (var i = func.device_functions.length - 1; i >= 0; i--) {
 
                 device = func.device_functions[i].device;
+                device.class = "[Device]"
+                rawData.push(device)
                 self.checkDeviceNode(func.id, device, nodes, edges)
             }
 
@@ -527,6 +614,8 @@ self.loadDimoFunction = (function_id, nodes, edges, initial = true) => {
             for (var i = func.function_projects.length - 1; i >= 0; i--) {
 
                 project = func.function_projects[i].project;
+                project.class = "[Project]"
+                rawData.push(project)
                 self.checkProjectNode(func.id, project, nodes, edges)
 
             }
@@ -534,6 +623,8 @@ self.loadDimoFunction = (function_id, nodes, edges, initial = true) => {
             var org
             for (var i = func.function_sp_orgs.length - 1; i >= 0; i--) {
                 org = func.function_sp_orgs[i].organization;
+                org.class = "[Org]"
+                rawData.push(org)
                 self.checkOrgNode(func.id, org, nodes, edges)
             }
 
@@ -543,6 +634,8 @@ self.loadDimoFunction = (function_id, nodes, edges, initial = true) => {
 
             for (var i = func.functions_resources.length - 1; i >= 0; i--) {
                 resource = func.functions_resources[i].resource;
+                org.class = "[Org]"
+                rawData.push(org)
                 self.checkResourceNode(func.id, resource, nodes, edges)
             }
 
@@ -550,7 +643,7 @@ self.loadDimoFunction = (function_id, nodes, edges, initial = true) => {
 
             for (var i = func.device_functions.length - 1; i >= 0; i--) {
                 device = func.device_functions[i].device;
-                self.checkDeviceNodeConnections(device, nodes.edges)
+                self.checkDeviceNodeConnections(device, nodes, edges)
 
             }
 
@@ -578,7 +671,7 @@ self.loadDimoFunction = (function_id, nodes, edges, initial = true) => {
             if (initial) {
                 self.initGraph(nodes, edges);
             } else {
-                self.refreshGraph(nodes, edges);
+                self.addNodesToTable(rawData);;
             }
 
 
@@ -598,7 +691,7 @@ self.loadDimoDevice = (device_id, nodes, edges, initial = true) => {
         function(data) {
             var device = data.device[0];
             var devNode = self.gqlDeviceDataToNode(device);
-
+            var rawData = [];
             if (initial) {
 
                 self.dimoDevices[devNode.id] = devNode
@@ -609,6 +702,8 @@ self.loadDimoDevice = (device_id, nodes, edges, initial = true) => {
             for (var i = device.device_functions.length - 1; i >= 0; i--) {
 
                 func = device.device_functions[i].function;
+                func.class = "[Function]"
+                rawData.push(func)
                 self.checkFuncNode(devNode.id, func, nodes, edges)
             }
 
@@ -616,6 +711,8 @@ self.loadDimoDevice = (device_id, nodes, edges, initial = true) => {
             for (var i = device.device_oem_orgs.length - 1; i >= 0; i--) {
 
                 org = device.device_oem_orgs[i].organization;
+                org.class = "[Org]"
+                rawData.push(org)
                 self.checkOrgNode(devNode.id, org, nodes, edges)
             }
 
@@ -623,6 +720,8 @@ self.loadDimoDevice = (device_id, nodes, edges, initial = true) => {
             for (var i = device.device_sp_orgs.length - 1; i >= 0; i--) {
 
                 org = device.device_sp_orgs[i].organization;
+                org.class = "[Org]"
+                rawData.push(org)
                 self.checkOrgNode(devNode.id, org, nodes, edges)
             }
 
@@ -630,6 +729,8 @@ self.loadDimoDevice = (device_id, nodes, edges, initial = true) => {
             for (var i = device.project_devices.length - 1; i >= 0; i--) {
 
                 project = device.project_devices[i].project;
+                project.class = "[Project]"
+                rawData.push(project)
                 self.checkProjectNode(devNode.id, project, nodes, edges)
 
             }
@@ -638,7 +739,6 @@ self.loadDimoDevice = (device_id, nodes, edges, initial = true) => {
 
             for (var i = device.device_functions.length - 1; i >= 0; i--) {
                 func = device.device_functions[i].function;
-
                 self.checkFunctionNodeConnections(func, nodes, edges)
             }
 
@@ -668,7 +768,7 @@ self.loadDimoDevice = (device_id, nodes, edges, initial = true) => {
             if (initial) {
                 self.initGraph(nodes, edges);
             } else {
-                self.refreshGraph(nodes, edges);
+                self.addNodesToTable(rawData);
             }
 
 

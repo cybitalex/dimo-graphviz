@@ -16,7 +16,6 @@ insertCss(`
       border-radius: 6px;
       font-size: 14px;
       color: hsla(0, 0%, 100%, .85);
-      width: fit-content;
       transition: opacity .2s;
       text-align: center;
       padding: 0px 20px 0px 20px;
@@ -33,6 +32,7 @@ insertCss(`
       list-style: none;
       margin-left: 0;
       line-height: 38px;
+      font-size: 12px !important;
   }
   .g6-component-contextmenu li:hover {
       color: #aaaaaa;
@@ -71,12 +71,22 @@ insertCss(`
   }
 `);
 
-const { uniqueId } = G6.Util;
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+
 
 const SMALLGRAPHLABELMAXLENGTH = 20;
 let labelMaxLength = SMALLGRAPHLABELMAXLENGTH;
 const DEFAULTNODESIZE = 200;
 const DEFAULTAGGREGATEDNODESIZE = 200;
+
+
+
 
 
 let graph = null;
@@ -123,6 +133,7 @@ const subjectColors = [
   "#9661BC",
   "#C91C25",
   "#D37099",
+  '#EDE7A4',
 ];
 
 
@@ -132,6 +143,7 @@ const dimoFunctionColorIndex = 2;
 const dimoDeviceColorIndex = 3;
 const dimoResourceColorIndex = 4;
 const dimoPersonColorIndex = 5;
+const dimoAggregateColorIndex = 5;
 
 const colorSets = G6.Util.getColorSetsBySubjectColors(
   subjectColors,
@@ -151,7 +163,20 @@ const dimoResourceIcon = "https://api.iconify.design/emojione-monotone:letter-r.
 const dimoPeopleIcon = "https://api.iconify.design/akar-icons:person.svg"
 
 
-var graphInit = false;
+self.classToIcon = {
+                      "[Org]":dimoOrgIcon,
+                      "[Project]":dimoProjectIcon,
+                      "[Function]":dimoFunctionIcon,
+                      "[Device]":dimoDeviceIcon,
+                      "[Resource]":dimoResourceIcon,
+                      "[Person]":dimoPeopleIcon,
+}
+
+
+
+
+
+self.graphInit = false;
 
 
 const edgeColor = "#7DC1E3"
@@ -197,6 +222,222 @@ const global = {
     }
   }
 };
+
+// Custom super node
+G6.registerNode(
+  "dimo-aggregated-node",
+  {
+    draw(cfg, group) {
+      let width = 225,
+        height = 45;
+      const style = cfg.style || {};
+      const colorSet = cfg.colorSet || colorSets[0];
+
+      // Hightlight for Hover
+      group.addShape("rect", {
+        attrs: {
+          x: -width * 0.55,
+          y: -height * 0.6,
+          width: width * 1.1,
+          height: height * 1.2,
+          fill: colorSet.mainFill,
+          opacity: 0.9,
+          lineWidth: 0,
+          radius: (height / 2 || 13) * 1.2
+        },
+        name: "halo-shape",
+        visible: false
+      });
+
+      // focus stroke for active (clicked)
+      group.addShape("rect", {
+        attrs: {
+          x: -width * 0.55,
+          y: -height * 0.6,
+          width: width * 1.1,
+          height: height * 1.2,
+          fill: colorSet.mainFill, // '#3B4043',
+          stroke: "#AAB7C4",
+          lineWidth: 1,
+          lineOpacty: 0.85,
+          radius: (height / 2 || 13) * 1.2
+        },
+        name: "stroke-shape",
+        visible: false
+      });
+
+      const keyShape = group.addShape("rect", {
+        attrs: {
+          ...style,
+          x: -width / 2,
+          y: -height / 2,
+          width,
+          height,
+          fill: colorSet.mainFill, // || '#3B4043',
+          stroke: colorSet.mainStroke,
+          lineWidth: 2,
+          radius: height / 2 || 13,
+          lineDash: [2, 2]
+        },
+        name: "dimo-node-keyShape"
+      });
+
+      let labelStyle = {};
+      if (cfg.labelCfg) {
+        labelStyle = Object.assign(labelStyle, cfg.labelCfg.style);
+      }
+      
+      group.addShape('image', {
+          attrs: {
+              x: 70,
+              y: -16,
+              width: 32,
+              height: 32,
+              img:cfg.icon.url
+          },
+          className: 'node-icon',
+          name: 'node-icon',
+          draggable: true,
+      });
+
+
+      group.addShape("text", {
+        attrs: {
+          text: cfg.label,
+          x: 0,
+          y: 0,
+          textAlign: "center",
+          textBaseline: "middle",
+          cursor: "pointer",
+          fontSize: 12,
+          fill: "#fff",
+          opacity: 0.85,
+          fontWeight: 400
+        },
+        name: "node-label",
+        className: "node-label",
+        draggable: true
+      });
+
+      group.addShape("text", {
+        attrs: {
+          text: cfg.count,
+          x: 0,
+          y: 20,
+          textAlign: "center",
+          textBaseline: "middle",
+          cursor: "pointer",
+          fontSize: 7,
+          fill: "#fff",
+          opacity: 0.85,
+          fontWeight: 400
+        },
+        name: "node-count",
+        className: "node-count",
+        draggable: true
+      });
+
+
+      if (cfg.icon.show){
+
+          group.addShape('image', {
+              attrs: {
+                  x: 70,
+                  y: -16,
+                  width: 32,
+                  height: 32,
+                  img:cfg.icon.url
+              },
+              className: 'node-icon',
+              name: 'node-icon',
+              draggable: true,
+          });
+    }
+
+      if (cfg.logo.show) {
+
+          group.addShape('image', {
+              attrs: {
+                  x: -102,
+                  y: -16,
+                  width: 32,
+                  height: 32,
+                  img: cfg.logo.url
+              },
+              className: 'node-logo',
+              name: 'node-logo',
+              draggable: true,
+          });
+      }
+
+
+
+      // tag for new node
+      if (cfg.new) {
+        group.addShape("circle", {
+          attrs: {
+            x: width / 2 - 3,
+            y: -height / 2 + 3,
+            r: 4,
+            fill: "#6DD400",
+            lineWidth: 0.5,
+            stroke: "#FFFFFF"
+          },
+          name: "typeNode-tag-circle"
+        });
+      }
+      return keyShape;
+    },
+    setState: (name, value, item) => {
+      const group = item.get("group");
+      if (name === "layoutEnd" && value) {
+        const labelShape = group.find((e) => e.get("name") === "text-shape");
+        if (labelShape) labelShape.set("visible", true);
+      } else if (name === "hover") {
+        if (item.hasState("focus")) {
+          return;
+        }
+        const halo = group.find((e) => e.get("name") === "halo-shape");
+        const keyShape = item.getKeyShape();
+        const colorSet = item.getModel().colorSet || colorSets[0];
+        if (value) {
+          halo && halo.show();
+          keyShape.attr("fill", colorSet.activeFill);
+        } else {
+          halo && halo.hide();
+          keyShape.attr("fill", colorSet.mainFill);
+        }
+      } else if (name === "focus") {
+        const stroke = group.find((e) => e.get("name") === "stroke-shape");
+        const keyShape = item.getKeyShape();
+        const colorSet = item.getModel().colorSet || colorSets[0];
+        if (value) {
+          stroke && stroke.show();
+          keyShape.attr("fill", colorSet.selectedFill);
+        } else {
+          stroke && stroke.hide();
+          keyShape.attr("fill", colorSet.mainFill);
+        }
+      }
+    },
+
+
+
+
+
+
+    update: undefined
+  },
+  "single-node"
+);
+
+
+
+
+
+
+
+
 
 // Custom super node
 G6.registerNode(
@@ -578,7 +819,7 @@ const getForceLayoutConfig = (graph, largeGraphMode, configSettings) => {
   } = configSettings || { preventOverlap: true };
 
   if (!linkDistance && linkDistance !== 0) linkDistance = 225;
-  if (!edgeStrength && edgeStrength !== 0) edgeStrength = 0;
+  if (!edgeStrength && edgeStrength !== 0) edgeStrength = 10;
   if (!nodeStrength && nodeStrength !== 0) nodeStrength = 5000;
   if (!nodeSpacing && nodeSpacing !== 0) nodeSpacing = 1000;
 
@@ -671,7 +912,7 @@ const stopLayout = () => {
 
 const bindListener = (graph) => {
   graph.on("keydown", (evt) => {
-    if(window.modalOpen) {
+    if(self.modalOpen) {
       return
     }
 
@@ -743,11 +984,46 @@ function wait(ms){
 
 
   graph.on("keyup", (evt) => {
-    if(window.modalOpen) {
+    
+    const code = evt.key;
+
+    if(self.modalOpen) {
+      
+
+      if (code=="Escape") {
+        evt.preventDefault();
+        self.closeAllModals()
+      }
+
+      if (self.settingsModalOpenBool) {
+          if (code == "Enter") {
+              evt.preventDefault();
+              self.settingsModalSave()
+              self.closeAllModals()
+              
+          }
+      }
+
+
+
+
+
       return
     }
 
-    const code = evt.key;
+    if(code=="Enter" && !self.modalOpen){
+      evt.preventDefault();
+      self.searchModalOpen()
+      return
+    }
+    if(code=="F1" && !self.modalOpen){
+          evt.preventDefault();
+          self.settingsModalOpen()
+        }
+
+
+
+    
     if (!code) {
       return;
     }
@@ -923,14 +1199,16 @@ function getUrlVars() {
 }
 
 
-self.dimoProjects = [];
-self.dimoOrgs = [];
-self.dimoFunctions = [];
-self.dimoDevices = [];
-self.dimoResources = [];
-self.dimoPeople = [];
-
-
+self.dimoProjects = {};
+self.dimoOrgs = {};
+self.dimoFunctions = {};
+self.dimoDevices = {};
+self.dimoResources = {};
+self.dimoPeople = {};
+self.dimoAggregates  = {};
+self.dimoAggregatesMap = {};
+self.dimoAggregatesMapReverse = {};
+self.dimoEdgeMap = {};
 
 
 
@@ -1286,7 +1564,100 @@ self.gqlDeviceDataToNode = (device)=>{
 
 
 
+self.dimoAggregatedNode = (nodes)=>{
 
+    const nodeID = `node-${uuidv4()}`
+    console.log(nodeID)
+
+    var node = {
+        "id": nodeID,
+        "type": "dimo-aggregated-node",
+        "class":"[Aggregate]",
+    };
+ 
+    node.level = 1;
+    node.count = 0;
+
+    node.typeSet = new Set()
+    node.tableSet = new Set()
+
+    node.tableCount = {
+                      "[Org]":0,
+                      "[Project]":0,
+                      "[Function]":0,
+                      "[Device]":0,
+                      "[Resource]":0,
+                      "[Person]":0,
+                      }
+
+
+
+    var subNode
+    for (var i = nodes.length - 1; i >= 0; i--) {
+        node.count += 1
+        subNode = nodes[i]
+        if(subNode._type!=undefined){
+          node.typeSet.add(subNode._type)
+        }
+        node.tableSet.add(subNode.class)
+        node.tableCount[subNode.class] += 1
+    }
+
+
+
+
+    if(node.typeSet.size==1){
+        node.icon = nodes[0].icon
+        
+        if(self.groupByType){
+          node.label = nodes[0]._type
+        }
+
+
+     } else {
+       node.icon = {
+           "show":false,
+       }
+     }
+
+     if(node.tableSet.size==1){
+       node.logo = {
+         "show":true,
+         "url":self.classToIcon[nodes[0].class]
+       }
+        if(self.groupByTable){
+          node.label = nodes[0].class
+        }
+
+     } else {
+       node.logo = {
+         "show":false,
+       }
+     }
+
+
+    node.labelCfg = {
+        position: "bottom",
+        offset: 5,
+        style: {
+            fill: global.node.labelCfg.style.fill,
+            fontSize: 12,
+            stroke: global.node.labelCfg.style.stroke,
+            lineWidth: 3
+        }
+    }
+
+
+
+
+
+    node.colorSet = colorSets[dimoAggregateColorIndex]
+    
+    return node
+
+
+
+}
 
 
 
@@ -1295,7 +1666,7 @@ function loadConnectedItems(model) {
     var nodes = [];
     var edges = [];
 
-
+    self.searchModalOpen()
 
     if(model.class=="[Project]") {
 
@@ -1319,6 +1690,42 @@ function loadConnectedItems(model) {
     
 
 
+
+
+
+}
+
+
+self.alignNewNodes = ()=>{
+  var nodes = graph.getNodes()
+  var newNodes = [];
+  for (var i = nodes.length - 1; i >= 0; i--) {
+    graph.setItemState(nodes[i],"focus",false)
+    if(nodes[i]._cfg.model.new){
+      newNodes.push(nodes[i])
+    }
+  }
+
+  if(newNodes.length<2){
+    return
+  }
+
+  const baseX = newNodes[0]._cfg.model.x
+  const baseY = newNodes[0]._cfg.model.y
+  var offset = 0;
+  for (var i = newNodes.length - 1; i > 0; i--) {
+
+    const newX = baseX
+    const newY = baseY + (i+offset)*(50)
+    graph.updateItem(newNodes[i],{x:newX,y:newY})
+    graph.setItemState(newNodes[i],"focus",false)
+    graph.setItemState(newNodes[i],"focus",true)
+
+
+
+  }
+  graph.setItemState(newNodes[0],"focus",false)
+  graph.setItemState(newNodes[0],"focus",true)
 
 
 
@@ -1402,11 +1809,22 @@ self.refreshGraph = (nodes, edges)=>{
     node.toFront();
   });
 
+  self.alignNewNodes()
+
 }
 
 
 
 function initGraphData() {
+  if(self.groupByType){
+    console.info("Group By [Type] enabled")
+  }
+  if(self.groupByTable){
+    console.info("Group By Table enabled")
+  }
+  if(self.groupByNone){
+    console.info("No Grouping")
+  }
 
   const vars = getUrlVars();
   console.info("initGraph",vars)
@@ -1423,19 +1841,19 @@ function initGraphData() {
       //colorSets[dimoProjectColorIndex]
       var indx;
       if (data.nodes[i].class == "[Project]"){
-        self.dimoProjects.push(data.nodes[i])
+        self.dimoProjects[data.nodes[i].id] = data.nodes[i]
         indx = dimoProjectColorIndex
       } else if (data.nodes[i].class == "[Device]"){
-        self.dimoDevices.push(data.nodes[i])
+        self.dimoDevices[data.nodes[i].id] = data.nodes[i]
         indx = dimoDeviceColorIndex
       } else if (data.nodes[i].class == "[Org]"){
-        self.dimoOrgs.push(data.nodes[i])
+        self.dimoOrgs[data.nodes[i].id] = data.nodes[i]
         indx = dimoOrgColorIndex
       } else if (data.nodes[i].class == "[Function]"){
-        self.dimoFunctions.push(data.nodes[i])
+        self.dimoFunctions[data.nodes[i].id] = data.nodes[i]
         indx = dimoFunctionColorIndex
       } else if (data.nodes[i].class == "[Resource]"){
-        self.dimoResources.push(data.nodes[i])
+        self.dimoResources[data.nodes[i].id] = data.nodes[i]
         indx = dimoResourceColorIndex
       }
       data.nodes[i].colorSet = colorSets[indx];
@@ -1538,7 +1956,7 @@ function processAllNodesEdges(nodes_, edges_, isNewGraph) {
       }
 
     // to avoid the dulplicated id to nodes
-    if (!edge.id) edge.id = `edge-${uniqueId()}`;
+    if (!edge.id) edge.id = `edge-${uuidv4()}`;
     else if (edge.id.split("-")[0] !== "edge") edge.id = `edge-${edge.id}`;
     // TODO: delete the following line after the queried data is correct
     if (!currentNodeMap[edge.source] || !currentNodeMap[edge.target]) {
@@ -1576,7 +1994,7 @@ function processAllNodesEdges(nodes_, edges_, isNewGraph) {
 
 
     // to avoid the dulplicated id to nodes
-    if (!edge.id) edge.id = `edge-${uniqueId()}`;
+    if (!edge.id) edge.id = `edge-${uuidv4()}`;
     else if (edge.id.split("-")[0] !== "edge") edge.id = `edge-${edge.id}`;
     // TODO: delete the following line after the queried data is correct
     if (!currentNodeMap[edge.source] || !currentNodeMap[edge.target]) {
@@ -1837,9 +2255,184 @@ function getStateURL() {
 }
 
 
-self.initGraph = (nodes, edges_, useLayout=true)=>{
+self.groupNodesByType = (nodes, edges)=>{
 
-  var edges = removeDuplicateEdges(edges_);
+          var newNodes = []
+
+
+          var typeGrouping = {
+          }
+          var typeGroupingSet = new Set()
+
+          var node
+          for (var i = nodes.length - 1; i >= 0; i--) {
+            node = nodes[i]
+            if(typeGroupingSet.has(node._type)){
+              typeGrouping[node._type].push(node)
+            } else {
+              typeGroupingSet.add(node._type)
+              typeGrouping[node._type] = [node]
+            }
+          }
+
+          var newNode
+          for (var key in typeGrouping) {
+
+            if(typeGrouping[key].length){
+              if(typeGrouping[key].length==1){
+                newNodes.push(typeGrouping[key][0])
+              } else {
+                newNode = self.dimoAggregatedNode(typeGrouping[key])
+                newNodes.push(newNode)
+                self.dimoAggregatesMap[newNode.id] = new Set()
+                self.dimoAggregates[newNode.id] = newNode
+                for (var i = typeGrouping[key].length - 1; i >= 0; i--) {
+                  self.dimoAggregatesMap[newNode.id].add(typeGrouping[key][i].id)
+                  self.dimoAggregatesMapReverse[typeGrouping[key][i].id] = newNode
+                }
+
+
+
+              }
+            }
+
+
+          }
+
+
+          var newEdges = self.fixAggregateEdges(edges)
+          return [newNodes,newEdges]
+
+
+
+}
+
+
+
+self.fixAggregateEdges = (edges)=>{
+
+  var newEdges = []
+
+  var edge,newTarget,newSource
+  for (var i = edges.length - 1; i >= 0; i--) {
+    edge = edges[i]
+    newTarget = edge.target
+    newSource = edge.source
+
+    if(self.dimoAggregatesMapReverse[edge.target]!=undefined){
+      newTarget = self.dimoAggregatesMapReverse[edge.target].id
+    }
+    if(self.dimoAggregatesMapReverse[edge.source]!=undefined){
+      newSource = self.dimoAggregatesMapReverse[edge.source].id
+    }
+
+
+    if(newTarget!=edge.target || newSource!=edge.source) {
+
+        self.dimoEdgeMap[edge.target].push(edge)
+        self.dimoEdgeMap[edge.source].push(edge)
+        newEdges.push({ "source": newSource, "target": newTarget, type: "custom-cubic" })
+
+    } else {
+      newEdges.push(edge)
+    }
+
+
+  }
+
+  return newEdges
+
+}
+
+
+
+
+
+self.groupNodesByTable = (nodes, edges)=>{
+
+        var newNodes = []
+
+        var tableGrouping = {
+                      "[Org]":[],
+                      "[Project]":[],
+                      "[Function]":[],
+                      "[Device]":[],
+                      "[Resource]":[],
+                      "[Person]":[],
+          }
+
+          var node
+          for (var i = nodes.length - 1; i >= 0; i--) {
+            node = nodes[i]
+            tableGrouping[node.class].push(node)
+          }
+          var newNode
+          for (var key in tableGrouping) {
+
+            if(tableGrouping[key].length){
+              if(tableGrouping[key].length==1){
+                newNodes.push(tableGrouping[key][0])
+              } else {
+                newNode = self.dimoAggregatedNode(tableGrouping[key])
+                newNodes.push(newNode)
+                self.dimoAggregatesMap[newNode.id] = new Set()
+                self.dimoAggregates[newNode.id] = newNode
+                for (var i = tableGrouping[key].length - 1; i >= 0; i--) {
+                  self.dimoAggregatesMap[newNode.id].add(tableGrouping[key][i].id)
+                  self.dimoAggregatesMapReverse[tableGrouping[key][i].id] = newNode
+                }
+
+
+
+              }
+            }
+
+
+          }
+          var newEdges = self.fixAggregateEdges(edges)
+          return [newNodes,newEdges]
+
+
+
+
+}
+
+
+
+
+
+self.initGraph = (nodes_, edges_, useLayout=true)=>{
+  
+
+  self.graphInit = true
+
+  for (var i = nodes_.length - 1; i >= 0; i--) {
+    self.dimoEdgeMap[nodes_[i].id] = []  
+  }
+
+  var edges__ = removeDuplicateEdges(edges_);
+
+  var nodes = [];
+
+  var idSet = new Set()
+
+  for (var i = nodes_.length - 1; i >= 0; i--) {
+      
+      if(!idSet.has(nodes_[i].id)){
+          idSet.add(nodes_[i].id)
+          nodes.push(nodes_[i])
+      }
+      
+  }
+
+
+
+  var edges = edges__
+
+
+
+
+  
   const container = document.getElementById("container");
   container.style.backgroundColor = "#2b2f33";
   CANVAS_WIDTH = container.scrollWidth;
@@ -1866,13 +2459,15 @@ self.initGraph = (nodes, edges_, useLayout=true)=>{
           if (itemType === "node") {
             if (model.level !== 0) {
               return `<ul>
-              <li id='hide'>Hide Selected Node(s)</li>
-              <li id='url'>View in Airtable</li>
-              <li id='load'>Load Connected Items</li>
-              <li id='selectConnections'>Select Connected Nodes</li>
-              <li id='selectByType'>Select All Nodes of Same Type</li>
-              <li id='group'>Group Selected Nodes</li>
-              <li id='organizeAll'>Organize All Nodes</li>
+              <li id='hide'>Hide Selected</li>
+              <li id='url'>View in Database</li>
+              <li id='load'>Load Connections</li>
+              <li id='align'>Align Selected</li>
+              <li id='group'>Group Selected</li>
+              <li id='organizeAll'>Organize All</li>
+              <li id='selectConnections'>Select Connected</li>
+              <li id='selectByEntity'>Select By Entity</li>
+              <li id='selectByType'>Select By [Type]</li>
             </ul>`;
             }
           }
@@ -1882,6 +2477,8 @@ self.initGraph = (nodes, edges_, useLayout=true)=>{
         const model = item && item.getModel();
         const liIdStrs = target.id.split("-");
         let mixedGraphData;
+        const Nodes = graph.getNodes()
+        var focusNodes
         switch (liIdStrs[0]) {
           case "hide":
 
@@ -1911,8 +2508,8 @@ self.initGraph = (nodes, edges_, useLayout=true)=>{
               graph.setItemState(edge._cfg.target,"focus",true)
             })
             break;
-          case "group":
-            const focusNodes = graph.findAllByState("node", "focus");
+          case "align":
+            focusNodes = graph.findAllByState("node", "focus");
             
             for (var i = focusNodes.length - 1; i >= 0; i--) {
               if(focusNodes[i]._cfg.id==item._cfg.id){
@@ -1938,8 +2535,19 @@ self.initGraph = (nodes, edges_, useLayout=true)=>{
             graph.setItemState(item,"focus",false)
             graph.setItemState(item,"focus",true)
             break
+          case "align":
+            focusNodes = graph.findAllByState("node", "focus");
+            break;
           case "selectByType":
-            const Nodes = graph.getNodes()
+          
+            console.log(Nodes)
+            for (var i = Nodes.length - 1; i >= 0; i--) {
+              if(item._cfg.model._type==Nodes[i]._cfg.model._type){
+                graph.setItemState(Nodes[i],"focus",true)
+              }
+            }            
+            break;
+          case "selectByEntity":
             console.log(Nodes)
             for (var i = Nodes.length - 1; i >= 0; i--) {
               if(item._cfg.model.class==Nodes[i]._cfg.model.class){
@@ -1991,7 +2599,19 @@ self.initGraph = (nodes, edges_, useLayout=true)=>{
     offsetY: 10,
     // the types of items that allow the tooltip show up
     // 允许出现 tooltip 的 item 类型
-    itemTypes: ['edge'],
+    itemTypes: ['edge','node'],
+
+    shouldBegin: (e)=> {
+
+      if (e.item.getType()=="edge"){
+        return true
+      } else if (e.item.getType()=="node") {
+        return false
+
+      }
+
+
+    },
     // custom the tooltip's content
     // 自定义 tooltip 内容
     getContent: (e) => {
@@ -2012,6 +2632,8 @@ self.initGraph = (nodes, edges_, useLayout=true)=>{
         <ul>
           <li>Target: ${e.item.getTarget().getModel().oriLabel}</li>
         </ul>`;
+      } else if (e.item.getType=="node"){
+
       }
 
 

@@ -20,16 +20,20 @@
     <!-- The Modal -->
     <div id="settingsModal" class="modal">
         <!-- Modal content -->
-        <div class="modal-content">
-            <form id="rendered-form">
+        <div class="modal-content" style="text-align:center;">
+            <form id="settingsModalForm" onkeydown="return event.key != 'Enter';">
                 <div class="rendered-form">
                     <div class="">
                         <h1 class="modal-header" access="false" id="control-9662864">Settings</h1>
                     </div>
                     <div class="formbuilder-radio-group form-group field-radio-group-node-grouping"><label for="radio-group-node-grouping" class="formbuilder-radio-group-label">Node Grouping<span class="formbuilder-required">*</span><span class="tooltip-element" tooltip="Grouping by table type will group nodes based on their table (e.g. [Devices],[Function], and [Org]). Grouping by item type will group items based on their [Function]Type, [Org]Type, [Device]Type etc.">?</span></label>
-                        <div class="radio-group">
-                            <div class="formbuilder-radio-inline"><input class="modal-radio" name="radio-group-node-grouping" access="false" id="radio-group-node-grouping-0" required="required" aria-required="true" value="tableType" type="radio"><label for="radio-group-node-grouping-0">By Table Type</label></div>
-                            <div class="formbuilder-radio-inline"><input class="modal-radio" name="radio-group-node-grouping" access="false" id="radio-group-node-grouping-1" required="required" aria-required="true" value="itemType" type="radio" checked="checked"><label for="radio-group-node-grouping-1">By Item Type</label></div>
+                        <div class="radio-group" style="text-align:center;">
+                            <div class="formbuilder-radio-inline">
+                                <input class="modal-radio" name="nodeGrouping" access="false" id="nodeGrouping2" required="required" aria-required="true" value="none" type="radio"><label for="radio-group-node-grouping-0">No Grouping</label>
+                                <input class="modal-radio" name="nodeGrouping" access="false" id="nodeGrouping0" required="required" aria-required="true" value="table" type="radio"><label for="radio-group-node-grouping-0">By Table Type</label>
+                                <input class="modal-radio" name="nodeGrouping" access="false" id="nodeGrouping1" required="required" aria-required="true" value="type" type="radio" checked="checked"><label for="radio-group-node-grouping-1">By Item Type</label>
+                            </div>
+                            
                         </div>
                     </div>
                     <div class="formbuilder-button-group form-group">
@@ -45,7 +49,7 @@
             <form id="searchModalForm" onkeydown="return event.key != 'Enter';">
                 <div class="rendered-form">
                     <div class="">
-                        <h1 class="modal-header" access="false" id="control-9429438">Search</h1>
+                        <h1 class="modal-header" access="false" id="control-9429438">DIMO Network</h1>
                     </div>
                     <div class="formbuilder-text form-group field-searchModalSearchText" style="text-align:center;"><input type="text" class="form-control" name="searchModalSearchText" access="false" id="searchModalSearchText" required="required" aria-required="true" style="text-align: center;" autofocus><button type="button" class="modal-button btn-success btn" name="searchModalSearchButton" value="" access="false" style="success" id="searchModalSearchButton">Search</button></div>
                     <div class="formbuilder-checkbox-group form-group field-checkbox-group-1615873730622">

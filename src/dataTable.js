@@ -41,7 +41,6 @@ self.addRowToSearchTable = (item) => {
 		table.style.visibility = 'visible'
 	}
 
-
     self.searchDatatable.row.add(item).draw();
 
 }
