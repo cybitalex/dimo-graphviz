@@ -1,0 +1,679 @@
+self.checkProjectNode = (obj_id, project, nodes, edges) => {
+    var projNode = self.gqlProjectDataToNode(project)
+    if (self.dimoProjects[projNode.id] == undefined) {
+        self.dimoProjects[projNode.id] = projNode;
+        nodes.push(projNode)
+    }
+    edges.push({ "source": obj_id, "target": project.id, type: "custom-cubic" })
+}
+
+
+self.checkProjectNodeConnections = (project, nodes, edges) => {
+
+
+    for (var j = project.function_projects.length - 1; j >= 0; j--) {
+
+        if (self.dimoFunctions[project.function_projects[j].function.id] != undefined) {
+            edges.push({ "source": project.id, "target": project.function_projects[j].function.id, type: "custom-cubic" })
+        }
+
+    }
+
+
+    for (var j = project.org_projects.length - 1; j >= 0; j--) {
+
+        if (self.dimoOrgs[project.org_projects[j].organization.id] != undefined) {
+            edges.push({ "source": project.id, "target": project.org_projects[j].organization.id, type: "custom-cubic" })
+        }
+
+    }
+
+    for (var j = project.project_devices.length - 1; j >= 0; j--) {
+
+        if (self.dimoDevices[project.project_devices[j].device.id] != undefined) {
+            edges.push({ "source": project.id, "target": project.project_devices[j].device.id, type: "custom-cubic" })
+        }
+
+    }
+
+    for (var j = project.project_resources.length - 1; j >= 0; j--) {
+
+        if (self.dimoResources[project.project_resources[j].resource.id] != undefined) {
+            edges.push({ "source": project.id, "target": project.project_resources[j].resource.id, type: "custom-cubic" })
+        }
+
+    }
+
+}
+
+
+
+
+
+self.checkFuncNode = (obj_id, func, nodes, edges) => {
+    var funcNode = self.gqlFunctionDataToNode(func)
+    if (self.dimoFunctions[func.id] == undefined) {
+
+        self.dimoFunctions[funcNode.id] = funcNode
+        nodes.push(funcNode)
+    }
+    edges.push({ "source": obj_id, "target": func.id, type: "custom-cubic" })
+}
+
+self.checkFunctionNodeConnections = (func, nodes, edges) => {
+
+
+    for (var j = func.function_projects.length - 1; j >= 0; j--) {
+
+        if (self.dimoProjects[func.function_projects[j].project.id] != undefined) {
+            edges.push({ "source": func.id, "target": func.function_projects[j].project.id, type: "custom-cubic" })
+        }
+
+    }
+
+    for (var j = func.function_sp_orgs.length - 1; j >= 0; j--) {
+
+        if (self.dimoOrgs[func.function_sp_orgs[j].organization.id] != undefined) {
+            edges.push({ "source": func.id, "target": func.function_sp_orgs[j].organization.id, type: "custom-cubic" })
+        }
+
+    }
+
+
+    for (var j = func.device_functions.length - 1; j >= 0; j--) {
+
+        if (self.dimoDevices[func.device_functions[j].device.id] != undefined) {
+            edges.push({ "source": func.id, "target": func.device_functions[j].device.id, type: "custom-cubic" })
+        }
+
+    }
+
+
+    for (var j = func.functions_resources.length - 1; j >= 0; j--) {
+
+        if (self.dimoResources[func.functions_resources[j].resource.id] != undefined) {
+            edges.push({ "source": func.id, "target": func.functions_resources[j].resource.id, type: "custom-cubic" })
+        }
+
+    }
+
+
+}
+
+
+
+
+
+
+
+self.checkOrgNode = (obj_id, org, nodes, edges) => {
+    var orgNode = self.gqlOrgDataToNode(org)
+    if (self.dimoOrgs[org.id] == undefined) {
+        self.dimoOrgs[orgNode.id] = orgNode
+        nodes.push(orgNode)
+    }
+    edges.push({ "source": obj_id, "target": org.id, type: "custom-cubic" })
+}
+
+self.checkOrgNodeConnections = (org, nodes, edges) => {
+    for (var j = org.device_oem_orgs.length - 1; j >= 0; j--) {
+
+        if (self.dimoDevices[org.device_oem_orgs[j].device.id] != undefined) {
+            edges.push({ "source": org.id, "target": org.device_oem_orgs[j].device.id, type: "custom-cubic" })
+        }
+
+    }
+
+
+    for (var j = org.device_sp_orgs.length - 1; j >= 0; j--) {
+
+        if (self.dimoDevices[org.device_sp_orgs[j].device.id] != undefined) {
+            edges.push({ "source": org.id, "target": org.device_sp_orgs[j].device.id, type: "custom-cubic" })
+        }
+
+    }
+
+
+    for (var j = org.function_sp_orgs.length - 1; j >= 0; j--) {
+
+        if (self.dimoFunctions[org.function_sp_orgs[j].function.id] != undefined) {
+            edges.push({ "source": org.id, "target": org.function_sp_orgs[j].function.id, type: "custom-cubic" })
+        }
+
+    }
+
+
+    for (var j = org.org_projects.length - 1; j >= 0; j--) {
+
+        if (self.dimoProjects[org.org_projects[j].project.id] != undefined) {
+            edges.push({ "source": org.id, "target": org.org_projects[j].project.id, type: "custom-cubic" })
+        }
+
+    }
+
+
+    for (var j = org.org_resources.length - 1; j >= 0; j--) {
+
+        if (self.dimoResources[org.org_resources[j].resource.id] != undefined) {
+            edges.push({ "source": org.id, "target": org.org_resources[j].resource.id, type: "custom-cubic" })
+        }
+
+
+    }
+
+}
+
+
+
+self.checkDeviceNode = (obj_id, device, nodes, edges) => {
+    var deviceNode = self.gqlDeviceDataToNode(device);
+
+
+    if (self.dimoDevices[deviceNode.id] == undefined) {
+
+
+        self.dimoDevices[deviceNode.id] = deviceNode;
+        nodes.push(deviceNode)
+    }
+
+    edges.push({ "source": obj_id, "target": deviceNode.id, type: "custom-cubic" })
+
+
+}
+self.checkDeviceNodeConnections = (device, nodes, edges) => {
+    for (var j = device.device_functions.length - 1; j >= 0; j--) {
+
+        if (self.dimoFunctions[device.device_functions[j].function.id] != undefined) {
+            edges.push({ "source": device.id, "target": device.device_functions[j].function.id, type: "custom-cubic" })
+        }
+
+    }
+
+    for (var j = device.device_sp_orgs.length - 1; j >= 0; j--) {
+
+        if (self.dimoOrgs[device.device_sp_orgs[j].organization.id] != undefined) {
+            edges.push({ "source": device.id, "target": device.device_sp_orgs[j].organization.id, type: "custom-cubic" })
+        }
+
+    }
+
+    for (var j = device.project_devices.length - 1; j >= 0; j--) {
+
+        if (self.dimoProjects[device.project_devices[j].project.id] != undefined) {
+            edges.push({ "source": device.id, "target": device.project_devices[j].project.id, type: "custom-cubic" })
+        }
+
+    }
+}
+
+
+self.checkResourceNode = (obj_id, resource, nodes, edges) => {
+    resourceNode = self.gqlResourceDataToNode(resource);
+
+    if (self.dimoResources[resourceNode.id] == undefined) {
+
+        self.dimoResources[resourceNode.id] = resourceNode;
+        nodes.push(resourceNode);
+
+    }
+    edges.push({ "source": obj_id, "target": resourceNode.id, type: "custom-cubic" })
+}
+
+
+self.checkResourceNodeConnections = (resource, nodes, edges) => {
+    for (var j = resource.project_resources.length - 1; j >= 0; j--) {
+
+        if (self.dimoProjects[resource.project_resources[j].project.id] != undefined) {
+            edges.push({ "source": resource.id, "target": resource.project_resources[j].project.id, type: "custom-cubic" })
+        }
+
+    }
+
+    for (var j = resource.functions_resources.length - 1; j >= 0; j--) {
+
+        if (self.dimoFunctions[resource.functions_resources[j].function.id] != undefined) {
+            edges.push({ "source": resource.id, "target": resource.functions_resources[j].function.id, type: "custom-cubic" })
+        }
+
+    }
+
+    for (var j = resource.org_resources.length - 1; j >= 0; j--) {
+
+        if (self.dimoOrgs[resource.org_resources[j].organization.id] != undefined) {
+            edges.push({ "source": resource.id, "target": resource.org_resources[j].organization.id, type: "custom-cubic" })
+        }
+
+    }
+}
+
+
+
+
+self.loadDimoResource = (resource_id, nodes, edges, initial = true) => {
+
+
+
+    const vars = { "resource_id": resource_id }
+
+    self.graphQLClient.request(self.resourceFullQuery, vars).then(
+
+
+
+        function(data) {
+
+
+            var resource = data.resource[0];
+            var resourceNode = self.gqlResourceDataToNode(resource);
+            if (initial) {
+                self.dimoResources[resourceNode.id] = resourceNode
+                nodes.push(resourceNode)
+            }
+
+
+            var project
+            for (var i = resource.project_resources.length - 1; i >= 0; i--) {
+                project = resource.project_resources[i].project;
+                self.checkProjectNode(resource.id, project, nodes, edges)
+
+            }
+
+            var func
+            for (var i = resource.functions_resources.length - 1; i >= 0; i--) {
+                func = resource.functions_resources[i].function;
+                self.checkFuncNode(resource.id, func, nodes, edges)
+            }
+
+            var org
+            for (var i = resource.org_resources.length - 1; i >= 0; i--) {
+                org = resource.org_resources[i].organization;
+                self.checkOrgNode(resource.id, org, nodes, edges)
+
+            }
+
+            for (var i = resource.project_resources.length - 1; i >= 0; i--) {
+                project = resource.project_resources[i].project;
+                self.checkProjectNodeConnections(project, nodes, edges)
+            }
+
+
+            for (var i = resource.functions_resources.length - 1; i >= 0; i--) {
+                func = resource.functions_resources[i].function;
+                self.checkFunctionNodeConnections(func, nodes, edges)
+            }
+
+            for (var i = resource.org_resources.length - 1; i >= 0; i--) {
+                org = resource.org_resources[i].organization;
+                self.checkOrgNodeConnections(org, nodes, edges)
+
+            }
+
+
+            if (initial) {
+                self.initGraph(nodes, edges);
+            } else {
+                self.refreshGraph(nodes, edges);
+            }
+        })
+}
+
+
+
+
+self.loadDimoProject = (project_id, nodes, edges, initial = true) => {
+    const vars = { "proj_id": project_id }
+    self.graphQLClient.request(self.projectFullQuery, vars).then(
+
+        function(data) {
+            console.info("[Project] Request", data);
+
+
+            var proj = data.project[0];
+            var projNode = self.gqlProjectDataToNode(proj);
+            if (initial) {
+
+
+                self.dimoProjects[projNode.id] = projNode
+                nodes.push(projNode)
+
+            }
+
+            var device
+            for (var i = proj.project_devices.length - 1; i >= 0; i--) {
+
+                device = proj.project_devices[i].device;
+                self.checkDeviceNode(proj.id, device, nodes, edges)
+            }
+
+
+            var func
+            for (var i = proj.function_projects.length - 1; i >= 0; i--) {
+                func = proj.function_projects[i].function;
+                self.checkFuncNode(proj.id, func, nodes, edges)
+            }
+
+
+            var org
+
+            for (var i = proj.org_projects.length - 1; i >= 0; i--) {
+                org = proj.org_projects[i].organization;
+                self.checkOrgNode(proj.id, org, nodes, edges)
+            }
+
+
+
+            var resource
+
+            for (var i = proj.project_resources.length - 1; i >= 0; i--) {
+                resource = proj.project_resources[i].resource;
+                self.checkResourceNode(proj.id, resource, nodes, edges)
+            }
+
+            for (var i = proj.project_devices.length - 1; i >= 0; i--) {
+                device = proj.project_devices[i].device;
+                self.checkDeviceNodeConnections(device, nodes, edges)
+            }
+
+
+            for (var i = proj.function_projects.length - 1; i >= 0; i--) {
+                func = proj.function_projects[i].function;
+                self.checkFunctionNodeConnections(func, nodes, edges)
+
+            }
+
+
+
+            for (var i = proj.org_projects.length - 1; i >= 0; i--) {
+                org = proj.org_projects[i].organization;
+                self.checkOrgNodeConnections(org, nodes, edges)
+            }
+
+
+
+
+
+            for (var i = proj.project_resources.length - 1; i >= 0; i--) {
+                resource = proj.project_resources[i].resource;
+                self.checkResourceNodeConnections(resource, nodes, edges)
+            }
+
+
+            if (initial) {
+                self.initGraph(nodes, edges);
+            } else {
+                self.refreshGraph(nodes, edges);
+            }
+        })
+
+}
+
+
+
+self.loadDimoOrg = (org_id, nodes, edges, initial = true) => {
+
+    const vars = { "org_id": org_id }
+    self.graphQLClient.request(self.orgFullQuery, vars).then(
+
+        function(data) {
+
+            var org = data.organization[0];
+            var orgNode = self.gqlOrgDataToNode(org);
+
+            if (initial) {
+
+                self.dimoOrgs[orgNode.id] = orgNode
+                nodes.push(orgNode)
+            }
+
+            var device
+            for (var i = org.device_oem_orgs.length - 1; i >= 0; i--) {
+
+                device = org.device_oem_orgs[i].device;
+                self.checkDeviceNode(orgNode.id, device, nodes, edges)
+
+            }
+
+            for (var i = org.device_sp_orgs.length - 1; i >= 0; i--) {
+
+                device = org.device_sp_orgs[i].device;
+                self.checkDeviceNode(orgNode.id, device, nodes, edges)
+
+            }
+
+
+            var func
+
+            for (var i = org.function_sp_orgs.length - 1; i >= 0; i--) {
+                func = org.function_sp_orgs[i].function;
+                self.checkFuncNode(orgNode.id, func, nodes, edges)
+
+            }
+
+
+            var project
+
+            for (var i = org.org_projects.length - 1; i >= 0; i--) {
+                project = org.org_projects[i].project;
+                self.checkProjectNode(orgNode.id, project, nodes, edges)
+            }
+
+            var resource
+            for (var i = org.org_resources.length - 1; i >= 0; i--) {
+                resource = org.org_resources[i].resource;
+                self.checkResourceNode(orgNode.id, resource, nodes, edges)
+            }
+
+
+
+
+            for (var i = org.function_sp_orgs.length - 1; i >= 0; i--) {
+                func = org.function_sp_orgs[i].function;
+                self.checkFunctionNodeConnections(func, nodes, edges)
+            }
+
+
+            for (var i = org.device_oem_orgs.length - 1; i >= 0; i--) {
+                device = org.device_oem_orgs[i].device;
+                self.checkDeviceNodeConnections(device, nodes, edges)
+            }
+
+
+            for (var i = org.org_projects.length - 1; i >= 0; i--) {
+                project = org.org_projects[i].project;
+                self.checkProjectNodeConnections(project, nodes, edges)
+            }
+
+
+            if (initial) {
+                self.initGraph(nodes, edges);
+            } else {
+                self.refreshGraph(nodes, edges);
+            }
+        })
+}
+
+
+self.loadDimoFunction = (function_id, nodes, edges, initial = true) => {
+
+
+
+    const vars = { "function_id": function_id }
+    self.graphQLClient.request(self.functionFullQuery, vars).then(
+
+
+
+        function(data) {
+
+
+            var func = data.function[0];
+            var funcNode = self.gqlFunctionDataToNode(func);
+
+            if (initial) {
+
+                self.dimoFunctions[funcNode.id] = funcNode
+                nodes.push(funcNode)
+            }
+
+
+            var device
+            for (var i = func.device_functions.length - 1; i >= 0; i--) {
+
+                device = func.device_functions[i].device;
+                self.checkDeviceNode(func.id, device, nodes, edges)
+            }
+
+
+
+            var project
+            for (var i = func.function_projects.length - 1; i >= 0; i--) {
+
+                project = func.function_projects[i].project;
+                self.checkProjectNode(func.id, project, nodes, edges)
+
+            }
+
+            var org
+            for (var i = func.function_sp_orgs.length - 1; i >= 0; i--) {
+                org = func.function_sp_orgs[i].organization;
+                self.checkOrgNode(func.id, org, nodes, edges)
+            }
+
+
+
+            var resource
+
+            for (var i = func.functions_resources.length - 1; i >= 0; i--) {
+                resource = func.functions_resources[i].resource;
+                self.checkResourceNode(func.id, resource, nodes, edges)
+            }
+
+
+
+            for (var i = func.device_functions.length - 1; i >= 0; i--) {
+                device = func.device_functions[i].device;
+                self.checkDeviceNodeConnections(device, nodes.edges)
+
+            }
+
+
+            for (var i = func.function_projects.length - 1; i >= 0; i--) {
+                project = func.function_projects[i].project;
+                self.checkProjectNodeConnections(project, nodes, edges)
+
+            }
+
+            for (var i = func.function_sp_orgs.length - 1; i >= 0; i--) {
+                org = func.function_sp_orgs[i].organization;
+                self.checkOrgNodeConnections(org, nodes, edges)
+            }
+
+
+
+            for (var i = func.functions_resources.length - 1; i >= 0; i--) {
+                resource = func.functions_resources[i];
+                self.checkResourceNodeConnections(resource, nodes, edges)
+
+            }
+
+
+            if (initial) {
+                self.initGraph(nodes, edges);
+            } else {
+                self.refreshGraph(nodes, edges);
+            }
+
+
+
+
+        })
+}
+
+
+
+
+
+self.loadDimoDevice = (device_id, nodes, edges, initial = true) => {
+    const vars = { "device_id": device_id }
+    self.graphQLClient.request(self.deviceFullQuery, vars).then(
+
+        function(data) {
+            var device = data.device[0];
+            var devNode = self.gqlDeviceDataToNode(device);
+
+            if (initial) {
+
+                self.dimoDevices[devNode.id] = devNode
+                nodes.push(devNode)
+            }
+
+            var func
+            for (var i = device.device_functions.length - 1; i >= 0; i--) {
+
+                func = device.device_functions[i].function;
+                self.checkFuncNode(devNode.id, func, nodes, edges)
+            }
+
+            var org
+            for (var i = device.device_oem_orgs.length - 1; i >= 0; i--) {
+
+                org = device.device_oem_orgs[i].organization;
+                self.checkOrgNode(devNode.id, org, nodes, edges)
+            }
+
+
+            for (var i = device.device_sp_orgs.length - 1; i >= 0; i--) {
+
+                org = device.device_sp_orgs[i].organization;
+                self.checkOrgNode(devNode.id, org, nodes, edges)
+            }
+
+            var project
+            for (var i = device.project_devices.length - 1; i >= 0; i--) {
+
+                project = device.project_devices[i].project;
+                self.checkProjectNode(devNode.id, project, nodes, edges)
+
+            }
+
+
+
+            for (var i = device.device_functions.length - 1; i >= 0; i--) {
+                func = device.device_functions[i].function;
+
+                self.checkFunctionNodeConnections(func, nodes, edges)
+            }
+
+
+            for (var i = device.device_oem_orgs.length - 1; i >= 0; i--) {
+                org = device.device_oem_orgs[i].organization;
+                self.checkOrgNodeConnections(org, nodes, edges)
+
+            }
+
+            for (var i = device.device_sp_orgs.length - 1; i >= 0; i--) {
+                org = device.device_sp_orgs[i].organization;
+                self.checkOrgNodeConnections(org, nodes, edges)
+
+            }
+
+
+
+
+            for (var i = device.project_devices.length - 1; i >= 0; i--) {
+                project = device.project_devices[i].project;
+                self.checkProjectNodeConnections(project, nodes, edges)
+
+            }
+
+
+            if (initial) {
+                self.initGraph(nodes, edges);
+            } else {
+                self.refreshGraph(nodes, edges);
+            }
+
+
+
+
+        })
+
+}

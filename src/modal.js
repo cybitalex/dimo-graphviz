@@ -1,4 +1,8 @@
-import { GraphQLClient, gql, request } from 'graphql-request'
+
+
+
+
+
 
 
 
@@ -459,313 +463,6 @@ self.searchResourcesContextID = {};
 self.searchPeopleContextID = {};
 
 
-const deviceSearchQuery = gql`query graphVizDeviceSearch($searchString: String!) {
-  device(where: {name: {_ilike: $searchString}}) {
-    added_by
-    added_on
-    assigned_to
-    cost
-    description
-    wallet_address
-    valid
-    tags
-    notes
-    name
-    marketing_description
-    listing_url
-    last_modified_on
-    last_modified_by
-    image
-    id
-    device_device_types {
-      device_type {
-        id
-        name
-        icon
-      }
-    }
-    device_functions {
-      function {
-        id
-        name
-      }
-    }
-    device_oem_orgs {
-      organization {
-        id
-        name
-      }
-    }
-    device_sp_orgs {
-      organization {
-        id
-        name
-      }
-    }
-    project_devices {
-      project {
-        id
-        name
-      }
-    }
-  }
-}`
-
-
-const projectSearchQuery = gql`query graphVizProjectSearch($searchString: String!) {
-  project(where: {name: {_ilike: $searchString}}) {
-    access
-    added_by
-    added_on
-    anchor_address
-    area_image
-    assigned_to
-    contacts
-    cover_photo
-    dimo_rating
-    description
-    geocode_cache
-    geospatial_data
-    id
-    implementation_target_rating
-    import_source_url
-    name
-    last_modified_on
-    last_modified_by
-    tags
-    sla
-    regulator_orgs
-    project_screenshots
-    zone_area_kml
-    wallet_address
-    version_history
-    valid
-    underwriting_model
-    thumbnail
-    project_website
-    project_project_types {
-      project_type {
-        id
-        icon
-        name
-      }
-    }
-    function_projects {
-      function {
-        id
-        name
-      }
-    }
-    org_projects {
-      organization {
-        id
-        name
-      }
-    }
-    project_devices {
-      device {
-        id
-        name
-      }
-    }
-  }
-}`
-
-
-
-const orgSearchQuery = gql`query graphvizOrgSearchQuery($searchString: String!) {
-  organization(where: {name: {_ilike: $searchString}}) {
-    added_by
-    added_on
-    assigned_to
-    bd_tier
-    category_example
-    capital_raised
-    crunchbase_profile
-    company_tagline
-    company_email
-    devices_page
-    employees
-    functions_page
-    github
-    headquarters
-    id
-    job_board_used
-    job_board_link_status
-    last_modified_by
-    last_modified_on
-    logo
-    linkedn
-    name
-    naics_code
-    logo_url
-    org_chart_link
-    product_picture
-    website
-    wallet_address
-    valid
-    twitter_handle
-    team_page_url
-    tags
-    summary_video
-    sales_outreach
-    product_service_description
-    org_org_types {
-      org_type {
-        icon
-        name
-        id
-      }
-    }
-    device_oem_orgs {
-      device {
-        id
-        name
-      }
-    }
-    device_sp_orgs {
-      device {
-        id
-        name
-      }
-    }
-    function_sp_orgs {
-      function {
-        name
-        id
-      }
-    }
-    org_projects {
-      project {
-        id
-        name
-      }
-    }
-  }
-}
-
-`
-
-
-const functionSearchQuery = gql`query graphvizFunctionQuery($searchString: String!) {
-  function(where: {name: {_ilike: $searchString}}) {
-    UI_screenshot
-    added_by
-    added_on
-    assigned_to
-    cover_photo
-    cost_model
-    blueprint_url
-    blueprint_file
-    description
-    name
-    ongoing_monthly_subscription
-    last_modified_on
-    last_modified_by
-    id
-    icon
-    github
-    priority
-    wallet_address
-    valid
-    upfront_price_credits_to_engage
-    tags
-    source_url
-    size
-    sample_output
-    function_function_types {
-      function_type {
-        icon
-        id
-        name
-      }
-    }
-    device_functions {
-      device {
-        name
-        id
-      }
-    }
-    function_projects {
-      project {
-        name
-        id
-      }
-    }
-    function_sp_orgs {
-      organization {
-        name
-        id
-      }
-    }
-  }
-}
-
-`
-
-
-const resourceSearchQuery = gql`query graphvizResourceQuery($searchString: String!) {
-  resource(where: {name: {_ilike: $searchString}}) {
-    id
-    added_by
-    added_on
-    additional_parking
-    attachments
-    available_by
-    break_room_sq_ft
-    classroom_sq_ft
-    dedicated_bathrooms
-    icon
-    geocode
-    description
-    monthly_rent
-    max_classroom_space
-    lease_min
-    location
-    last_modified_on
-    last_modified_by
-    kitchenette
-    notes
-    name
-    parking_spaces
-    number_of_charging_plugs
-    recommendation
-    secured_parking
-    simultaneous_trainees
-    status
-    tags
-    virtual_tour
-    valid
-    usable_sq_ft
-    resource_resource_types {
-      resource_type {
-        name
-        id
-        icon
-      }
-    }
-    project_resources {
-      project {
-        id
-        name
-      }
-    }
-    functions_resources {
-      function {
-        id
-        name
-      }
-    }
-    org_resources {
-      organization {
-        id
-        name
-      }
-    }
-  }
-}`
-
-
 
 
 self.searchModalSearchButton.onclick = function() {
@@ -838,7 +535,7 @@ self.searchDevicesFunc = (searchText) => {
 
   const vars = { "searchString": searchText }
 
-  self.graphQLClient.request(deviceSearchQuery, vars).then((data)=>{
+  self.graphQLClient.request(self.deviceSearchQuery, vars).then((data)=>{
 
 
       data.device.forEach((item)=>{
@@ -882,7 +579,7 @@ self.searchProjectsFunc = (searchText) => {
 
   const vars = { "searchString": searchText }
 
-  self.graphQLClient.request(projectSearchQuery, vars).then((data)=>{
+  self.graphQLClient.request(self.projectSearchQuery, vars).then((data)=>{
 
 
       data.project.forEach((item)=>{
@@ -923,7 +620,7 @@ self.searchFunctionsFunc = (searchText) => {
 
   const vars = { "searchString": searchText }
 
-  self.graphQLClient.request(functionSearchQuery, vars).then((data)=>{
+  self.graphQLClient.request(self.functionSearchQuery, vars).then((data)=>{
 
 
       data.function.forEach((item)=>{
@@ -966,7 +663,7 @@ self.searchOrgsFunc = (searchText) => {
 
   const vars = { "searchString": searchText }
 
-  self.graphQLClient.request(orgSearchQuery, vars).then((data)=>{
+  self.graphQLClient.request(self.orgSearchQuery, vars).then((data)=>{
 
 
       data.organization.forEach((item)=>{
@@ -1007,7 +704,7 @@ self.searchResourcesFunc = (searchText) => {
 
   const vars = { "searchString": searchText }
 
-  self.graphQLClient.request(resourceSearchQuery, vars).then((data)=>{
+  self.graphQLClient.request(self.resourceSearchQuery, vars).then((data)=>{
 
 
       data.resource.forEach((item)=>{
