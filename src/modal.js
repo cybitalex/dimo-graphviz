@@ -470,6 +470,12 @@ self.searchTableConvResourceToNode = (id, index) => {
     return [resource, resourceNode]
 }
 
+self.searchTableConvPeopleToNode = (id, index) => {
+    const person = self.searchPeopleContextID[id]
+    var personNode = self.gqlPeopleDataToNode(person);
+    return [person, personNode]
+}
+
 
 self.searchModalAddButton.onclick = function() {
     var selectedRows, indexes
@@ -483,7 +489,7 @@ self.searchModalAddButton.onclick = function() {
     indexes = resp[0]
     selectedRows = resp[1]
 
-    var row, tds, id, type, node, edges_, obj
+    var row, tds, id, type, node, obj
     for (var i = selectedRows.length - 1; i >= 0; i--) {
         row = selectedRows[i]
         tds = row.getElementsByTagName("td")
@@ -515,6 +521,11 @@ self.searchModalAddButton.onclick = function() {
             self.dimoOrgs[node.id] = node
             nodes.push(node)
             objs.push(obj)
+        } else if (type == "[People]") {
+            [obj, node] = self.searchTableConvPeopleToNode(id, indexes[i])
+            self.dimoPeople[node.id] = node
+            nodes.push(node)
+            objs.push(obj)
         }
 
 
@@ -524,29 +535,22 @@ self.searchModalAddButton.onclick = function() {
     for (var i = nodes.length - 1; i >= 0; i--) {
         obj = objs[i]
         if (nodes[i].class == "[Device]") {
-            edges_ = self.getDeviceEdges(obj)
-
-            edges = [...edges, ...edges_];
+            self.checkDeviceNodeConnections(obj,nodes,edges)
         } else if (nodes[i].class == "[Project]") {
-            edges_ = self.getProjectEdges(obj)
-            edges = [...edges, ...edges_];
+            self.checkProjectNodeConnections(obj,nodes,edges)
         } else if (nodes[i].class == "[Function]") {
-            edges_ = self.getFunctionEdges(obj)
-            edges = [...edges, ...edges_];
+            self.checkFunctionNodeConnections(obj,nodes,edges)
         } else if (nodes[i].class == "[Org]") {
-            edges_ = self.getOrgEdges(obj)
-            edges = [...edges, ...edges_];
+            self.checkOrgNodeConnections(obj,nodes,edges)
         } else if (nodes[i].class == "[Resource]") {
-            edges_ = self.getResourceEdges(obj)
-            edges = [...edges, ...edges_];
+            self.checkResourceNodeConnections(obj,nodes,edges)
+        } else if (nodes[i].class == "[People]") {
+            self.checkPeopleNodeConnections(obj,nodes,edges)
         }
-        console.log(edges_)
-
-
-
+       
     }
 
-    
+
 
     self.removeRowsByIndexes(indexes)
 
@@ -587,7 +591,6 @@ self.searchModalSearchButton.onclick = function() {
     var searchPeople = false;
     var searchText = undefined;
 
-
     const formData = $('#searchModalForm').serializeArray()
 
     var formItem
@@ -606,6 +609,8 @@ self.searchModalSearchButton.onclick = function() {
             searchText = "%" + formItem.value + "%"
         } else if (formItem.name == "searchResources") {
             searchResources = true;
+        } else if (formItem.name == "searchPeople") {
+            searchPeople = true;
         }
 
 
@@ -635,6 +640,10 @@ self.searchModalSearchButton.onclick = function() {
 
     if (searchOrgs) {
         self.searchOrgsFunc(searchText)
+    }
+
+    if (searchPeople) {
+        self.searchPeopleFunc(searchText)
     }
 
 
@@ -891,5 +900,56 @@ self.searchResourcesFunc = (searchText) => {
 }
 
 
+self.addPeopleToTable = (item)=>{
 
+    console.log(item)
+if (self.dimoPeople[item.id] == undefined && self.searchPeopleContextID[item.id] == undefined) {
+
+    var people_type = "N/A"
+    if (item.people_people_types.length) {
+        people_type = item.people_people_types[0].people_type.name
+    }
+
+    const airtableUrl = "https://airtable.com/tbldctvNPqAx3UlIm/viw0OpS8m5ttBgica/" + item.id
+
+    const name = `<a href="${airtableUrl}" target="_blank">${item.full_name}</a>`
+    const checkbox = `<div class="div-id" id="${item.id}" type="id"></div>`
+
+    var data = [checkbox, name, "[People]", people_type, item.added_on]
+    self.searchPeopleContextID[item.id] = item
+    self.addRowToSearchTable(data)
+
+}
+
+
+}
+
+
+
+
+
+
+self.searchPeopleFunc = (searchText) => {
+
+    const vars = { "searchString": searchText }
+
+    self.graphQLClient.request(self.peopleSearchQuery, vars).then((data) => {
+
+        data.people.forEach((item) => {
+
+            // <th>Name</th>
+            // <th>Class</th>
+            // <th>Type</th>
+            // <th>Created On</th>
+            self.addPeopleToTable(item)
+
+
+        })
+
+
+    })
+
+
+
+}
 // END Search Modal

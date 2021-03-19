@@ -142,7 +142,7 @@ const dimoOrgColorIndex = 1;
 const dimoFunctionColorIndex = 2;
 const dimoDeviceColorIndex = 3;
 const dimoResourceColorIndex = 4;
-const dimoPersonColorIndex = 5;
+const dimoPersonColorIndex = 6;
 const dimoAggregateColorIndex = 5;
 
 const colorSets = G6.Util.getColorSetsBySubjectColors(
@@ -169,7 +169,7 @@ self.classToIcon = {
                       "[Function]":dimoFunctionIcon,
                       "[Device]":dimoDeviceIcon,
                       "[Resource]":dimoResourceIcon,
-                      "[Person]":dimoPeopleIcon,
+                      "[People]":dimoPeopleIcon,
 }
 
 
@@ -1586,7 +1586,7 @@ self.dimoAggregatedNode = (nodes)=>{
                       "[Function]":0,
                       "[Device]":0,
                       "[Resource]":0,
-                      "[Person]":0,
+                      "[People]":0,
                       }
 
 
@@ -1652,6 +1652,69 @@ self.dimoAggregatedNode = (nodes)=>{
 }
 
 
+self.gqlPeopleDataToNode = (person)=>{
+
+    var node = {
+        "id": person.id,
+        "type": "dimo-node",
+        "class": "[People]",
+        "label": person.full_name,
+        "airtableURL": "https://airtable.com/tbldctvNPqAx3UlIm/viw0OpS8m5ttBgica/" + person.id,
+    };
+
+    if (person.people_people_types.length) {
+
+        var url = JSON.parse(person.people_people_types[0].people_type.icon.replace(/\'/g, '"'))
+
+        node._type = person.people_people_types[0].people_type.name
+
+        if (url.length) {
+            node.logo = {
+                "show": true,
+                "url": url[0]
+            }
+        } else {
+            node.logo = {
+                "show": false,
+            }
+        }
+
+
+
+
+    } else {
+        node.logo = {
+            "show": false,
+        }
+    }
+
+    node.level = 1;
+
+
+    node.icon = {
+        "url": dimoPeopleIcon
+    }
+
+    node.colorSet = colorSets[dimoPersonColorIndex]
+
+    node.labelCfg = {
+        position: "bottom",
+        offset: 5,
+        style: {
+            fill: global.node.labelCfg.style.fill,
+            fontSize: 12,
+            stroke: global.node.labelCfg.style.stroke,
+            lineWidth: 3
+        }
+    }
+
+    return node
+
+}
+
+
+
+
 
 function loadConnectedItems(model) {
 
@@ -1678,7 +1741,9 @@ function loadConnectedItems(model) {
       self.loadDimoFunction(model.id,nodes,edges, false)
     } else if (model.class=="[Resource]") {
       self.loadDimoResource(model.id,nodes,edges, false)
-    }       
+    } else if (model.class=="[People]") {
+      self.loadDimoPerson(model.id,nodes,edges, false)
+    }           
     
 
 
@@ -1868,6 +1933,9 @@ function initGraphData() {
       } else if (data.nodes[i].class == "[Function]"){
         self.dimoFunctions[data.nodes[i].id] = data.nodes[i]
         indx = dimoFunctionColorIndex
+      } else if (data.nodes[i].class == "[People]"){
+        self.dimoPeople[data.nodes[i].id] = data.nodes[i]
+        indx = dimoPersonColorIndex
       } else if (data.nodes[i].class == "[Resource]"){
         self.dimoResources[data.nodes[i].id] = data.nodes[i]
         indx = dimoResourceColorIndex
@@ -1930,6 +1998,9 @@ function initGraphData() {
             } else if (self.dimoAggregatesMap[key][i].class == "[Resource]"){
               self.dimoResources[self.dimoAggregatesMap[key][i].id] = self.dimoAggregatesMap[key][i]
               indx = dimoResourceColorIndex
+            } else if (self.dimoAggregatesMap[key][i].class == "[People]"){
+              self.dimoPeople[self.dimoAggregatesMap[key][i].id] = self.dimoAggregatesMap[key][i]
+              indx = dimoPersonColorIndex
             } else if (self.dimoAggregatesMap[key][i].class == "[Aggregate]"){
               self.dimoAggregates[self.dimoAggregatesMap[key][i].id] = self.dimoAggregatesMap[key][i]
               indx = dimoAggregateColorIndex
@@ -1970,6 +2041,8 @@ function initGraphData() {
     self.loadDimoFunction(vars["function_id"], self.dimoGraphData.nodes, self.dimoGraphData.edges)
   } else if (vars["resource_id"] != undefined) {
     self.loadDimoResource(vars["resource_id"], self.dimoGraphData.nodes, self.dimoGraphData.edges)
+  } else if (vars["person_id"] != undefined) {
+    self.loadDimoPerson(vars["person_id"], self.dimoGraphData.nodes, self.dimoGraphData.edges)
   }
 
 }
@@ -2493,7 +2566,7 @@ self.groupNodesByTable = (nodes, edges)=>{
                       "[Function]":[],
                       "[Device]":[],
                       "[Resource]":[],
-                      "[Person]":[],
+                      "[People]":[],
           }
 
           var node

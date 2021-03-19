@@ -92,6 +92,14 @@ self.checkProjectNodeConnections = (project, nodes, edges) => {
 
     }
 
+
+    for (var j = project.people_projects.length - 1; j >= 0; j--) {
+
+        if (self.dimoPeople[project.people_projects[j].person.id] != undefined) {
+            edges.push({ "source": project.id, "target": project.people_projects[j].person.id, type: "custom-cubic" })
+        }
+
+    }
 }
 
 
@@ -145,7 +153,13 @@ self.checkFunctionNodeConnections = (func, nodes, edges) => {
         }
 
     }
+    for (var j = func.people_functions.length - 1; j >= 0; j--) {
 
+        if (self.dimoPeople[func.people_functions[j].person.id] != undefined) {
+            edges.push({ "source": func.id, "target": func.people_functions[j].person.id, type: "custom-cubic" })
+        }
+
+    }
 
 }
 
@@ -212,6 +226,14 @@ self.checkOrgNodeConnections = (org, nodes, edges) => {
 
     }
 
+    for (var j = org.org_people.length - 1; j >= 0; j--) {
+
+        if (self.dimoPeople[org.org_people[j].person.id] != undefined) {
+            edges.push({ "source": org.id, "target": org.org_people[j].person.id, type: "custom-cubic" })
+        }
+
+
+    }
 }
 
 
@@ -256,6 +278,15 @@ self.checkDeviceNodeConnections = (device, nodes, edges) => {
         }
 
     }
+    for (var j = device.people_devices.length - 1; j >= 0; j--) {
+
+        if (self.dimoPeople[device.people_devices[j].person.id] != undefined) {
+            edges.push({ "source": device.id, "target": device.people_devices[j].person.id, type: "custom-cubic" })
+        }
+
+    }
+
+
 }
 
 
@@ -299,6 +330,54 @@ self.checkResourceNodeConnections = (resource, nodes, edges) => {
     }
 }
 
+self.checkPeopleNode = (obj_id, person, nodes, edges) => {
+    peopleNode = self.gqlPeopleDataToNode(person);
+
+    if (self.dimoPeople[peopleNode.id] == undefined) {
+        if(!self.graphInit){ 
+       self.dimoPeople[peopleNode.id] = peopleNode;
+   }
+        nodes.push(peopleNode);
+
+    }
+    edges.push({ "source": obj_id, "target": peopleNode.id, type: "custom-cubic" })
+}
+
+
+self.checkPeopleNodeConnections = (person, nodes, edges) => {
+
+
+    for (var j = person.people_projects.length - 1; j >= 0; j--) {
+
+        if (self.dimoProjects[person.people_projects[j].project.id] != undefined) {
+            edges.push({ "source": person.id, "target": person.people_projects[j].project.id, type: "custom-cubic" })
+        }
+
+    }
+    for (var j = person.org_people.length - 1; j >= 0; j--) {
+
+        if (self.dimoOrgs[person.org_people[j].organization.id] != undefined) {
+            edges.push({ "source": person.id, "target": person.org_people[j].organization.id, type: "custom-cubic" })
+        }
+
+    }
+    for (var j = person.people_devices.length - 1; j >= 0; j--) {
+
+        if (self.dimoDevices[person.people_devices[j].device.id] != undefined) {
+            edges.push({ "source": person.id, "target": person.people_devices[j].device.id, type: "custom-cubic" })
+        }
+
+    }
+    for (var j = person.people_functions.length - 1; j >= 0; j--) {
+
+        if (self.dimoFunctions[person.people_devices[j].function.id] != undefined) {
+            edges.push({ "source": person.id, "target": person.people_devices[j].function.id, type: "custom-cubic" })
+        }
+
+    }
+
+
+}
 
 
 
@@ -442,6 +521,18 @@ self.loadDimoProject = (project_id, nodes, edges, initial = true) => {
                 self.checkResourceNode(proj.id, resource, nodes, edges)
             }
 
+            var person
+
+            for (var i = proj.people_projects.length - 1; i >= 0; i--) {
+                person = proj.people_projects[i].person;
+                person.class = "[People]"
+                rawData.push(person)
+                self.checkPeopleNode(proj.id, person, nodes, edges)
+            }
+
+
+
+
             for (var i = proj.project_devices.length - 1; i >= 0; i--) {
                 device = proj.project_devices[i].device;
                 self.checkDeviceNodeConnections(device, nodes, edges)
@@ -468,6 +559,11 @@ self.loadDimoProject = (project_id, nodes, edges, initial = true) => {
             for (var i = proj.project_resources.length - 1; i >= 0; i--) {
                 resource = proj.project_resources[i].resource;
                 self.checkResourceNodeConnections(resource, nodes, edges)
+            }
+
+            for (var i = proj.people_projects.length - 1; i >= 0; i--) {
+                person = proj.people_projects[i].person;
+                self.checkPeopleNodeConnections(person, nodes, edges)
             }
 
 
@@ -547,7 +643,13 @@ self.loadDimoOrg = (org_id, nodes, edges, initial = true) => {
                 self.checkResourceNode(orgNode.id, resource, nodes, edges)
             }
 
-
+            var person
+            for (var i = org.org_people.length - 1; i >= 0; i--) {
+                person = org.org_people[i].person;
+                person.class = "[People]"
+                rawData.push(person)
+                self.checkPeopleNode(orgNode.id, person, nodes, edges)
+            }
 
 
             for (var i = org.function_sp_orgs.length - 1; i >= 0; i--) {
@@ -567,6 +669,10 @@ self.loadDimoOrg = (org_id, nodes, edges, initial = true) => {
                 self.checkProjectNodeConnections(project, nodes, edges)
             }
 
+            for (var i = org.org_people.length - 1; i >= 0; i--) {
+                person = org.org_people[i].person;
+                self.checkPeopleNodeConnections(person, nodes, edges)
+            }
 
             if (initial) {
                 self.initGraph(nodes, edges);
@@ -640,6 +746,15 @@ self.loadDimoFunction = (function_id, nodes, edges, initial = true) => {
             }
 
 
+            var person
+
+            for (var i = func.people_functions.length - 1; i >= 0; i--) {
+                person = func.people_functions[i].person;
+                person.class = "[People]"
+                rawData.push(person)
+                self.checkPeopleNode(func.id, person, nodes, edges)
+            }
+
 
             for (var i = func.device_functions.length - 1; i >= 0; i--) {
                 device = func.device_functions[i].device;
@@ -664,6 +779,12 @@ self.loadDimoFunction = (function_id, nodes, edges, initial = true) => {
             for (var i = func.functions_resources.length - 1; i >= 0; i--) {
                 resource = func.functions_resources[i];
                 self.checkResourceNodeConnections(resource, nodes, edges)
+
+            }
+
+            for (var i = func.people_functions.length - 1; i >= 0; i--) {
+                person = func.people_functions[i];
+                self.checkResourceNodeConnections(person, nodes, edges)
 
             }
 
@@ -735,6 +856,16 @@ self.loadDimoDevice = (device_id, nodes, edges, initial = true) => {
 
             }
 
+            var person
+            for (var i = device.people_devices.length - 1; i >= 0; i--) {
+
+                person = device.people_devices[i].person;
+                person.class = "[People]"
+                rawData.push(person)
+                self.checkPeopleNode(devNode.id, person, nodes, edges)
+
+            }
+
 
 
             for (var i = device.device_functions.length - 1; i >= 0; i--) {
@@ -755,12 +886,15 @@ self.loadDimoDevice = (device_id, nodes, edges, initial = true) => {
 
             }
 
-
-
-
             for (var i = device.project_devices.length - 1; i >= 0; i--) {
                 project = device.project_devices[i].project;
                 self.checkProjectNodeConnections(project, nodes, edges)
+
+            }
+
+            for (var i = device.people_devices.length - 1; i >= 0; i--) {
+                person = device.people_devices[i].person;
+                self.checkPeopleNodeConnections(person, nodes, edges)
 
             }
 
@@ -777,3 +911,82 @@ self.loadDimoDevice = (device_id, nodes, edges, initial = true) => {
         })
 
 }
+
+self.loadDimoPerson = (person_id, nodes, edges, initial = true) => {
+
+
+
+    const vars = { "person_id": person_id }
+
+    self.graphQLClient.request(self.peopleFullQuery, vars).then(
+
+
+
+        function(data) {
+
+            var rawData = [];
+
+
+            var person = data.people[0];
+            var personNode = self.gqlPeopleDataToNode(person);
+            if (initial) {
+                self.dimoPeople[personNode.id] = personNode
+                nodes.push(personNode)
+            }
+
+
+            var project
+            for (var i = person.people_projects.length - 1; i >= 0; i--) {
+                project = person.people_projects[i].project;
+                project.class = "[Project]"
+                rawData.push(project)
+                self.checkProjectNode(person.id, project, nodes, edges)
+
+            }
+
+            var func
+            for (var i = person.people_functions.length - 1; i >= 0; i--) {
+                func = person.people_functions[i].function;
+                func.class = "[Function]"
+                rawData.push(func)
+                self.checkFuncNode(person.id, func, nodes, edges)
+            }
+
+            var org
+            for (var i = person.org_people.length - 1; i >= 0; i--) {
+                org = person.org_people[i].organization;
+                org.class = "[Org]"
+                rawData.push(org)
+                self.checkOrgNode(person.id, org, nodes, edges)
+
+            }
+
+            for (var i = person.people_projects.length - 1; i >= 0; i--) {
+                project = person.people_projects[i].project;
+                self.checkProjectNodeConnections(project, nodes, edges)
+            }
+
+
+            for (var i = person.people_functions.length - 1; i >= 0; i--) {
+                func = person.people_functions[i].function;
+                self.checkFunctionNodeConnections(func, nodes, edges)
+            }
+
+            for (var i = person.org_people.length - 1; i >= 0; i--) {
+                org = person.org_people[i].organization;
+                self.checkOrgNodeConnections(org, nodes, edges)
+
+            }
+
+
+            if (initial) {
+                self.initGraph(nodes, edges);
+            } else {
+                self.addNodesToTable(rawData);;
+            }
+        })
+}
+
+
+
+

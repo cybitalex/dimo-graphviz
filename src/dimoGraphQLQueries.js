@@ -81,6 +81,11 @@ self.deviceFullQuery = gql`query graphvizDeviceQuery($device_id: String!) {
             id
           }
         }
+        people_functions {
+          person {
+            id
+          }
+        }
       }
     }
     device_oem_orgs {
@@ -153,6 +158,11 @@ self.deviceFullQuery = gql`query graphvizDeviceQuery($device_id: String!) {
             id
           }
         }
+        org_people {
+          person {
+            id
+          }
+        }
       }
     }
     device_sp_orgs {
@@ -164,8 +174,8 @@ self.deviceFullQuery = gql`query graphvizDeviceQuery($device_id: String!) {
         capital_raised
         category_example
         company_email
-        company_tagline
         crunchbase_profile
+        company_tagline
         devices_page
         employees
         featured_project_link
@@ -173,26 +183,26 @@ self.deviceFullQuery = gql`query graphvizDeviceQuery($device_id: String!) {
         github
         headquarters
         id
-        job_board_used
         job_board_link_status
-        last_modified_by
-        last_modified_on
-        linkedn
-        logo
-        logo_url
-        naics_code
+        job_board_used
         name
+        naics_code
+        logo_url
+        logo
+        linkedn
+        last_modified_on
+        last_modified_by
         org_chart_link
         product_picture
         product_service_description
-        summary_video
         sales_outreach
+        summary_video
+        tags
+        team_page_url
+        twitter_handle
+        valid
         website
         wallet_address
-        valid
-        twitter_handle
-        team_page_url
-        tags
         org_org_types {
           org_type {
             icon
@@ -222,6 +232,11 @@ self.deviceFullQuery = gql`query graphvizDeviceQuery($device_id: String!) {
         }
         org_resources {
           resource {
+            id
+          }
+        }
+        org_people {
+          person {
             id
           }
         }
@@ -285,6 +300,73 @@ self.deviceFullQuery = gql`query graphvizDeviceQuery($device_id: String!) {
             id
           }
         }
+        people_projects {
+          person {
+            id
+          }
+        }
+      }
+    }
+    people_devices {
+      person {
+        added_by
+        added_on
+        birthday
+        calendar_link
+        discord_username
+        first_name
+        full_name
+        geocode
+        github
+        id
+        last_modified_on
+        last_modified_by
+        last_name
+        link_score
+        linkedn
+        location
+        newsletter_subscriber
+        occupation
+        onboard_assigned_to
+        paypal
+        osm_profile
+        phone
+        photo
+        sample_project
+        tags
+        twitter_profile
+        title
+        wallet_address
+        valid
+        user_onboarding
+        upvotes
+        people_people_types {
+          people_type {
+            id
+            name
+            icon
+          }
+        }
+        org_people {
+          organization {
+            id
+          }
+        }
+        people_devices {
+          device {
+            id
+          }
+        }
+        people_functions {
+          function {
+            id
+          }
+        }
+        people_projects {
+          project {
+            id
+          }
+        }
       }
     }
   }
@@ -337,6 +419,12 @@ self.deviceSearchQuery = gql`query graphVizDeviceSearch($searchString: String!) 
       project {
         id
         name
+      }
+    }
+    people_devices {
+      person {
+        full_name
+        id
       }
     }
   }
@@ -395,30 +483,30 @@ self.projectFullQuery = gql`query graphvizProjectQuery($proj_id: String!) {
     }
     function_projects {
       function {
-        id
         UI_screenshot
         added_by
         added_on
-        blueprint_file
         assigned_to
+        blueprint_file
         blueprint_url
         cost_model
         cover_photo
         description
-        icon
         github
+        icon
+        id
+        last_modified_by
         name
         last_modified_on
-        last_modified_by
         ongoing_monthly_subscription
         priority
-        size
         sample_output
+        size
         source_url
         tags
         upfront_price_credits_to_engage
-        valid
         wallet_address
+        valid
         function_function_types {
           function_type {
             icon
@@ -446,11 +534,15 @@ self.projectFullQuery = gql`query graphvizProjectQuery($proj_id: String!) {
             id
           }
         }
+        people_functions {
+          person {
+            id
+          }
+        }
       }
     }
     org_projects {
       organization {
-        id
         added_by
         added_on
         assigned_to
@@ -458,34 +550,35 @@ self.projectFullQuery = gql`query graphvizProjectQuery($proj_id: String!) {
         capital_raised
         category_example
         company_email
-        company_tagline
         crunchbase_profile
-        employees
+        company_tagline
         devices_page
+        employees
         featured_project_link
-        github
         functions_page
+        github
         headquarters
-        job_board_used
+        id
         job_board_link_status
-        last_modified_by
-        last_modified_on
-        linkedn
-        logo_url
-        logo
+        job_board_used
         name
         naics_code
+        logo_url
+        logo
+        linkedn
+        last_modified_on
+        last_modified_by
         org_chart_link
         product_picture
         product_service_description
         sales_outreach
-        website
-        wallet_address
-        valid
+        summary_video
+        tags
         team_page_url
         twitter_handle
-        tags
-        summary_video
+        valid
+        website
+        wallet_address
         org_org_types {
           org_type {
             icon
@@ -515,6 +608,11 @@ self.projectFullQuery = gql`query graphvizProjectQuery($proj_id: String!) {
         }
         org_resources {
           resource {
+            id
+          }
+        }
+        org_people {
+          person {
             id
           }
         }
@@ -562,6 +660,11 @@ self.projectFullQuery = gql`query graphvizProjectQuery($proj_id: String!) {
         }
         project_devices {
           project {
+            id
+          }
+        }
+        people_devices {
+          person {
             id
           }
         }
@@ -627,6 +730,68 @@ self.projectFullQuery = gql`query graphvizProjectQuery($proj_id: String!) {
         }
       }
     }
+    people_projects {
+      person {
+        added_by
+        added_on
+        birthday
+        calendar_link
+        discord_username
+        first_name
+        full_name
+        geocode
+        github
+        id
+        last_modified_on
+        last_modified_by
+        last_name
+        link_score
+        linkedn
+        location
+        newsletter_subscriber
+        occupation
+        onboard_assigned_to
+        paypal
+        osm_profile
+        phone
+        photo
+        sample_project
+        tags
+        twitter_profile
+        title
+        wallet_address
+        valid
+        user_onboarding
+        upvotes
+        people_people_types {
+          people_type {
+            id
+            name
+            icon
+          }
+        }
+        org_people {
+          organization {
+            id
+          }
+        }
+        people_devices {
+          device {
+            id
+          }
+        }
+        people_functions {
+          function {
+            id
+          }
+        }
+        people_projects {
+          project {
+            id
+          }
+        }
+      }
+    }
   }
 }
 `
@@ -686,6 +851,12 @@ self.projectSearchQuery = gql`query graphVizProjectSearch($searchString: String!
         name
       }
     }
+    people_projects {
+      person {
+        full_name
+        id
+      }
+    }
   }
 }`
 
@@ -741,22 +912,22 @@ self.orgFullQuery = gql`query graphvizOrgQuery($org_id: String!) {
     }
     device_oem_orgs {
       device {
+        id
         added_by
         added_on
         assigned_to
         cost
         description
-        id
         image
         last_modified_by
-        listing_url
         last_modified_on
-        notes
-        name
+        listing_url
         marketing_description
+        name
+        notes
         tags
-        valid
         wallet_address
+        valid
         device_device_types {
           device_type {
             id
@@ -769,18 +940,23 @@ self.orgFullQuery = gql`query graphvizOrgQuery($org_id: String!) {
             id
           }
         }
-        device_sp_orgs {
+        device_oem_orgs {
           organization {
             id
           }
         }
-        device_oem_orgs {
+        device_sp_orgs {
           organization {
             id
           }
         }
         project_devices {
           project {
+            id
+          }
+        }
+        people_devices {
+          person {
             id
           }
         }
@@ -788,19 +964,19 @@ self.orgFullQuery = gql`query graphvizOrgQuery($org_id: String!) {
     }
     device_sp_orgs {
       device {
+        id
         added_by
         added_on
         assigned_to
         cost
         description
-        id
         image
         last_modified_by
         last_modified_on
         listing_url
-        notes
-        name
         marketing_description
+        name
+        notes
         tags
         wallet_address
         valid
@@ -828,6 +1004,11 @@ self.orgFullQuery = gql`query graphvizOrgQuery($org_id: String!) {
         }
         project_devices {
           project {
+            id
+          }
+        }
+        people_devices {
+          person {
             id
           }
         }
@@ -841,23 +1022,23 @@ self.orgFullQuery = gql`query graphvizOrgQuery($org_id: String!) {
         assigned_to
         blueprint_file
         blueprint_url
-        cover_photo
         cost_model
+        cover_photo
         description
-        icon
         github
-        ongoing_monthly_subscription
-        name
-        last_modified_on
+        icon
         id
         last_modified_by
+        name
+        last_modified_on
+        ongoing_monthly_subscription
         priority
         sample_output
         size
-        tags
         source_url
-        wallet_address
+        tags
         upfront_price_credits_to_engage
+        wallet_address
         valid
         function_function_types {
           function_type {
@@ -886,6 +1067,11 @@ self.orgFullQuery = gql`query graphvizOrgQuery($org_id: String!) {
             id
           }
         }
+        people_functions {
+          person {
+            id
+          }
+        }
       }
     }
     org_projects {
@@ -898,21 +1084,21 @@ self.orgFullQuery = gql`query graphvizOrgQuery($org_id: String!) {
         assigned_to
         contacts
         cover_photo
-        dimo_rating
         description
+        dimo_rating
         geocode_cache
         geospatial_data
         id
-        implementation_target_rating
         import_source_url
-        name
-        last_modified_on
+        implementation_target_rating
         last_modified_by
-        project_screenshots
+        last_modified_on
+        name
         tags
         sla
         regulator_orgs
         project_website
+        project_screenshots
         thumbnail
         underwriting_model
         valid
@@ -943,6 +1129,11 @@ self.orgFullQuery = gql`query graphvizOrgQuery($org_id: String!) {
         }
         project_resources {
           resource {
+            id
+          }
+        }
+        people_projects {
+          person {
             id
           }
         }
@@ -1004,6 +1195,68 @@ self.orgFullQuery = gql`query graphvizOrgQuery($org_id: String!) {
           organization {
             id
             name
+          }
+        }
+      }
+    }
+    org_people {
+      person {
+        added_by
+        added_on
+        birthday
+        calendar_link
+        discord_username
+        first_name
+        full_name
+        geocode
+        github
+        id
+        last_modified_on
+        last_modified_by
+        last_name
+        link_score
+        linkedn
+        location
+        newsletter_subscriber
+        occupation
+        onboard_assigned_to
+        paypal
+        osm_profile
+        phone
+        photo
+        sample_project
+        tags
+        twitter_profile
+        title
+        wallet_address
+        valid
+        user_onboarding
+        upvotes
+        people_people_types {
+          people_type {
+            id
+            name
+            icon
+          }
+        }
+        org_people {
+          organization {
+            id
+          }
+        }
+        people_devices {
+          device {
+            id
+          }
+        }
+        people_functions {
+          function {
+            id
+          }
+        }
+        people_projects {
+          project {
+            id
           }
         }
       }
@@ -1079,6 +1332,13 @@ self.orgSearchQuery = gql`query graphvizOrgSearchQuery($searchString: String!) {
         name
       }
     }
+    org_people {
+      person {
+        full_name
+        id
+      }
+    }
+
   }
 }
 
@@ -1124,12 +1384,12 @@ self.functionFullQuery = gql`query graphvizFunctionQuery($function_id: String!) 
     }
     device_functions {
       device {
+        id
         added_by
         added_on
         assigned_to
         cost
         description
-        id
         image
         last_modified_by
         last_modified_on
@@ -1167,6 +1427,11 @@ self.functionFullQuery = gql`query graphvizFunctionQuery($function_id: String!) 
             id
           }
         }
+        people_devices {
+          person {
+            id
+          }
+        }
       }
     }
     function_projects {
@@ -1179,21 +1444,21 @@ self.functionFullQuery = gql`query graphvizFunctionQuery($function_id: String!) 
         assigned_to
         contacts
         cover_photo
-        dimo_rating
         description
+        dimo_rating
         geocode_cache
         geospatial_data
         id
-        implementation_target_rating
         import_source_url
+        implementation_target_rating
         last_modified_by
         last_modified_on
         name
+        tags
+        sla
         regulator_orgs
         project_website
         project_screenshots
-        tags
-        sla
         thumbnail
         underwriting_model
         valid
@@ -1227,6 +1492,11 @@ self.functionFullQuery = gql`query graphvizFunctionQuery($function_id: String!) 
             id
           }
         }
+        people_projects {
+          person {
+            id
+          }
+        }
       }
     }
     function_sp_orgs {
@@ -1234,28 +1504,28 @@ self.functionFullQuery = gql`query graphvizFunctionQuery($function_id: String!) 
         added_by
         added_on
         assigned_to
+        bd_tier
+        capital_raised
+        category_example
+        company_email
         crunchbase_profile
         company_tagline
-        company_email
-        category_example
-        capital_raised
-        bd_tier
-        featured_project_link
-        employees
         devices_page
+        employees
+        featured_project_link
         functions_page
         github
         headquarters
         id
         job_board_link_status
         job_board_used
-        last_modified_by
-        last_modified_on
-        linkedn
-        logo
-        logo_url
-        naics_code
         name
+        naics_code
+        logo_url
+        logo
+        linkedn
+        last_modified_on
+        last_modified_by
         org_chart_link
         product_picture
         product_service_description
@@ -1265,8 +1535,8 @@ self.functionFullQuery = gql`query graphvizFunctionQuery($function_id: String!) 
         team_page_url
         twitter_handle
         valid
-        wallet_address
         website
+        wallet_address
         org_org_types {
           org_type {
             icon
@@ -1296,6 +1566,11 @@ self.functionFullQuery = gql`query graphvizFunctionQuery($function_id: String!) 
         }
         org_resources {
           resource {
+            id
+          }
+        }
+        org_people {
+          person {
             id
           }
         }
@@ -1361,10 +1636,72 @@ self.functionFullQuery = gql`query graphvizFunctionQuery($function_id: String!) 
         }
       }
     }
+    people_functions {
+      person {
+        added_by
+        added_on
+        birthday
+        calendar_link
+        discord_username
+        first_name
+        full_name
+        geocode
+        github
+        id
+        last_modified_on
+        last_modified_by
+        last_name
+        link_score
+        linkedn
+        location
+        newsletter_subscriber
+        occupation
+        onboard_assigned_to
+        paypal
+        osm_profile
+        phone
+        photo
+        sample_project
+        tags
+        twitter_profile
+        title
+        wallet_address
+        valid
+        user_onboarding
+        upvotes
+        people_people_types {
+          people_type {
+            id
+            name
+            icon
+          }
+        }
+        org_people {
+          organization {
+            id
+          }
+        }
+        people_devices {
+          device {
+            id
+          }
+        }
+        people_functions {
+          function {
+            id
+          }
+        }
+        people_projects {
+          project {
+            id
+          }
+        }
+      }
+    }
   }
 }`
 
-self.functionSearchQuery = gql`query graphvizFunctionQuery($searchString: String!) {
+self.functionSearchQuery = gql`query graphvizSearchFunctionQuery($searchString: String!) {
   function(where: {name: {_ilike: $searchString}}) {
     UI_screenshot
     added_by
@@ -1413,6 +1750,12 @@ self.functionSearchQuery = gql`query graphvizFunctionQuery($searchString: String
       organization {
         name
         id
+      }
+    }
+    people_functions {
+      person {
+        id
+        full_name
       }
     }
   }
@@ -1472,21 +1815,21 @@ self.resourceFullQuery = gql`query graphvizResourceQuery($resource_id: String!) 
         assigned_to
         contacts
         cover_photo
-        dimo_rating
         description
+        dimo_rating
         geocode_cache
         geospatial_data
         id
-        implementation_target_rating
         import_source_url
-        name
-        last_modified_on
+        implementation_target_rating
         last_modified_by
-        project_screenshots
+        last_modified_on
+        name
         tags
         sla
         regulator_orgs
         project_website
+        project_screenshots
         thumbnail
         underwriting_model
         valid
@@ -1520,6 +1863,11 @@ self.resourceFullQuery = gql`query graphvizResourceQuery($resource_id: String!) 
             id
           }
         }
+        people_projects {
+          person {
+            id
+          }
+        }
       }
     }
     functions_resources {
@@ -1530,23 +1878,23 @@ self.resourceFullQuery = gql`query graphvizResourceQuery($resource_id: String!) 
         assigned_to
         blueprint_file
         blueprint_url
-        cover_photo
         cost_model
+        cover_photo
         description
-        icon
         github
-        ongoing_monthly_subscription
-        name
-        last_modified_on
+        icon
         id
         last_modified_by
+        name
+        last_modified_on
+        ongoing_monthly_subscription
         priority
         sample_output
         size
-        tags
         source_url
-        wallet_address
+        tags
         upfront_price_credits_to_engage
+        wallet_address
         valid
         function_function_types {
           function_type {
@@ -1575,11 +1923,15 @@ self.resourceFullQuery = gql`query graphvizResourceQuery($resource_id: String!) 
             id
           }
         }
+        people_functions {
+          person {
+            id
+          }
+        }
       }
     }
     org_resources {
       organization {
-        id
         added_by
         added_on
         assigned_to
@@ -1587,34 +1939,35 @@ self.resourceFullQuery = gql`query graphvizResourceQuery($resource_id: String!) 
         capital_raised
         category_example
         company_email
-        company_tagline
         crunchbase_profile
-        employees
+        company_tagline
         devices_page
+        employees
         featured_project_link
-        github
         functions_page
+        github
         headquarters
-        job_board_used
+        id
         job_board_link_status
-        last_modified_by
-        last_modified_on
-        linkedn
-        logo_url
-        logo
+        job_board_used
         name
         naics_code
+        logo_url
+        logo
+        linkedn
+        last_modified_on
+        last_modified_by
         org_chart_link
         product_picture
         product_service_description
         sales_outreach
-        website
-        wallet_address
-        valid
+        summary_video
+        tags
         team_page_url
         twitter_handle
-        tags
-        summary_video
+        valid
+        website
+        wallet_address
         org_org_types {
           org_type {
             icon
@@ -1647,12 +2000,17 @@ self.resourceFullQuery = gql`query graphvizResourceQuery($resource_id: String!) 
             id
           }
         }
+        org_people {
+          person {
+            id
+          }
+        }
       }
     }
   }
 }`
 
-self.resourceSearchQuery = gql`query graphvizResourceQuery($searchString: String!) {
+self.resourceSearchQuery = gql`query graphvizResourceSearchQuery($searchString: String!) {
   resource(where: {name: {_ilike: $searchString}}) {
     id
     added_by
@@ -1714,4 +2072,367 @@ self.resourceSearchQuery = gql`query graphvizResourceQuery($searchString: String
 }`
 
 
+
+
+self.peopleFullQuery = gql`query graphvizPeopleQuery($person_id: String!) {
+  people(where: {id: {_eq: $person_id}}) {
+    added_by
+    added_on
+    birthday
+    calendar_link
+    discord_username
+    first_name
+    full_name
+    geocode
+    github
+    id
+    last_modified_on
+    last_modified_by
+    last_name
+    link_score
+    linkedn
+    location
+    newsletter_subscriber
+    occupation
+    onboard_assigned_to
+    paypal
+    osm_profile
+    phone
+    photo
+    sample_project
+    tags
+    twitter_profile
+    title
+    wallet_address
+    valid
+    user_onboarding
+    upvotes
+    people_people_types {
+      people_type {
+        id
+        name
+        icon
+      }
+    }
+    org_people {
+      organization {
+        added_by
+        added_on
+        assigned_to
+        bd_tier
+        capital_raised
+        category_example
+        company_email
+        crunchbase_profile
+        company_tagline
+        devices_page
+        employees
+        featured_project_link
+        functions_page
+        github
+        headquarters
+        id
+        job_board_link_status
+        job_board_used
+        name
+        naics_code
+        logo_url
+        logo
+        linkedn
+        last_modified_on
+        last_modified_by
+        org_chart_link
+        product_picture
+        product_service_description
+        sales_outreach
+        summary_video
+        tags
+        team_page_url
+        twitter_handle
+        valid
+        website
+        wallet_address
+        org_org_types {
+          org_type {
+            icon
+            name
+            id
+          }
+        }
+        device_oem_orgs {
+          device {
+            id
+          }
+        }
+        device_sp_orgs {
+          device {
+            id
+          }
+        }
+        function_sp_orgs {
+          function {
+            id
+          }
+        }
+        org_projects {
+          project {
+            id
+          }
+        }
+        org_resources {
+          resource {
+            id
+          }
+        }
+        org_people {
+          person {
+            id
+          }
+        }
+      }
+    }
+    people_devices {
+      device {
+        id
+        added_by
+        added_on
+        assigned_to
+        cost
+        description
+        image
+        last_modified_by
+        last_modified_on
+        listing_url
+        marketing_description
+        name
+        notes
+        tags
+        wallet_address
+        valid
+        device_device_types {
+          device_type {
+            id
+            name
+            icon
+          }
+        }
+        device_functions {
+          function {
+            id
+          }
+        }
+        device_oem_orgs {
+          organization {
+            id
+          }
+        }
+        device_sp_orgs {
+          organization {
+            id
+          }
+        }
+        project_devices {
+          project {
+            id
+          }
+        }
+        people_devices {
+          person {
+            id
+          }
+        }
+      }
+    }
+    people_functions {
+      function {
+        UI_screenshot
+        added_by
+        added_on
+        assigned_to
+        blueprint_file
+        blueprint_url
+        cost_model
+        cover_photo
+        description
+        github
+        icon
+        id
+        last_modified_by
+        name
+        last_modified_on
+        ongoing_monthly_subscription
+        priority
+        sample_output
+        size
+        source_url
+        tags
+        upfront_price_credits_to_engage
+        wallet_address
+        valid
+        function_function_types {
+          function_type {
+            icon
+            id
+            name
+          }
+        }
+        device_functions {
+          device {
+            id
+          }
+        }
+        function_projects {
+          project {
+            id
+          }
+        }
+        function_sp_orgs {
+          organization {
+            id
+          }
+        }
+        functions_resources {
+          resource {
+            id
+          }
+        }
+        people_functions {
+          person {
+            id
+          }
+        }
+      }
+    }
+    people_projects {
+      project {
+        access
+        added_by
+        added_on
+        anchor_address
+        area_image
+        assigned_to
+        contacts
+        cover_photo
+        description
+        dimo_rating
+        geocode_cache
+        geospatial_data
+        id
+        import_source_url
+        implementation_target_rating
+        last_modified_by
+        last_modified_on
+        name
+        tags
+        sla
+        regulator_orgs
+        project_website
+        project_screenshots
+        thumbnail
+        underwriting_model
+        valid
+        version_history
+        wallet_address
+        zone_area_kml
+        project_project_types {
+          project_type {
+            id
+            icon
+            name
+          }
+        }
+        function_projects {
+          function {
+            id
+          }
+        }
+        org_projects {
+          organization {
+            id
+          }
+        }
+        project_devices {
+          device {
+            id
+          }
+        }
+        project_resources {
+          resource {
+            id
+          }
+        }
+        people_projects {
+          person {
+            id
+          }
+        }
+      }
+    }
+  }
+}`
+
+
+self.peopleSearchQuery = gql`query graphvizPeopleSearchQuery($searchString: String!) {
+  people(where: {full_name: {_ilike: $searchString}}) {
+    added_by
+    added_on
+    birthday
+    calendar_link
+    discord_username
+    first_name
+    full_name
+    geocode
+    github
+    id
+    last_modified_on
+    last_modified_by
+    last_name
+    link_score
+    linkedn
+    location
+    newsletter_subscriber
+    occupation
+    onboard_assigned_to
+    paypal
+    osm_profile
+    phone
+    photo
+    sample_project
+    tags
+    twitter_profile
+    title
+    wallet_address
+    valid
+    user_onboarding
+    upvotes
+    people_people_types {
+      people_type {
+        id
+        name
+        icon
+      }
+    }
+    org_people {
+      organization {
+        id
+      }
+    }
+    people_devices {
+      device {
+        id
+      }
+    }
+    people_functions {
+      function {
+        id
+      }
+    }
+    people_projects {
+      project {
+        id
+      }
+    }
+    
+  }
+}`
 
