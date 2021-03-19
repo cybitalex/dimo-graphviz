@@ -134,6 +134,7 @@ const subjectColors = [
   "#C91C25",
   "#D37099",
   '#EDE7A4',
+  "#87412B"
 ];
 
 
@@ -142,8 +143,9 @@ const dimoOrgColorIndex = 1;
 const dimoFunctionColorIndex = 2;
 const dimoDeviceColorIndex = 3;
 const dimoResourceColorIndex = 4;
-const dimoPersonColorIndex = 6;
 const dimoAggregateColorIndex = 5;
+const dimoPersonColorIndex = 6;
+const dimoTextColorIndex = 7;
 
 const colorSets = G6.Util.getColorSetsBySubjectColors(
   subjectColors,
@@ -614,6 +616,149 @@ G6.registerNode(
 );
 
 
+// Custom super node
+G6.registerNode(
+  "dimo-text-node",
+  {
+    draw(cfg, group) {
+      let width = 225
+
+
+      const newLabel = formatTextNodeText(cfg.label)
+
+      const numNewLines = (newLabel.match(new RegExp("\n", "g")) || []).length
+
+
+      const height = Math.max(45, 20*numNewLines)
+
+
+      const style = cfg.style || {};
+      const colorSet = cfg.colorSet || colorSets[0];
+
+      // Hightlight for Hover
+      group.addShape("rect", {
+        attrs: {
+          x: -width * 0.55,
+          y: -height * 0.6,
+          width: width * 1.1,
+          height: height * 1.2,
+          fill: colorSet.mainFill,
+          opacity: 0.9,
+          lineWidth: 0,
+          radius: (height / 2 || 13) * 1.2
+        },
+        name: "halo-shape",
+        visible: false
+      });
+
+      // focus stroke for active (clicked)
+      group.addShape("rect", {
+        attrs: {
+          x: -width * 0.55,
+          y: -height * 0.6,
+          width: width * 1.1,
+          height: height * 1.2,
+          fill: colorSet.mainFill, // '#3B4043',
+          stroke: "#AAB7C4",
+          lineWidth: 1,
+          lineOpacty: 0.85,
+          radius: (height / 2 || 13) * 1.2
+        },
+        name: "stroke-shape",
+        visible: false
+      });
+
+      const keyShape = group.addShape("rect", {
+        attrs: {
+          ...style,
+          x: -width / 2,
+          y: -height / 2,
+          width,
+          height,
+          fill: colorSet.mainFill, // || '#3B4043',
+          stroke: colorSet.mainStroke,
+          lineWidth: 2,
+          radius: height / 2 || 13,
+          lineDash: [2, 2]
+        },
+        name: "dimo-node-keyShape"
+      });
+
+      let labelStyle = {};
+      if (cfg.labelCfg) {
+        labelStyle = Object.assign(labelStyle, cfg.labelCfg.style);
+      }
+     
+
+      group.addShape("text", {
+        attrs: {
+          text: newLabel,
+          x: 0,
+          y: 8,
+          textAlign: "center",
+          textBaseline: "middle",
+          cursor: "pointer",
+          fontSize: 12,
+          fill: "#fff",
+          opacity: 0.85,
+          fontWeight: 400
+        },
+        name: "count-shape",
+        className: "count-shape",
+        draggable: true
+      });
+
+
+      return keyShape;
+    },
+    setState: (name, value, item) => {
+      const group = item.get("group");
+      if (name === "layoutEnd" && value) {
+        const labelShape = group.find((e) => e.get("name") === "text-shape");
+        if (labelShape) labelShape.set("visible", true);
+      } else if (name === "hover") {
+        if (item.hasState("focus")) {
+          return;
+        }
+        const halo = group.find((e) => e.get("name") === "halo-shape");
+        const keyShape = item.getKeyShape();
+        const colorSet = item.getModel().colorSet || colorSets[0];
+        if (value) {
+          halo && halo.show();
+          keyShape.attr("fill", colorSet.activeFill);
+        } else {
+          halo && halo.hide();
+          keyShape.attr("fill", colorSet.mainFill);
+        }
+      } else if (name === "focus") {
+        const stroke = group.find((e) => e.get("name") === "stroke-shape");
+        const keyShape = item.getKeyShape();
+        const colorSet = item.getModel().colorSet || colorSets[0];
+        if (value) {
+          stroke && stroke.show();
+          keyShape.attr("fill", colorSet.selectedFill);
+        } else {
+          stroke && stroke.hide();
+          keyShape.attr("fill", colorSet.mainFill);
+        }
+      }
+    },
+
+
+
+
+
+
+    update: undefined
+  },
+  "single-node"
+);
+
+
+
+
+
+
 // Custom the quadratic edge for multiple edges between one node pair
 G6.registerEdge(
   "custom-cubic",
@@ -1043,14 +1188,24 @@ function wait(ms){
   graph.on("node:mouseenter", (evt) => {
     const { item } = evt;
     const model = item.getModel();
-    const currentLabel = model.label;
+    var currentLabel, newLabel
+    if (model.class == "[Text]"){
+       
+
+    } else {
+       currentLabel = model.label;
+       newLabel = model.oriLabel
     model.oriFontSize = model.labelCfg.style.fontSize;
     item.update({
-      label: model.oriLabel
+      label: newLabel
     });
 
 
     model.oriLabel = currentLabel;
+    }
+
+   
+
     graph.setItemState(item, "hover", true);
     item.toFront();
 
@@ -1064,11 +1219,22 @@ function wait(ms){
   graph.on("node:mouseleave", (evt) => {
     const { item } = evt;
     const model = item.getModel();
-    const currentLabel = model.label;
-    item.update({
-      label: model.oriLabel
-    });
-    model.oriLabel = currentLabel;
+    var currentLabel, newLabel
+
+
+    if (model.class == "[Text]"){
+       
+
+    } else {
+       currentLabel = model.label;
+       newLabel = model.oriLabel
+      item.update({
+        label: newLabel
+      });
+      model.oriLabel = currentLabel;
+    }
+
+
     graph.setItemState(item, "hover", false);
   });
 
@@ -1119,7 +1285,10 @@ function wait(ms){
       }
   });
     
-
+  graph.on("canvas:contextmenu", (evt) => {
+      self.mouseX = evt.canvasX
+      self.mouseY = evt.canvasY
+  });
 
     graph.on("node:dragstart", (evt) => {
       dragX = evt.x;
@@ -1210,6 +1379,79 @@ self.dimoAggregatesMap = {};
 self.dimoAggregatesMapReverse = {};
 self.dimoAggregatesEdgeMap = {};
 self.dimoEdgeMap = {};
+self.dimoText = {};
+
+
+
+
+
+
+self.formatTextNodeText = (label) => {
+
+    const lineSizeLimit = 20;
+
+    function addNewlines(str) {
+        var result = '';
+        while (str.length > 0) {
+            result += str.substring(0, lineSizeLimit) + '\n';
+            str = str.substring(lineSizeLimit);
+        }
+        return result;
+    }
+
+
+    const newLabel = addNewlines(label)
+    return newLabel
+
+
+
+
+
+}
+
+
+
+
+self.CreateTextNode = (desiredText)=>{
+
+
+
+
+
+
+
+
+    var node = {
+        "id": uuidv4(),
+        "type": "dimo-text-node",
+        "class": "[Text]",
+        "label": desiredText,
+        "x": self.mouseX,
+        "y": self.mouseY 
+    };
+
+    node.colorSet = colorSets[dimoTextColorIndex]
+
+    node.labelCfg = {
+        position: "bottom",
+        offset: 5,
+        style: {
+            fill: global.node.labelCfg.style.fill,
+            fontSize: 12,
+            stroke: global.node.labelCfg.style.stroke,
+            lineWidth: 3
+        }
+    }
+
+    return node
+
+}
+
+
+
+
+
+
 
 
 
@@ -1789,6 +2031,31 @@ self.alignNewNodes = ()=>{
 }
 
 
+self.addTextNode = (desiredText)=>{
+  var newNode = self.CreateTextNode(desiredText)
+  self.cachePositions = self.cacheNodePositions(graph.getNodes());
+  self.refreshGraph([newNode],[])
+}
+
+
+self.changeTextForTextNode = (node)=>{
+
+
+        
+        var model = node.getModel()
+
+        if (model.class=="[Text]"){
+          self.mouseX = model.x
+          self.mouseY = model.y
+          const desiredText = window.prompt("Text for node?")
+          graph.removeItem(node, true)
+          self.addTextNode(desiredText)
+        } else if (model.class == "[Aggregate]") {
+          const newOriLabel = labelFormatter(desiredText)
+          graph.updateItem(node, {label:desiredText,oriLabel:newOriLabel})
+        }
+        
+}
 
 
 self.refreshGraph = (nodes, edges_)=>{
@@ -1861,7 +2128,10 @@ self.refreshGraph = (nodes, edges_)=>{
        //console.log(graphNodes[i].getModel())
        node = graphNodes[i].getModel()
        node.skip = true;
-       node.label = node.oriLabel;
+       if(node.class != "[Text]"){
+         node.label = node.oriLabel;
+
+       }
        nodes.push(node);
      }
 
@@ -1942,6 +2212,10 @@ function initGraphData() {
       } else if (data.nodes[i].class == "[Aggregate]"){
         self.dimoAggregates[data.nodes[i].id] = data.nodes[i]
         indx = dimoAggregateColorIndex
+      } else if (data.nodes[i].class == "[Text]"){
+        self.dimoText[data.nodes[i].id] = data.nodes[i]
+        indx = dimoTextColorIndex
+        data.nodes[i].label = data.nodes[i].label.replace(/(\r\n|\n|\r)/gm, "");
       }
       data.nodes[i].colorSet = colorSets[indx];
       data.nodes[i].labelCfg = {
@@ -2071,8 +2345,13 @@ function processAllNodesEdges(nodes_, edges_, isNewGraph) {
 
       //console.log(node)
       node.labelLineNum = undefined;
-      node.oriLabel = node.label;
-      node.label = formatText(node.label, labelMaxLength, "...");
+      if (node.class == "[Text]"){
+
+      } else {
+              node.oriLabel = node.label;
+              node.label = formatText(node.label, labelMaxLength, "...");        
+      }
+
       node.degree = 0;
       node.inDegree = 0;
       node.outDegree = 0;
@@ -2339,7 +2618,10 @@ function getStateURL() {
   var deleteEdges = [];
   for (var i = data.nodes.length - 1; i >= 0; i--) {
     delete data.nodes[i].colorSet
-    data.nodes[i].label = data.nodes[i].oriLabel
+    
+    if (data.nodes[i].class != "[Text]"){
+          data.nodes[i].label = data.nodes[i].oriLabel
+    }
     delete data.nodes[i].oriLabel
     delete data.nodes[i].degree
     delete data.nodes[i].inDegree
@@ -2806,13 +3088,14 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
         if (evt.target && evt.target.isCanvas && evt.target.isCanvas()) {
           return `<ul>
           <li id='show'>Show all Hidden Items</li>
+          <li id='textNode'>Create Text Node</li>
         </ul>`;
         } else if (!item) return;
         const itemType = item.getType();
         const model = item.getModel();
         if (itemType && model) {
           if (itemType == "node") {
-            if (model.class != "[Aggregate]") {
+            if (model.class != "[Aggregate]" && model.class != "[Text]") {
               return `<ul>
               <li id='hide'>Hide Selected</li>
               <li id='url'>View in Database</li>
@@ -2824,13 +3107,21 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
               <li id='selectByEntity'>Select By Entity</li>
               <li id='selectByType'>Select By [Type]</li>
             </ul>`;
-            } else {
+            } else if (model.class == "[Text]") {
+
+              return `<ul>
+                     <li id='hide'>Hide Selected</li>
+                     <li id='changeText'>Change Text</li>
+                     </ul>`;
+
+            } else if (model.class == "[Aggregate]") {
               return `<ul>
               <li id='hide'>Hide Selected</li>
               <li id='align'>Align Selected</li>
               <li id='organizeAll'>Organize All</li>
               <li id='selectConnections'>Select Connected</li>
               <li id='expand'>Expand Group</li>
+              <li id='changeText'>Change Text</li>
             </ul>`;
 
 
@@ -2953,6 +3244,14 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
             graph.updateLayout(radLayoutConfig)
 
 
+            break;
+          case "textNode":
+            console.log("event",target, item)
+            self.addTextNode(window.prompt("Text for node?"))
+
+            break;
+          case "changeText":
+            self.changeTextForTextNode(item)
             break;
           default:
             break;
@@ -3107,6 +3406,7 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
     groupByTypes: false,
     enabledStack: true,
     animate:false,
+    renderer: "canvas",
     modes: {
         default: [{
                 type: "drag-canvas",
