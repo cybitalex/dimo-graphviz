@@ -842,7 +842,8 @@ self.searchOrgsFunc = (searchText) => {
             // <th>Name</th>
             // <th>Class</th>
             // <th>Type</th>
-            // <th>Created On</th        
+            // <th>Created On</th
+            self.addOrgsToTable(item)        
         })
 
 

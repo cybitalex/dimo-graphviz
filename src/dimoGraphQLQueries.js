@@ -1344,6 +1344,12 @@ self.orgSearchQuery = gql`query graphvizOrgSearchQuery($searchString: String!) {
         id
       }
     }
+    org_resources {
+        resource {
+            id
+            name
+        }
+    }
 
   }
 }
@@ -1763,6 +1769,12 @@ self.functionSearchQuery = gql`query graphvizSearchFunctionQuery($searchString: 
         id
         full_name
       }
+    }
+    functions_resources {
+        resource {
+            name
+            id
+        }
     }
   }
 }
