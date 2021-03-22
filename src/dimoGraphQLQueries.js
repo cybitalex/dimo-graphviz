@@ -857,6 +857,12 @@ self.projectSearchQuery = gql`query graphVizProjectSearch($searchString: String!
         id
       }
     }
+    project_resources {
+      resource {
+        id
+        name
+      }
+    }
   }
 }`
 

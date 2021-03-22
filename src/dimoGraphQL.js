@@ -59,6 +59,7 @@ self.checkProjectNode = (obj_id, project, nodes, edges) => {
 self.checkProjectNodeConnections = (project, nodes, edges) => {
 
 
+
     for (var j = project.function_projects.length - 1; j >= 0; j--) {
 
         if (self.dimoFunctions[project.function_projects[j].function.id] != undefined) {

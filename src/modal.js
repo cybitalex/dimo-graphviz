@@ -553,10 +553,10 @@ self.searchModalAddButton.onclick = function() {
 
 
     self.removeRowsByIndexes(indexes)
-
     self.cachePositions = self.cacheNodePositions(graph.getNodes());
     self.refreshGraph(nodes, edges)
     self.alignNewNodes()
+    self.closeAllModals()
 
 }
 
