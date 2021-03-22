@@ -3281,7 +3281,15 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
       if (e.item.getType()=="edge"){
         return true
       } else if (e.item.getType()=="node") {
-        return false
+        var model = e.item.getModel()
+
+        if (model.class == "[Aggregate]"){
+          return false
+        } else {
+
+          return true
+
+        }
 
       }
 
@@ -3294,7 +3302,9 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
       outDiv.style.width = 'fit-content';
       //outDiv.style.padding = '0px 0px 20px 0px';
       
-      if (e.item.getType()=="edge"){
+      const itemType = e.item.getType()
+
+      if (itemType=="edge"){
 
 
       outDiv.innerHTML = `
@@ -3307,10 +3317,27 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
         <ul>
           <li>Target: ${e.item.getTarget().getModel().oriLabel}</li>
         </ul>`;
-      } else if (e.item.getType=="node"){
+      } else if (itemType=="node"){
 
+
+      var model = e.item.getModel()
+      var typeString
+      if(model._type!=undefined){
+        typeString = model._type
+      } else {
+        typeString = "None"
       }
 
+      outDiv.innerHTML = `
+        <ul>
+        <h4>${model.class} Type</h4>
+        </ul>
+        <ul>
+          ${typeString}
+        </ul>`;
+
+
+      }
 
       return outDiv;
     },
