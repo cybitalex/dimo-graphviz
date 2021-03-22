@@ -3327,13 +3327,28 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
       } else {
         typeString = "None"
       }
+      //<img src="img_girl.jpg" alt="Girl in a jacket" width="500" height="600">
+      var imgTag
+
+      if (model.class != "[Org]") {
+          if (model.logo.show) {
+              imgTag = `<img src="${model.logo.url}" width="25" height="25">`
+          } else {
+              imgTag = ""
+          }
+      } else {
+        imgTag = `<img src="${model.icon.url}" width="25" height="25">`
+      }
+
+
+
 
       outDiv.innerHTML = `
         <ul>
         <h4>${model.class} Type</h4>
         </ul>
         <ul>
-          ${typeString}
+          ${imgTag} ${typeString}
         </ul>`;
 
 
