@@ -705,6 +705,7 @@ self.loadDimoFunction = (function_id, nodes, edges, initial = true) => {
                 nodes.push(funcNode)
             }
 
+            console.log(func)
 
             var device
             for (var i = func.device_functions.length - 1; i >= 0; i--) {
@@ -738,6 +739,8 @@ self.loadDimoFunction = (function_id, nodes, edges, initial = true) => {
 
 
             var resource
+
+
 
             for (var i = func.functions_resources.length - 1; i >= 0; i--) {
                 resource = func.functions_resources[i].resource;
@@ -778,13 +781,13 @@ self.loadDimoFunction = (function_id, nodes, edges, initial = true) => {
 
 
             for (var i = func.functions_resources.length - 1; i >= 0; i--) {
-                resource = func.functions_resources[i];
+                resource = func.functions_resources[i].resource;
                 self.checkResourceNodeConnections(resource, nodes, edges)
 
             }
 
             for (var i = func.people_functions.length - 1; i >= 0; i--) {
-                person = func.people_functions[i];
+                person = func.people_functions[i].person;
                 self.checkResourceNodeConnections(person, nodes, edges)
 
             }
