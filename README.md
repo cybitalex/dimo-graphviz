@@ -24,6 +24,7 @@
 
 <div align="center">
 <img width="178" alt="robotaxis" src="https://user-images.githubusercontent.com/2059634/112241047-e3e14c00-8c1f-11eb-806f-b0ddd828f755.gif">
+<br>
 Building out a graph of all companies developing robotaxi services. 
 </div>
 
