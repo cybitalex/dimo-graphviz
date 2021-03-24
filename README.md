@@ -6,7 +6,7 @@
 
 
 <div align="center">
-  <strong>The DIMO Knowledge Graph tracks connections between the digital and physical world.</strong>
+  <strong>The DIMO Database tracks connections between the digital and physical world. Our Graph visualization allows you to design and build [projects] using this information faster than ever before. </strong>
 </div>
 
 
@@ -24,10 +24,21 @@
 
 ## Features
 
-- **GraphQL API**: All nodes shown the application are sourced from our very own GraphQL API, so users can endlessly traverse the relationships within our database.
+- **GraphQL API**: All nodes shown the application are sourced from the DIMO GraphQL API, so users can endlessly traverse the relationships within our database.
 - [**G6**](https://github.com/antvis/g6): We use a hyper-modern graph visualization engine built in javascript and typescript.
-- **UX and UI**: We intend to build an application that is intuitive and easy to use.
-- (Upcoming)**Elastic Search**: Users will be able to search through our data with incredible recall and precision.
+- **Clean UX and UI**: The graph is intuitive and easy to use - load in some data and try it yourself!
+
+
+## Upcoming
+
+**Elastic Search**: Users will be able to search through our data with incredible recall and precision.
+
+**Advanced node grouping** (with animations) - keep large graphs fast and organized
+**React** into application to enable dynamic
+**Spatial features** Load an SVG in background to link objects to geo-locations, or to enforce a structure on your graphs.
+**Creating/editing nodes** - Push your changes back to DIMO databse. You'll be able to visually edit the graph, and generate Proposals, RFPs, and [Project] templates. 
+Improved undo/redo functionality
+
 <br>
 
 
@@ -38,14 +49,6 @@
 
 
 
-## TODO
-
-1. Advanced node grouping (with animations).
-2. Integrate React into application.
-3. "Spatial" features: Loading SVG in background for use as a form and linking objects to geo-locations.
-4. UI/UX for creating/editing nodes, and push changes back to databse.
-5. Fixing undo/redo to work intuitively.
-...
 
 
 
