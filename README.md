@@ -51,10 +51,10 @@ Building out a graph of all companies developing robotaxi services.
 ## Examples
 <div align="center">
 A graph of the Cavnue Smart Highway [Project](https://cavnue.com/)
-</div>
 <img width="984" alt="Screen Shot 2021-03-23 at 8 52 49 PM" src="https://user-images.githubusercontent.com/2059634/112237825-d1fcaa80-8c19-11eb-8bb7-d80b5ebd459f.png">
+</div>
 <div align="center">
 Building out a view of all Helium IoT [projects](https://www.helium.com/)
+<img width="984" alt="Helium IoT" src="../assets/screenshot2.png?raw=true">
 </div>
-<img width="984" alt="../assets/screenshot2.png?raw=true">
 <br>
