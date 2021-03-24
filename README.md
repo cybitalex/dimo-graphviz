@@ -56,5 +56,5 @@ A graph of the Cavnue Smart Highway [Project](https://cavnue.com/)
 <div align="center">
 Building out a view of all Helium IoT [projects](https://www.helium.com/)
 </div>
-<img width="984" alt="https://github.com/DIMO-INC/dimo-graphviz/blob/assets/screenshot2.png?raw=true">
+<img width="984" alt="../assets/screenshot2.png?raw=true">
 <br>
