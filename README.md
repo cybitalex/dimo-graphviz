@@ -23,8 +23,7 @@
 <br>
 
 <div align="center">
-  ![Graph Demo](https://user-images.githubusercontent.com/2059634/112241047-e3e14c00-8c1f-11eb-806f-b0ddd828f755.gif)
-
+<img width="178" alt="robotaxis" src="https://user-images.githubusercontent.com/2059634/112241047-e3e14c00-8c1f-11eb-806f-b0ddd828f755.gif">
 Building out a graph of all companies developing robotaxi services. 
 </div>
 
@@ -55,13 +54,3 @@ A graph of the Cavnue Smart Highway [Project](https://cavnue.com/)
 Building out a view of all Helium IoT [projects](https://www.helium.com/)
 ![](../assets/screenshot2.png?raw=true)
 <br>
-
-
-
-
-
-
-
-
-
-
