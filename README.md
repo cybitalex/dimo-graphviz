@@ -40,7 +40,7 @@ Building out a graph of all companies developing robotaxi services.
 
 - **Elastic Search**: Users will be able to search through our data with incredible recall and precision.
 - **Advanced node grouping** (with animations) - keep large graphs fast and organized
-- **React** into application to enable dynamic
+- **React** integration into application to enable dynamic UI/UX flows.
 - **Spatial features** Load an SVG in background to link objects to geo-locations, or to enforce a structure on your graphs.
 - **Creating/editing nodes** - Push your changes back to DIMO databse. You'll be able to visually edit the graph, and generate Proposals, RFPs, and [Project] templates. 
 - **Improved undo/redo functionality**
