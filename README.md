@@ -1,4 +1,3 @@
-![Graph Demo](https://user-images.githubusercontent.com/2059634/112241047-e3e14c00-8c1f-11eb-806f-b0ddd828f755.gif)
 ![](../assets/dimo-header.png?raw=true)
 <div align="center">
   <h1>DIMO Knowledge Graph Visualization</h1>
@@ -22,6 +21,9 @@
   <a href="https://discord.gg/fZxrurPHZh">Discord</a>
 </div>
 <br>
+
+![Graph Demo](https://user-images.githubusercontent.com/2059634/112241047-e3e14c00-8c1f-11eb-806f-b0ddd828f755.gif)
+
 
 ## Features
 
