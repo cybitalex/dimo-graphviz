@@ -163,6 +163,26 @@ self.deviceFullQuery = gql`query graphvizDeviceQuery($device_id: String!) {
             id
           }
         }
+        from_org_rels {
+          id
+          relationship_type
+          to_org {
+            id
+          }
+          from_org {
+            id
+          }
+        }
+        to_org_rels {
+          relationship_type
+          id
+          from_org {
+            id
+          }
+          to_org {
+            id
+          }
+        }
       }
     }
     device_sp_orgs {
@@ -237,6 +257,26 @@ self.deviceFullQuery = gql`query graphvizDeviceQuery($device_id: String!) {
         }
         org_people {
           person {
+            id
+          }
+        }
+        from_org_rels {
+          id
+          relationship_type
+          to_org {
+            id
+          }
+          from_org {
+            id
+          }
+        }
+        to_org_rels {
+          relationship_type
+          id
+          from_org {
+            id
+          }
+          to_org {
             id
           }
         }
@@ -613,6 +653,26 @@ self.projectFullQuery = gql`query graphvizProjectQuery($proj_id: String!) {
         }
         org_people {
           person {
+            id
+          }
+        }
+        from_org_rels {
+          id
+          relationship_type
+          to_org {
+            id
+          }
+          from_org {
+            id
+          }
+        }
+        to_org_rels {
+          relationship_type
+          id
+          from_org {
+            id
+          }
+          to_org {
             id
           }
         }
@@ -1267,6 +1327,204 @@ self.orgFullQuery = gql`query graphvizOrgQuery($org_id: String!) {
         }
       }
     }
+    from_org_rels {
+      id
+      relationship_type
+      to_org {
+        added_by
+        added_on
+        assigned_to
+        bd_tier
+        capital_raised
+        category_example
+        company_email
+        crunchbase_profile
+        company_tagline
+        devices_page
+        employees
+        featured_project_link
+        functions_page
+        github
+        headquarters
+        id
+        job_board_link_status
+        job_board_used
+        name
+        naics_code
+        logo_url
+        logo
+        linkedn
+        last_modified_on
+        last_modified_by
+        org_chart_link
+        product_picture
+        product_service_description
+        sales_outreach
+        summary_video
+        tags
+        team_page_url
+        twitter_handle
+        valid
+        website
+        wallet_address
+        org_org_types {
+          org_type {
+            icon
+            name
+            id
+          }
+        }
+        device_oem_orgs {
+          device {
+            id
+          }
+        }
+        device_sp_orgs {
+          device {
+            id
+          }
+        }
+        function_sp_orgs {
+          function {
+            id
+          }
+        }
+        org_projects {
+          project {
+            id
+          }
+        }
+        org_resources {
+          resource {
+            id
+          }
+        }
+        org_people {
+          person {
+            id
+          }
+        }
+        from_org_rels {
+          id
+          relationship_type
+          to_org {
+            id
+          }
+          from_org {
+            id
+          }
+        }
+        to_org_rels {
+          relationship_type
+          id
+          from_org {
+            id
+          }
+          to_org {
+            id
+          }
+        }
+      }
+    }
+    to_org_rels {
+      id
+      relationship_type
+      from_org {
+        added_by
+        added_on
+        assigned_to
+        bd_tier
+        capital_raised
+        category_example
+        company_email
+        crunchbase_profile
+        company_tagline
+        devices_page
+        employees
+        featured_project_link
+        functions_page
+        github
+        headquarters
+        id
+        job_board_link_status
+        job_board_used
+        name
+        naics_code
+        logo_url
+        logo
+        linkedn
+        last_modified_on
+        last_modified_by
+        org_chart_link
+        product_picture
+        product_service_description
+        sales_outreach
+        summary_video
+        tags
+        team_page_url
+        twitter_handle
+        valid
+        website
+        wallet_address
+        org_org_types {
+          org_type {
+            icon
+            name
+            id
+          }
+        }
+        device_oem_orgs {
+          device {
+            id
+          }
+        }
+        device_sp_orgs {
+          device {
+            id
+          }
+        }
+        function_sp_orgs {
+          function {
+            id
+          }
+        }
+        org_projects {
+          project {
+            id
+          }
+        }
+        org_resources {
+          resource {
+            id
+          }
+        }
+        org_people {
+          person {
+            id
+          }
+        }
+        from_org_rels {
+          id
+          relationship_type
+          to_org {
+            id
+          }
+          from_org {
+            id
+          }
+        }
+        to_org_rels {
+          relationship_type
+          id
+          from_org {
+            id
+          }
+          to_org {
+            id
+          }
+        }
+      }
+    }
   }
 }`
 
@@ -1350,7 +1608,26 @@ self.orgSearchQuery = gql`query graphvizOrgSearchQuery($searchString: String!) {
             name
         }
     }
-
+    from_org_rels {
+      id
+      relationship_type
+      to_org {
+        id
+      }
+      from_org {
+        id
+      }
+    }
+    to_org_rels {
+      relationship_type
+      id
+      from_org {
+        id
+      }
+      to_org {
+        id
+      }
+    }
   }
 }
 
@@ -1583,6 +1860,26 @@ self.functionFullQuery = gql`query graphvizFunctionQuery($function_id: String!) 
         }
         org_people {
           person {
+            id
+          }
+        }
+        from_org_rels {
+          id
+          relationship_type
+          to_org {
+            id
+          }
+          from_org {
+            id
+          }
+        }
+        to_org_rels {
+          relationship_type
+          id
+          from_org {
+            id
+          }
+          to_org {
             id
           }
         }
@@ -2023,6 +2320,26 @@ self.resourceFullQuery = gql`query graphvizResourceQuery($resource_id: String!) 
             id
           }
         }
+        from_org_rels {
+          id
+          relationship_type
+          to_org {
+            id
+          }
+          from_org {
+            id
+          }
+        }
+        to_org_rels {
+          relationship_type
+          id
+          from_org {
+            id
+          }
+          to_org {
+            id
+          }
+        }
       }
     }
   }
@@ -2204,6 +2521,26 @@ self.peopleFullQuery = gql`query graphvizPeopleQuery($person_id: String!) {
         }
         org_people {
           person {
+            id
+          }
+        }
+        from_org_rels {
+          id
+          relationship_type
+          to_org {
+            id
+          }
+          from_org {
+            id
+          }
+        }
+        to_org_rels {
+          relationship_type
+          id
+          from_org {
+            id
+          }
+          to_org {
             id
           }
         }

@@ -181,6 +181,29 @@ self.checkOrgNode = (obj_id, org, nodes, edges) => {
     edges.push({ "source": obj_id, "target": org.id, type: "custom-cubic" })
 }
 
+self.checkOrgNodeFromRel = (from_org_id, to_org, nodes, edges, relationshipType) => {
+    var toOrgNode = self.gqlOrgDataToNode(to_org)
+    if (self.dimoOrgs[to_org.id] == undefined) {
+        if(!self.graphInit){ 
+        self.dimoOrgs[to_org.id] = toOrgNode
+    }
+        nodes.push(toOrgNode)
+    }
+    edges.push({ "source": from_org_id, "target": toOrgNode.id, type: "custom-cubic", relationshipType: relationshipType })
+}
+
+self.checkOrgNodeToRel = (to_org_id, from_org, nodes, edges, relationshipType) => {
+    var fromOrgNode = self.gqlOrgDataToNode(from_org)
+    if (self.dimoOrgs[from_org.id] == undefined) {
+        if(!self.graphInit){ 
+        self.dimoOrgs[from_org.id] = fromOrgNode
+    }
+        nodes.push(fromOrgNode)
+    }
+    edges.push({ "source": fromOrgNode.id, "target": to_org_id, type: "custom-cubic", relationshipType: relationshipType })
+}
+
+
 self.checkOrgNodeConnections = (org, nodes, edges) => {
     for (var j = org.device_oem_orgs.length - 1; j >= 0; j--) {
 
@@ -235,6 +258,27 @@ self.checkOrgNodeConnections = (org, nodes, edges) => {
 
 
     }
+
+    for (var j = org.from_org_rels.length - 1; j >= 0; j--) {
+
+            if (self.dimoOrgs[org.from_org_rels[j].to_org.id] != undefined) {
+                edges.push({ "source": org.from_org_rels[j].from_org.id, "target": org.from_org_rels[j].to_org.id, type: "custom-cubic", relationshipType: org.from_org_rels[j].relationship_type})
+            }
+
+
+        }    
+
+    for (var j = org.to_org_rels.length - 1; j >= 0; j--) {
+            if (self.dimoOrgs[org.to_org_rels[j].from_org.id] != undefined) {
+                edges.push({ "source": org.to_org_rels[j].from_org.id, "target": org.to_org_rels[j].to_org.id, type: "custom-cubic", relationshipType: org.to_org_rels[j].relationship_type})
+            }
+
+
+        }
+
+
+
+
 }
 
 
@@ -467,7 +511,6 @@ self.loadDimoProject = (project_id, nodes, edges, initial = true) => {
     self.graphQLClient.request(self.projectFullQuery, vars).then(
 
         function(data) {
-            console.info("[Project] Request", data);
 
 
             var rawData = [];
@@ -586,6 +629,7 @@ self.loadDimoOrg = (org_id, nodes, edges, initial = true) => {
 
         function(data) {
 
+
             var org = data.organization[0];
             var orgNode = self.gqlOrgDataToNode(org);
 
@@ -652,6 +696,23 @@ self.loadDimoOrg = (org_id, nodes, edges, initial = true) => {
                 self.checkPeopleNode(orgNode.id, person, nodes, edges)
             }
 
+            var org2
+            for (var i = org.from_org_rels.length - 1; i >= 0; i--) {
+                //from_org_id, to_org, nodes, edges, relationshipType
+                org2 = org.from_org_rels[i].to_org
+                org2.class = "[Org]"
+                rawData.push(org2)
+                self.checkOrgNodeFromRel(orgNode.id, org2, nodes, edges, org.from_org_rels[i].relationship_type)
+            }  
+
+            for (var i = org.to_org_rels.length - 1; i >= 0; i--) {
+                //to_org_id, from_org, nodes, edges, relationshipType
+                org2 = org.to_org_rels[i].from_org
+                org2.class = "[Org]"
+                rawData.push(org2)
+                self.checkOrgNodeToRel(orgNode.id, org2, nodes, edges, org.to_org_rels[i].relationship_type)
+            }  
+
 
             for (var i = org.function_sp_orgs.length - 1; i >= 0; i--) {
                 func = org.function_sp_orgs[i].function;
@@ -673,6 +734,17 @@ self.loadDimoOrg = (org_id, nodes, edges, initial = true) => {
             for (var i = org.org_people.length - 1; i >= 0; i--) {
                 person = org.org_people[i].person;
                 self.checkPeopleNodeConnections(person, nodes, edges)
+            }
+
+
+            for (var i = org.from_org_rels.length - 1; i >= 0; i--) {
+                org2 = org.from_org_rels[i].to_org
+                self.checkOrgNodeConnections(org2, nodes, edges)
+            }            
+
+            for (var i = org.to_org_rels.length - 1; i >= 0; i--) {
+                org2 = org.to_org_rels[i].from_org
+                self.checkOrgNodeConnections(org2, nodes, edges)
             }
 
             if (initial) {
@@ -705,7 +777,6 @@ self.loadDimoFunction = (function_id, nodes, edges, initial = true) => {
                 nodes.push(funcNode)
             }
 
-            console.log(func)
 
             var device
             for (var i = func.device_functions.length - 1; i >= 0; i--) {

@@ -1886,7 +1886,6 @@ self.dimoAggregatedNode = (nodes)=>{
     }
 
     node.colorSet = colorSets[dimoAggregateColorIndex]
-    console.log(node)
     return node
 
 
@@ -3303,24 +3302,77 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
       //outDiv.style.padding = '0px 0px 20px 0px';
       
       const itemType = e.item.getType()
-
+      var model = e.item.getModel()
       if (itemType=="edge"){
 
+        if(model.relationshipType!=undefined){
 
-      outDiv.innerHTML = `
-        <ul>
-          <li>${e.item.getSource().getModel().class} &#60;-&#62; ${e.item.getTarget().getModel().class}</li>
-        </ul>
-        <ul>
-          <li>Source: ${e.item.getSource().getModel().oriLabel}</li>
-        </ul>
-        <ul>
-          <li>Target: ${e.item.getTarget().getModel().oriLabel}</li>
-        </ul>`;
+
+
+                if(model.relationshipType == "customer"){
+
+                               outDiv.innerHTML = `<ul>
+                                                       <li>Customer [Org]&#60;-&#62;[Org] Relationship</li>
+                                                   </ul>
+                                                   <ul>
+                                                      <li>Provider: ${e.item.getSource().getModel().oriLabel}</li>
+                                                   </ul>
+                                                   <ul>
+                                                      <li>Customer: ${e.item.getTarget().getModel().oriLabel}</li>
+                                                   </ul>`;
+
+
+
+
+                } else if (model.relationshipType == "invest") {
+
+
+                               outDiv.innerHTML = `<ul>
+                                                       <li>Investment [Org]&#60;-&#62;[Org] Relationship</li>
+                                                   </ul>
+                                                   <ul>
+                                                      <li>Investor: ${e.item.getSource().getModel().oriLabel}</li>
+                                                   </ul>
+                                                   <ul>
+                                                      <li>Reciever: ${e.item.getTarget().getModel().oriLabel}</li>
+                                                   </ul>`;
+
+
+                } else if (model.relationshipType == "parent") {
+
+
+                               outDiv.innerHTML = `<ul>
+                                                       <li>Parent [Org]&#60;-&#62;[Org] Relationship</li>
+                                                   </ul>
+                                                   <ul>
+                                                      <li>Parent: ${e.item.getSource().getModel().oriLabel}</li>
+                                                   </ul>
+                                                   <ul>
+                                                      <li>Subsidiary: ${e.item.getTarget().getModel().oriLabel}</li>
+                                                   </ul>`;
+
+
+                }
+
+        } else {
+
+            outDiv.innerHTML = `
+              <ul>
+                <li>${e.item.getSource().getModel().class} &#60;-&#62; ${e.item.getTarget().getModel().class}</li>
+              </ul>
+              <ul>
+                <li>Source: ${e.item.getSource().getModel().oriLabel}</li>
+              </ul>
+              <ul>
+                <li>Target: ${e.item.getTarget().getModel().oriLabel}</li>
+              </ul>`;
+
+
+        }
       } else if (itemType=="node"){
 
 
-      var model = e.item.getModel()
+      
       var typeString
       if(model._type!=undefined){
         typeString = model._type
