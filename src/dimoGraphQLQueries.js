@@ -412,7 +412,7 @@ self.deviceFullQuery = gql`query graphvizDeviceQuery($device_id: String!) {
   }
 }`
 
-self.deviceSearchQuery = gql`query graphVizDeviceSearch($searchString: String!) {
+self.deviceSearchQuery = gql`query graphVizDeviceSearchQuery($searchString: String!) {
   device(where: {name: {_ilike: $searchString}}) {
     added_by
     added_on
@@ -855,7 +855,7 @@ self.projectFullQuery = gql`query graphvizProjectQuery($proj_id: String!) {
   }
 }
 `
-self.projectSearchQuery = gql`query graphVizProjectSearch($searchString: String!) {
+self.projectSearchQuery = gql`query graphVizProjectSearchQuery($searchString: String!) {
   project(where: {name: {_ilike: $searchString}}) {
     access
     added_by
@@ -2010,7 +2010,7 @@ self.functionFullQuery = gql`query graphvizFunctionQuery($function_id: String!) 
   }
 }`
 
-self.functionSearchQuery = gql`query graphvizSearchFunctionQuery($searchString: String!) {
+self.functionSearchQuery = gql`query graphvizFunctionSearchQuery($searchString: String!) {
   function(where: {name: {_ilike: $searchString}}) {
     UI_screenshot
     added_by
