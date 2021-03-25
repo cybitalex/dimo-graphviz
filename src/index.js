@@ -3338,17 +3338,17 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
                                                    </ul>`;
 
 
-                } else if (model.relationshipType == "parent") {
+                } else if (model.relationshipType == "subsidiary") {
 
 
                                outDiv.innerHTML = `<ul>
                                                        <li>Parent [Org]&#60;-&#62;[Org] Relationship</li>
                                                    </ul>
                                                    <ul>
-                                                      <li>Parent: ${e.item.getSource().getModel().oriLabel}</li>
+                                                      <li>Subsidiary: ${e.item.getSource().getModel().oriLabel}</li>
                                                    </ul>
                                                    <ul>
-                                                      <li>Subsidiary: ${e.item.getTarget().getModel().oriLabel}</li>
+                                                      <li>Parent: ${e.item.getTarget().getModel().oriLabel}</li>
                                                    </ul>`;
 
 
