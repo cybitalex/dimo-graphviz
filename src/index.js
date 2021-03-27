@@ -3097,6 +3097,7 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
             if (model.class != "[Aggregate]" && model.class != "[Text]") {
               return `<ul>
               <li id='hide'>Hide Selected</li>
+              <li>Show in Map</li>
               <li id='url'>View in Database</li>
               <li id='load'>Load Connections</li>
               <li id='align'>Align Selected</li>
