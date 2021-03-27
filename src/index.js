@@ -1960,6 +1960,7 @@ self.gqlPeopleDataToNode = (person)=>{
 }
 
 self.mapHandle = null;
+self.markerHandle = null;
 
 function maybeShowMap(model) {
     // Ignoring the others, they aren't reliably geocoded yet
@@ -1978,10 +1979,12 @@ function maybeShowMap(model) {
                         maxZoom: 19,
                         attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
                       }).addTo(self.mapHandle);
+                self.markerHandle = L.marker([0.0, 0.0]).addTo(self.mapHandle);
             }
             const resource = data.resource[0];
             const resourceNode = self.gqlResourceDataToNode(resource);
             self.mapHandle.setView([resourceNode.lat, resourceNode.lng], 13);
+            self.markerHandle.setLatLng([resourceNode.lat, resourceNode.lng]);
         })
 }
 
