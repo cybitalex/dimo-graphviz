@@ -1968,8 +1968,6 @@ function maybeShowMap(model) {
         return;
     }
     
-    self.mapModalOpen();
-    
     self.graphQLClient
         .request(self.resourceFullQuery, {"resource_id": model.id})
         .then((data) => {
@@ -1983,6 +1981,7 @@ function maybeShowMap(model) {
             }
             const resource = data.resource[0];
             const resourceNode = self.gqlResourceDataToNode(resource);
+            self.mapModalOpen();
             self.mapHandle.setView([resourceNode.lat, resourceNode.lng], 13);
             self.markerHandle.setLatLng([resourceNode.lat, resourceNode.lng]);
         })
