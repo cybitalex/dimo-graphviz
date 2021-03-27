@@ -1983,10 +1983,10 @@ function maybeShowMap(model) {
             const resource = data.resource[0];
             const resourceNode = self.gqlResourceDataToNode(resource);
             self.mapModalOpen();
+            self.mapHandle.invalidateSize(false);
             self.mapHandle.setView([resourceNode.lat, resourceNode.lng], 13);
             self.popUpHandle.setLatLng([resourceNode.lat, resourceNode.lng]);
             self.popUpHandle.setContent(resourceNode.location);
-            self.mapHandle.invalidateSize(false);
         })
 }
 
