@@ -1471,6 +1471,7 @@ self.gqlResourceDataToNode = (resource)=>{
         "type": "dimo-node",
         "class": "[Resource]",
         "label": resource.name,
+        "location": resource.location,
         "lat": geoJson.o.lat,
         "lng": geoJson.o.lng,
         "airtableURL": "https://airtable.com/tblAKJHMkBTTAbuXE/viwfjiEW7MrdgTysI/" + resource.id,
@@ -1960,7 +1961,7 @@ self.gqlPeopleDataToNode = (person)=>{
 }
 
 self.mapHandle = null;
-self.markerHandle = null;
+self.popUpHandle = null;
 
 function maybeShowMap(model) {
     // Ignoring the others, they aren't reliably geocoded yet
@@ -1977,13 +1978,15 @@ function maybeShowMap(model) {
                         maxZoom: 19,
                         attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
                       }).addTo(self.mapHandle);
-                self.markerHandle = L.marker([0.0, 0.0]).addTo(self.mapHandle);
+                self.popUpHandle = L.popup().setLatLng([0.0, 0,0]).openOn(self.mapHandle);
             }
             const resource = data.resource[0];
             const resourceNode = self.gqlResourceDataToNode(resource);
             self.mapModalOpen();
             self.mapHandle.setView([resourceNode.lat, resourceNode.lng], 13);
-            self.markerHandle.setLatLng([resourceNode.lat, resourceNode.lng]);
+            self.popUpHandle.setLatLng([resourceNode.lat, resourceNode.lng]);
+            self.popUpHandle.setContent(resourceNode.location);
+            self.mapHandle.invalidateSize(false);
         })
 }
 
