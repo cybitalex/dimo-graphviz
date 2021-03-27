@@ -7,6 +7,8 @@ import './modal.js'
 import './dimoGraphQLQueries.js'
 import './dimoGraphQL.js'
 
+import L from "leaflet";
+
 insertCss(`
   .g6-component-contextmenu {
       position: absolute;
@@ -1957,6 +1959,8 @@ self.gqlPeopleDataToNode = (person)=>{
 
 }
 
+self.mapHandle = null;
+
 function maybeShowMap(model) {
     // Ignoring the others, they aren't reliably geocoded yet
     if (model.class !== "[Resource]") {
@@ -1968,13 +1972,16 @@ function maybeShowMap(model) {
     self.graphQLClient
         .request(self.resourceFullQuery, {"resource_id": model.id})
         .then((data) => {
+            if (!self.mapHandle) {
+                self.mapHandle = L.map("mapContainer").setView([0.0, 0.0], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+                      }).addTo(self.mapHandle);
+            }
             const resource = data.resource[0];
             const resourceNode = self.gqlResourceDataToNode(resource);
-            const map = L.map("mapContainer").setView([resourceNode.lat, resourceNode.lng], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-                  }).addTo(map);
+            self.mapHandle.setView([resourceNode.lat, resourceNode.lng], 13);
         })
 }
 
