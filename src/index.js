@@ -1461,12 +1461,16 @@ self.CreateTextNode = (desiredText)=>{
 
 
 self.gqlResourceDataToNode = (resource)=>{
+    const geoJsonRaw = resource.geocode.substring(3);
+    const geoJson = JSON.parse(atob(geoJsonRaw));
 
     var node = {
         "id": resource.id,
         "type": "dimo-node",
         "class": "[Resource]",
         "label": resource.name,
+        "lat": geoJson.o.lat,
+        "lng": geoJson.o.lng,
         "airtableURL": "https://airtable.com/tblAKJHMkBTTAbuXE/viwfjiEW7MrdgTysI/" + resource.id,
     };
 
@@ -1953,8 +1957,26 @@ self.gqlPeopleDataToNode = (person)=>{
 
 }
 
-
-
+function maybeShowMap(model) {
+    // Ignoring the others, they aren't reliably geocoded yet
+    if (model.class !== "[Resource]") {
+        return;
+    }
+    
+    self.mapModalOpen();
+    
+    self.graphQLClient
+        .request(self.resourceFullQuery, {"resource_id": model.id})
+        .then((data) => {
+            const resource = data.resource[0];
+            const resourceNode = self.gqlResourceDataToNode(resource);
+            const map = L.map("mapContainer").setView([resourceNode.lat, resourceNode.lng], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+                  }).addTo(map);
+        })
+}
 
 
 function loadConnectedItems(model) {
@@ -3097,7 +3119,7 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
             if (model.class != "[Aggregate]" && model.class != "[Text]") {
               return `<ul>
               <li id='hide'>Hide Selected</li>
-              <li>Show in Map</li>
+              <li id='map'>Show in Map</li>
               <li id='url'>View in Database</li>
               <li id='load'>Load Connections</li>
               <li id='align'>Align Selected</li>
@@ -3147,6 +3169,9 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
             }
             //console.log(hiddenItemIds)
             
+            break;
+          case "map":
+            maybeShowMap(model);
             break;
           case "show":
             showItems(graph);

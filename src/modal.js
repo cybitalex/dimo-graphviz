@@ -141,7 +141,13 @@ self.searchModalCloseButton.onclick = function() {
     self.searchModalOpenBool = false;
 }
 
+self.mapModal = document.getElementById("mapModal");
 
+self.mapModalOpen = function() {
+    self.mapModal.style.display = "block";
+    self.modalOpen = true;
+    self.mapModalOpen = true;
+}
 
 self.closeAllModals = ()=>{
 
