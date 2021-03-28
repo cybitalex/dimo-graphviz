@@ -1978,7 +1978,8 @@ function maybeShowMap(model) {
                         maxZoom: 19,
                         attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
                       }).addTo(self.mapHandle);
-                self.popUpHandle = L.popup().setLatLng([0.0, 0,0]).openOn(self.mapHandle);
+                self.popUpHandle = L.popup({closeButton: false}).setLatLng([0.0, 0,0]).openOn(self.mapHandle);
+                self.popUpHandle
             }
             const resource = data.resource[0];
             const resourceNode = self.gqlResourceDataToNode(resource);
