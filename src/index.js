@@ -3129,18 +3129,32 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
         if (itemType && model) {
           if (itemType == "node") {
             if (model.class != "[Aggregate]" && model.class != "[Text]") {
-              return `<ul>
-              <li id='hide'>Hide Selected</li>
-              <li id='map'>Show in Map</li>
-              <li id='url'>View in Database</li>
-              <li id='load'>Load Connections</li>
-              <li id='align'>Align Selected</li>
-              <li id='group'>Group Selected</li>
-              <li id='organizeAll'>Organize All</li>
-              <li id='selectConnections'>Select Connected</li>
-              <li id='selectByEntity'>Select By Entity</li>
-              <li id='selectByType'>Select By [Type]</li>
-            </ul>`;
+              if (model.class == "[Resource]") {
+                return `<ul>
+                  <li id='hide'>Hide Selected</li>
+                  <li id='map'>Show in Map</li>
+                  <li id='url'>View in Database</li>
+                  <li id='load'>Load Connections</li>
+                  <li id='align'>Align Selected</li>
+                  <li id='group'>Group Selected</li>
+                  <li id='organizeAll'>Organize All</li>
+                  <li id='selectConnections'>Select Connected</li>
+                  <li id='selectByEntity'>Select By Entity</li>
+                  <li id='selectByType'>Select By [Type]</li>
+                  </ul>`;
+              } else {
+                return `<ul>
+                  <li id='hide'>Hide Selected</li>
+                  <li id='url'>View in Database</li>
+                  <li id='load'>Load Connections</li>
+                  <li id='align'>Align Selected</li>
+                  <li id='group'>Group Selected</li>
+                  <li id='organizeAll'>Organize All</li>
+                  <li id='selectConnections'>Select Connected</li>
+                  <li id='selectByEntity'>Select By Entity</li>
+                  <li id='selectByType'>Select By [Type]</li>
+                  </ul>`;
+              }
             } else if (model.class == "[Text]") {
 
               return `<ul>
