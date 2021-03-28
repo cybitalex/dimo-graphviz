@@ -1987,7 +1987,7 @@ function maybeShowMap(model) {
             self.mapHandle.invalidateSize(false);
             self.mapHandle.setView([resourceNode.lat, resourceNode.lng], 13);
             self.popUpHandle.setLatLng([resourceNode.lat, resourceNode.lng]);
-            self.popUpHandle.setContent(resourceNode.location);
+            self.popUpHandle.setContent("<strong>" + resourceNode.label + "</strong></br>" + resourceNode.location);
         })
 }
 
