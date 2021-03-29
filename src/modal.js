@@ -141,15 +141,29 @@ self.searchModalCloseButton.onclick = function() {
     self.searchModalOpenBool = false;
 }
 
+self.mapModal = document.getElementById("mapModal");
+self.mapModalCloseButton = document.getElementById("mapModalCloseButton");
 
+self.mapModalOpen = function() {
+    self.mapModal.style.display = "block";
+    self.modalOpen = true;
+    self.mapModalOpenBool = true;
+}
+
+self.mapModalCloseButton.onclick = function() {
+    self.mapModal.style.display = "none";
+    self.modalOpen = false
+    self.mapModalOpenBool = false;
+}
 
 self.closeAllModals = ()=>{
-
     self.searchModal.style.display = "none";
     self.settingsModal.style.display = "none";
+    self.mapModal.style.display = "none";
     self.modalOpen = false
     self.searchModalOpenBool = false;
     self.settingsModalOpenBool = false;
+    self.mapModalOpenBool = false;
 }
 
 
@@ -159,6 +173,9 @@ window.onclick = function(event) {
         self.closeAllModals()
     }
     if (event.target == self.settingsModal) {
+       self.closeAllModals()
+    }
+    if (event.target == self.mapModal) {
        self.closeAllModals()
     }
 

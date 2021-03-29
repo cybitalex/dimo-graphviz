@@ -7,6 +7,8 @@ import './modal.js'
 import './dimoGraphQLQueries.js'
 import './dimoGraphQL.js'
 
+import L from "leaflet";
+
 insertCss(`
   .g6-component-contextmenu {
       position: absolute;
@@ -1461,12 +1463,17 @@ self.CreateTextNode = (desiredText)=>{
 
 
 self.gqlResourceDataToNode = (resource)=>{
+    const geoJsonRaw = resource.geocode.substring(3);
+    const geoJson = JSON.parse(atob(geoJsonRaw));
 
     var node = {
         "id": resource.id,
         "type": "dimo-node",
         "class": "[Resource]",
         "label": resource.name,
+        "location": resource.location,
+        "lat": geoJson.o.lat,
+        "lng": geoJson.o.lng,
         "airtableURL": "https://airtable.com/tblAKJHMkBTTAbuXE/viwfjiEW7MrdgTysI/" + resource.id,
     };
 
@@ -1953,8 +1960,36 @@ self.gqlPeopleDataToNode = (person)=>{
 
 }
 
+self.mapHandle = null;
+self.popUpHandle = null;
 
-
+function maybeShowMap(model) {
+    // Ignoring the others, they aren't reliably geocoded yet
+    if (model.class !== "[Resource]") {
+        return;
+    }
+    
+    self.graphQLClient
+        .request(self.resourceFullQuery, {"resource_id": model.id})
+        .then((data) => {
+            if (!self.mapHandle) {
+                self.mapHandle = L.map("mapContainer").setView([0.0, 0.0], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+                      }).addTo(self.mapHandle);
+                self.popUpHandle = L.popup({closeButton: false}).setLatLng([0.0, 0,0]).openOn(self.mapHandle);
+                self.popUpHandle
+            }
+            const resource = data.resource[0];
+            const resourceNode = self.gqlResourceDataToNode(resource);
+            self.mapModalOpen();
+            self.mapHandle.invalidateSize(false);
+            self.mapHandle.setView([resourceNode.lat, resourceNode.lng], 13);
+            self.popUpHandle.setLatLng([resourceNode.lat, resourceNode.lng]);
+            self.popUpHandle.setContent("<strong>" + resourceNode.label + "</strong></br>" + resourceNode.location);
+        })
+}
 
 
 function loadConnectedItems(model) {
@@ -3095,17 +3130,32 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
         if (itemType && model) {
           if (itemType == "node") {
             if (model.class != "[Aggregate]" && model.class != "[Text]") {
-              return `<ul>
-              <li id='hide'>Hide Selected</li>
-              <li id='url'>View in Database</li>
-              <li id='load'>Load Connections</li>
-              <li id='align'>Align Selected</li>
-              <li id='group'>Group Selected</li>
-              <li id='organizeAll'>Organize All</li>
-              <li id='selectConnections'>Select Connected</li>
-              <li id='selectByEntity'>Select By Entity</li>
-              <li id='selectByType'>Select By [Type]</li>
-            </ul>`;
+              if (model.class == "[Resource]") {
+                return `<ul>
+                  <li id='hide'>Hide Selected</li>
+                  <li id='map'>Show in Map</li>
+                  <li id='url'>View in Database</li>
+                  <li id='load'>Load Connections</li>
+                  <li id='align'>Align Selected</li>
+                  <li id='group'>Group Selected</li>
+                  <li id='organizeAll'>Organize All</li>
+                  <li id='selectConnections'>Select Connected</li>
+                  <li id='selectByEntity'>Select By Entity</li>
+                  <li id='selectByType'>Select By [Type]</li>
+                  </ul>`;
+              } else {
+                return `<ul>
+                  <li id='hide'>Hide Selected</li>
+                  <li id='url'>View in Database</li>
+                  <li id='load'>Load Connections</li>
+                  <li id='align'>Align Selected</li>
+                  <li id='group'>Group Selected</li>
+                  <li id='organizeAll'>Organize All</li>
+                  <li id='selectConnections'>Select Connected</li>
+                  <li id='selectByEntity'>Select By Entity</li>
+                  <li id='selectByType'>Select By [Type]</li>
+                  </ul>`;
+              }
             } else if (model.class == "[Text]") {
 
               return `<ul>
@@ -3146,6 +3196,9 @@ self.initGraph = (nodes_, edges_, useLayout=true)=>{
             }
             //console.log(hiddenItemIds)
             
+            break;
+          case "map":
+            maybeShowMap(model);
             break;
           case "show":
             showItems(graph);
