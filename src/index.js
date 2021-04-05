@@ -2214,7 +2214,7 @@ function initGraphData() {
 
   if (vars["s3State"] != undefined){
     
-    fetch("/graphviz-states/"+vars["s3State"]).then(rdata => {
+    fetch("https://dimo-graphviz-storage.s3.amazonaws.com/graphviz-states/"+vars["s3State"]).then(rdata => {
 
       const jsonData = rdata.json().then(data => {
 
@@ -2755,7 +2755,7 @@ function getStateURL() {
 
   console.log("saveData",data);
   const jsonData = JSON.stringify(data);
-      fetch("/default/graphvizLambdaS3", {
+      fetch("https://kipbd0b0l4.execute-api.us-east-1.amazonaws.com/default/graphvizLambdaS3", {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
