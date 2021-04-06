@@ -298,7 +298,6 @@ self.deviceFullQuery = gql`query graphvizDeviceQuery($device_id: String!) {
         geospatial_data
         id
         import_source_url
-        implementation_target_rating
         last_modified_by
         last_modified_on
         name
@@ -498,7 +497,6 @@ self.projectFullQuery = gql`query graphvizProjectQuery($proj_id: String!) {
     geocode_cache
     geospatial_data
     id
-    implementation_target_rating
     import_source_url
     name
     last_modified_on
@@ -870,7 +868,6 @@ self.projectSearchQuery = gql`query graphVizProjectSearchQuery($searchString: St
     geocode_cache
     geospatial_data
     id
-    implementation_target_rating
     import_source_url
     name
     last_modified_on
@@ -1156,7 +1153,6 @@ self.orgFullQuery = gql`query graphvizOrgQuery($org_id: String!) {
         geospatial_data
         id
         import_source_url
-        implementation_target_rating
         last_modified_by
         last_modified_on
         name
@@ -1739,7 +1735,6 @@ self.functionFullQuery = gql`query graphvizFunctionQuery($function_id: String!) 
         geospatial_data
         id
         import_source_url
-        implementation_target_rating
         last_modified_by
         last_modified_on
         name
@@ -2136,7 +2131,6 @@ self.resourceFullQuery = gql`query graphvizResourceQuery($resource_id: String!) 
         geospatial_data
         id
         import_source_url
-        implementation_target_rating
         last_modified_by
         last_modified_on
         name
@@ -2674,7 +2668,6 @@ self.peopleFullQuery = gql`query graphvizPeopleQuery($person_id: String!) {
         geospatial_data
         id
         import_source_url
-        implementation_target_rating
         last_modified_by
         last_modified_on
         name

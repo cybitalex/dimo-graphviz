@@ -5,4 +5,4 @@ COPY . /app/
 RUN npm install
 
 
-CMD npm start
+CMD npm run server
