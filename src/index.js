@@ -2214,7 +2214,18 @@ function initGraphData() {
 
   if (vars["s3State"] != undefined){
     
-    fetch("https://dimo-graphviz-storage.s3.amazonaws.com/graphviz-states/"+vars["s3State"]).then(rdata => {
+     const requestBody = {"type":"GET","file":vars["s3State"]}
+
+     const jsonData = JSON.stringify(requestBody);
+
+    fetch("https://s3.dev.dimo.zone/", {
+          method: 'POST',
+          headers: {
+              'content-type': 'application/json',
+          },
+          body: jsonData,
+
+      }).then(rdata => {
 
       const jsonData = rdata.json().then(data => {
 
@@ -2753,16 +2764,19 @@ function getStateURL() {
   data.dimoAggregatesEdgeMap = dimoAggregatesEdgeMap
 
 
-  console.log("saveData",data);
-  const jsonData = JSON.stringify(data);
-      fetch("https://kipbd0b0l4.execute-api.us-east-1.amazonaws.com/default/graphvizLambdaS3", {
+  const requestBody = {"type":"POST","data":data}
+
+  const jsonData = JSON.stringify(requestBody);
+      fetch("https://s3.dev.dimo.zone/", {
           method: 'POST',
+          mode: 'cors',
           headers: {
               'Content-Type': 'application/json',
           },
           body: jsonData,
 
       }).then(data => {
+          console.log("data",data)
           const s3resp = data.json().then(s3data => {
           const url = window.location.origin + window.location.pathname + "?s3State=" + s3data.url
           window.prompt("Page URL",url);
